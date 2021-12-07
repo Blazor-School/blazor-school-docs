@@ -1,0 +1,167 @@
+<h1>Passive translation</h1>
+<p>Passive translation is one of the internationalization techniques. In passive translation, you have more control over the process of translating by directly interacting with the header of each request. The translation process automatically applies to text and formats (date time format, number format, etc...) to all pages. The only downside of this approach is the user is required to do a reload to see the translated page.</p>
+<p>In this guide, you will be covered on how to i18n your website with 3 methodologies for detecting the user's preferred language:</p>
+<ol>
+    <li>Language in cookies.</li>
+    <li>Language in URL.</li>
+    <li>Language in <code>Accept-Language</code> of the request header.</li>
+</ol>
+<blockquote>You can <a href="https://github.com/Blazor-School/passive-translation-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisites</h1>
+<p>To prepare your website for translations, you should have a basic understanding of the following subjects.</p>
+<ul>
+    <li><a href="/tutorial/blazor-server/dotnet5/routing-and-navigation-574891" title="Routing and Navigation">Routing and Navigation</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/internationalization-and-localization-611149" title="Internationalization and Localization">Internationalization and Localization</a>.</li>
+</ul>
+<hr class="my-4" />
+<h1>Using cookies to detect language</h1>
+<p>With this technique, you are going to introduce controller to Blazor Server. You must have a UI for the user to switch languages. Every time a user switches the language, you will redirect the request to the controller. Controller will change the language in the cookies and redirect the user to the current page causing a reload and the language will be updated also.</p>
+<h3>Introducing controller to Blazor Server</h3>
+<p>You first need to introduce the controller in <code>Startup.cs</code>.</p>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ....
+    services.AddControllers();
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseEndpoints(endpoints =&gt;
+    {
+        endpoints.MapControllers();
+        ...
+    });
+}</pre>
+<h3>Localize your website</h3>
+<p>Follow the section "Localization" in the guide <a href="/tutorial/blazor-server/dotnet5/internationalization-and-localization-611149" title="Internationalization and Localization">Internationalization and Localization</a>, and once you have done so, you should have a <strong>Resources</strong> folder that contains all the language files. The next step is to use the <strong>Resources</strong> folder in <code>Startup.cs</code>.</p>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddLocalization(options =&gt; options.ResourcesPath = "Resources");
+    services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+    {
+        options.AddSupportedCultures(new[] { "en", "fr" });
+        options.AddSupportedUICultures(new[] { "en", "fr" });
+        options.RequestCultureProviders = new List&lt;IRequestCultureProvider&gt;() { new CookieRequestCultureProvider() };
+    });
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseRequestLocalization();
+    ...
+}</pre>
+<p>The <code>AddSupportedCultures</code> will enable automatically applied formats like date time, currencies, etc... to your website. The <code>AddSupportedUICultures</code> will enable automatic applied translation of texts to your website. All 2 methods require a list of language codes that your website supports.</p>
+<p>You can also set the default language for your website by calling <code>options.SetDefaultCulture();</code>.</p>
+<pre class="code" language="csharp">services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+{
+    options.SetDefaultCulture("fr");
+    ...
+});</pre>
+<h3>Adding a switch language controller</h3>
+<p>To switch the language, you need to change the value of the cookies and you will need to delegate the change cookies value process to a controller. Create a new folder with the name <strong>Controllers</strong> and add a <code>CultureController.cs</code>.</p>
+<pre class="code" language="csharp">[Route("[controller]/[action]")]
+public class CultureController : Controller
+{
+    public IActionResult Set(string culture, string redirectUri)
+    {
+        if (culture is not null)
+        {
+            HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(new(culture, culture)));
+        }
+
+        return LocalRedirect(redirectUri);
+    }
+}</pre>
+<h3>Using <code>NavigationManager</code> to switch language</h3>
+<p>You need to use <code>NavigationManager</code> to navigate to the <code>CultureController</code> to switch the language. The following code is a demonstration about how to change the language.</p>
+<pre class="code" language="razor">@using Microsoft.Extensions.Localization
+@using System.Globalization
+
+&lt;select @onchange="OnChangeLanguage"&gt;
+    &lt;option value=""&gt;Select&lt;/option&gt;
+    &lt;option value="en"&gt;English&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+&lt;/select&gt;
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        var uri = new Uri(NavigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+        var culture = CultureInfo.GetCultureInfo(e.Value as string);
+        var cultureEscaped = Uri.EscapeDataString(culture.Name);
+        var uriEscaped = Uri.EscapeDataString(uri);
+
+        NavigationManager.NavigateTo($"Culture/Set?culture={cultureEscaped}&amp;redirectUri={uriEscaped}", forceLoad: true);
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Using URL to detect language</h1>
+<p>With this technique, you are showing the language in the address bar of the browser and the user can change it easily and can share the link with the language embedded in it. You are not required to provide a UI for the user to change the language.</p>
+<h3>Localize your website</h3>
+<p>Follow the section "Localization" in the guide <a href="/tutorial/blazor-server/dotnet5/internationalization-and-localization-611149" title="Internationalization and Localization">Internationalization and Localization</a>, and once you have done so, you should have a <strong>Resources</strong> folder that contains all the language files. The next step is to use the <strong>Resources</strong> folder in <code>Startup.cs</code>.</p>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddLocalization(options =&gt; options.ResourcesPath = "Resources");
+    services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+    {
+        options.AddSupportedCultures(new[] { "en", "fr" });
+        options.AddSupportedUICultures(new[] { "en", "fr" });
+        options.RequestCultureProviders = new List&lt;IRequestCultureProvider&gt;()
+        {
+            new QueryStringRequestCultureProvider()
+        };
+    });
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseRequestLocalization();
+    ...
+}</pre>
+<h3>Applying translation</h3>
+<p>Once you have localized your website, the next step is to apply the translation. You need to apply the translation in the first Razor Component called by <code>_Host.cshtml</code>. By default, it is <code>App.razor</code>.</p>
+<pre class="code" language="razor">@inject NavigationManager NavigationManager
+
+...
+
+@code {
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var urlParameters = HttpUtility.ParseQueryString(uri.Query);
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(urlParameters["culture"] ?? "en");
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(urlParameters["ui-culture"] ?? urlParameters["culture"] ?? "en");
+    }
+}</pre>
+<p>The example code extracts the <code>culture</code> and <code>ui-culture</code> key in the current url. If any, sets the respecitive culture as the current culture, if none, it will fall back to the <code>en</code> culture.</p>
+<p>The <code>culture</code> and <code>ui-culture</code> is the default key declared in <code>QueryStringRequestCultureProvider</code> you have registered at <code>Startup.cs</code>. You can also specify other keys in <code>Startup.cs</code> and use it in <code>App.razor</code>.</p>
+<p>After you have applied the translation in <code>Startup.cs</code> you can include the <code>culture</code> and <code>ui-culture</code> in URL to change the language. For example: <strong>http://localhost:5283/i18n?culture=fr</strong>, <strong>http://localhost:5283/i18n</strong>, <strong>http://localhost:5283/i18n?culture=en</strong>. Remember to force reload the page when users change the language.</p>
+<hr class="my-4" />
+<h1>Using request headers to detect language</h1>
+<p>With this technique, you are using the browser's settings to determine the language for the website. The language is automatically selected and you cannot control what language to show.</p>
+<h3>Localize your website</h3>
+<p>Follow the section "Localization" in the guide <a href="/tutorial/blazor-server/dotnet5/internationalization-and-localization-611149" title="Internationalization and Localization">Internationalization and Localization</a>, and once you have done so, you should have a <strong>Resources</strong> folder that contains all the language files. The next step is to use the <strong>Resources</strong> folder in <code>Startup.cs</code>.</p>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddLocalization(options =&gt; options.ResourcesPath = "Resources");
+    services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+    {
+        options.AddSupportedCultures(new[] { "en", "fr" });
+        options.AddSupportedUICultures(new[] { "en", "fr" });
+        options.RequestCultureProviders = new List&lt;IRequestCultureProvider&gt;()
+        {
+            new AcceptLanguageHeaderRequestCultureProvider()
+        };
+    });
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseRequestLocalization();
+    ...
+}</pre>
+<p>To change the language, change your browser website's preferred language.</p>

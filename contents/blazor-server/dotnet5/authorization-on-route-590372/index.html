@@ -41,7 +41,7 @@
 </div>
 <hr class="my-4" />
 <h1>Setting up the authorization</h1>
-<p>In order to have the authorization, you need to setup the <code>AuthenticationStateProvider</code> first, see <a href="/tutorial/blazor-server/authorization-and-authentication-969387" title="Authentication and authorization">Authentication and authorization</a>. The next step is to replace the <code>RouteView</code> component with <code>AuthorizeRouteView</code> component in <code>App.razor</code>.</p>
+<p>In order to have the authorization, you need to setup the <code>AuthenticationStateProvider</code> first, see <a href="/tutorial/blazor-server/dotnet5/authorization-and-authentication-969387" title="Authentication and authorization">Authentication and authorization</a>. The next step is to replace the <code>RouteView</code> component with <code>AuthorizeRouteView</code> component in <code>App.razor</code>.</p>
 <pre class="code" language="razor">&lt;Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true"&gt;
     &lt;Found Context="routeData"&gt;
         &lt;AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"&gt;

@@ -1,0 +1,393 @@
+<h1>Reactive translation</h1>
+<p>Reactive translation is one of the internationalization techniques. Reactive translation provides the best user experience because it does not require the user to reload the page. The translation process automatically applies to text and formats (date time format, number format, etc...) to all pages.</p>
+<p>In this guide, you will be covered on how to i18n your website with 2 methodologies for detecting the user's preferred language:</p>
+<ol>
+    <li>Language in cookies.</li>
+    <li>Language in URL.</li>
+</ol>
+<blockquote>You can <a href="https://github.com/Blazor-School/reactive-translation-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisites</h1>
+<p>To prepare your website for translations, you should have a basic understanding of the following subjects.</p>
+<ul>
+    <li><a href="/tutorial/blazor-server/dotnet5/routing-and-navigation-574891" title="Routing and Navigation">Routing and Navigation</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/internationalization-and-localization-611149" title="Internationalization and Localization">Internationalization and Localization</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/javascript-interaction-567632">JavaScript Interaction</a>.</li>
+</ul>
+<hr class="my-4" />
+<h1>Using cookies to detect language</h1>
+<p>With this technique, the selected language will be stored on the cookies of the browser, you are going to use JavaScript to change the cookies.The reason is Blazor Server is an SPA framework. Therefore, the users only send one initial request to the server and you cannot modify the cookies based on that request unlike the <a href="/tutorial/blazor-server/dotnet5/passive-translation-796391">Passive translation</a> technique.</p>
+<h3>Customizing <code>IStringLocalizer</code></h3>
+<p>You first need to customize the <code>IStringLocalizer</code> because later on, you will have a customized <code>RequestCultureProvider</code>. Create a new class <code>BlazorSchoolStringLocalizer</code> as follows:</p>
+<pre class="code" language="csharp">public class BlazorSchoolStringLocalizer&lt;TComponent&gt; : IStringLocalizer&lt;TComponent&gt;
+{
+    private readonly IOptions&lt;LocalizationOptions&gt; _localizationOptions;
+
+    public LocalizedString this[string name] =&gt; FindLocalziedString(name);
+    public LocalizedString this[string name, params object[] arguments] =&gt; FindLocalziedString(name, arguments);
+
+    public BlazorSchoolStringLocalizer(IOptions&lt;LocalizationOptions&gt; localizationOptions)
+    {
+        _localizationOptions = localizationOptions;
+    }
+
+    public IEnumerable&lt;LocalizedString&gt; GetAllStrings(bool includeParentCultures)
+    {
+        var resourceManager = CreateResourceManager();
+        var result = new List&lt;LocalizedString&gt;();
+
+        try
+        {
+            var resourceSet = resourceManager.GetResourceSet(CultureInfo.CurrentCulture, true, true);
+            result = resourceSet.Cast&lt;DictionaryEntry&gt;().Select(item =&gt;
+                    new LocalizedString((string)item.Key, (string)item.Value, false, GetResourceLocaltion()))
+                .ToList();
+        }
+        catch
+        {
+            result.Add(new("", "", true, GetResourceLocaltion()));
+        }
+
+        return result;
+    }
+
+    private LocalizedString FindLocalziedString(string name, object[] arguments = null)
+    {
+        var resourceManager = CreateResourceManager();
+        LocalizedString result;
+
+        try
+        {
+            string value = resourceManager.GetString("Name");
+
+            if (arguments is not null)
+            {
+                value = string.Format(value, arguments);
+            }
+
+            result = new(name, value, false, GetResourceLocaltion());
+        }
+        catch
+        {
+            result = new(name, "", true, GetResourceLocaltion());
+        }
+
+        return result;
+    }
+
+    private ResourceManager CreateResourceManager()
+    {
+        string resourceLocaltion = GetResourceLocaltion();
+        var resourceManager = new ResourceManager(resourceLocaltion, Assembly.GetExecutingAssembly());
+
+        return resourceManager;
+    }
+
+    private string GetResourceLocaltion()
+    {
+        var componentType = typeof(TComponent);
+        var nameParts = componentType.FullName.Split('.').ToList();
+        nameParts.Insert(1, _localizationOptions.Value.ResourcesPath);
+        string resourceLocaltion = string.Join(".", nameParts);
+
+        return resourceLocaltion;
+    }
+}</pre>
+<p>The <code>BlazorSchoolStringLocalizer</code> will read the settings from <code>LocalizationOptions</code>, create a <code>ResourceManager</code> and provide the translation text.</p>
+<h3>Customizing <code>RequestCultureProvider</code></h3>
+<p>You need to create a custom <code>RequestCultureProvider</code> and use this class as a culture determination on your website, this class will take the culture in cookies and decide which culture to show on the screen. Create a new class&nbsp;<code>BlazorSchoolRequestCultureProvider</code> as follows:</p>
+<pre class="code" language="csharp">public class BlazorSchoolRequestCultureProvider : RequestCultureProvider
+{
+    public string DefaultCulture { get; set; }
+
+    public BlazorSchoolRequestCultureProvider(string defaultCulture)
+    {
+        DefaultCulture = defaultCulture;
+    }
+
+    public override Task&lt;ProviderCultureResult&gt; DetermineProviderCultureResult(HttpContext httpContext)
+    {
+        string inputCulture = httpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName];
+        var result = CookieRequestCultureProvider.ParseCookieValue(inputCulture);
+
+        if (result is null)
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(DefaultCulture);
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(DefaultCulture);
+            result = new(DefaultCulture);
+        }
+        else
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(result.Cultures.First().Value);
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(result.UICultures.First().Value);
+        }
+
+        return Task.FromResult(result);
+    }
+}</pre>
+<p>This class also has a default culture and later on you can change its default in <code>Startup.cs</code>.</p>
+<h3>Localize your website</h3>
+<p>Follow the section "Localization" in the guide <a href="/tutorial/blazor-server/dotnet5/internationalization-and-localization-611149" title="Internationalization and Localization">Internationalization and Localization</a>, and once you have done so, you should have a <strong>Resources</strong> folder that contains all the language files. The next step is to use the <strong>Resources</strong> folder in <code>Startup.cs</code>.</p>
+<pre class=" code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddLocalization(options =&gt; options.ResourcesPath = "Resources");
+    services.AddScoped(typeof(IStringLocalizer&lt;&gt;), typeof(BlazorSchoolStringLocalizer&lt;&gt;));
+    services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+    {
+        options.AddSupportedCultures(new[] { "en", "fr" });
+        options.AddSupportedUICultures(new[] { "en", "fr" });
+        options.RequestCultureProviders = new List&lt;IRequestCultureProvider&gt;()
+        {
+            new BlazorSchoolRequestCultureProvider("en")
+        };
+    });
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    app.UseRequestLocalization();
+    ...
+}</pre>
+<h3>Adding JS to update cookies</h3>
+<div>You will need to manipulate cookies using JavaScript as mentioned at the beginning, Blazor Server is a SPA framework and only send 1 initilializing request. Therefore, you cannot modify this request since it's already been sent. The purpose of manipulating the cookies for storing selected language for later visit or to open multiple tabs with the same language. Add a new JS file <code>BlazorUtil.js</code> as follows:</div>
+<pre class="code" language="javascript">class BlazorUtil
+{
+    addCookies(key, value)
+    {
+        document.cookie = `${key}=${value}`;
+    }
+}
+
+window.BlazorUtil = new BlazorUtil();</pre>
+<p>Then, include it in the <code>_Host.cshtml</code>.</p>
+<pre class="code" language="razor">...
+&lt;body&gt;
+    ...
+    &lt;script src="~/js/BlazorUtil.js" type="text/javascript"&gt;&lt;/script&gt;
+    &lt;script src="_framework/blazor.server.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+...</pre>
+<h3>Changing the language</h3>
+<p>To change the language, you need to change the <code>CultureInfo.CurrentCulture</code> and <code>CultureInfo.CurrentUICulture</code> to change the current language. Then call the <code>BlazorUtil.addCookies(key, value)</code> to store the selected language in the cookies for later use. You can see our example at <code>I18N.razor</code>. The following code is a snippet taken from our example.</p>
+<pre class="code" language="razor">&lt;select @onchange="OnChangeLanguage"&gt;
+    &lt;option value=""&gt;Select&lt;/option&gt;
+    &lt;option value="en"&gt;English&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+&lt;/select&gt;
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo((string)e.Value);
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo((string)e.Value);
+        JSRuntime.InvokeVoidAsync("BlazorUtil.addCookies", CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(
+            new(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture)));
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Using URL to detect language</h1>
+<p>With this technique, Blazor Server will determine the language displayed on the website by the requested URL. Every component has to subscribe to the <code>NavigationManager.LocationChanged</code> event and call <code>StateHasChanged()</code> when the <code>LocationChanged</code> occurs.</p>
+<h3>Customizing <code>LocalizationOptions</code></h3>
+<div>By default, the <code>LocalizationOptions</code> only allow you to set the Resource folder, you will also need to add a default language to this options because later on, you will re-use the default language in <code>App.razor</code>. You can create a new class to customize <code>LocalizationOptions</code> as follows:</div>
+<pre class="code" language="csharp">public class BlazorSchoolLocalizationOptions : LocalizationOptions
+{
+    public string DefaultLanguage { get; set; }
+}</pre>
+<h3>Customizing <code>IStringLocalizer</code></h3>
+<p>Just like the cookies appoach, you will need to have a customize <code>IStringLocalizer</code>. Create a new class <code>BlazorSchoolStringLocalizer</code> as follows:</p>
+<pre class="code" language="csharp">public class BlazorSchoolStringLocalizer&lt;TComponent&gt; : IStringLocalizer&lt;TComponent&gt;
+{
+    private readonly IOptions&lt;BlazorSchoolLocalizationOptions&gt; _localizationOptions;
+
+    public LocalizedString this[string name] =&gt; FindLocalziedString(name);
+    public LocalizedString this[string name, params object[] arguments] =&gt; FindLocalziedString(name, arguments);
+
+    public BlazorSchoolStringLocalizer(IOptions&lt;BlazorSchoolLocalizationOptions&gt; localizationOptions)
+    {
+        _localizationOptions = localizationOptions;
+    }
+
+    public IEnumerable&lt;LocalizedString&gt; GetAllStrings(bool includeParentCultures)
+    {
+        var resourceManager = CreateResourceManager();
+        var result = new List&lt;LocalizedString&gt;();
+
+        try
+        {
+            var resourceSet = resourceManager.GetResourceSet(CultureInfo.CurrentCulture, true, true);
+            result = resourceSet.Cast&lt;DictionaryEntry&gt;().Select(item =&gt;
+                    new LocalizedString((string)item.Key, (string)item.Value, false, GetResourceLocaltion()))
+                .ToList();
+        }
+        catch
+        {
+            result.Add(new("", "", true, GetResourceLocaltion()));
+        }
+
+        return result;
+    }
+
+    private LocalizedString FindLocalziedString(string name, object[] arguments = null)
+    {
+        var resourceManager = CreateResourceManager();
+        LocalizedString result;
+
+        try
+        {
+            string value = resourceManager.GetString("Name");
+
+            if (arguments is not null)
+            {
+                value = string.Format(value, arguments);
+            }
+
+            result = new(name, value, false, GetResourceLocaltion());
+        }
+        catch
+        {
+            result = new(name, "", true, GetResourceLocaltion());
+        }
+
+        return result;
+    }
+
+    private ResourceManager CreateResourceManager()
+    {
+        string resourceLocaltion = GetResourceLocaltion();
+        var resourceManager = new ResourceManager(resourceLocaltion, Assembly.GetExecutingAssembly());
+
+        return resourceManager;
+    }
+
+    private string GetResourceLocaltion()
+    {
+        var componentType = typeof(TComponent);
+        var nameParts = componentType.FullName.Split('.').ToList();
+        nameParts.Insert(1, _localizationOptions.Value.ResourcesPath);
+        string resourceLocaltion = string.Join(".", nameParts);
+
+        return resourceLocaltion;
+    }
+}</pre>
+<h3>Customizing <code>RequestCultureProvider</code></h3>
+<p>You also need to customize the <code>RequestCultureProvider</code>. This class will take the requested URL and parse the language for the initial request. Create a new class <code>BlazorSchoolRequestCultureProvider</code> as follows:</p>
+<pre class="code" language="csharp">public class BlazorSchoolRequestCultureProvider : RequestCultureProvider
+{
+    private readonly BlazorSchoolLocalizationOptions _localizationOptions;
+    private string _selectedLanguage { get; set; }
+
+    public BlazorSchoolRequestCultureProvider(BlazorSchoolLocalizationOptions localizationOptions)
+    {
+        _localizationOptions = localizationOptions;
+    }
+
+    public override Task&lt;ProviderCultureResult&gt; DetermineProviderCultureResult(HttpContext httpContext)
+    {
+        if (httpContext.Request.Headers["Sec-Fetch-Dest"] == "document")
+        {
+            var query = httpContext.Request.Query;
+            string selectedLanguage = query["language"].ToString() ?? _localizationOptions.DefaultLanguage;
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(selectedLanguage);
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(selectedLanguage);
+            var result = new ProviderCultureResult(selectedLanguage);
+
+            _selectedLanguage = selectedLanguage;
+
+            return Task.FromResult(result);
+        }
+        else
+        {
+            return Task.FromResult(new ProviderCultureResult(_selectedLanguage));
+        }
+    }
+}</pre>
+<p>In our example, we use <code>language</code> as the parameter name for the language in the URL, you can also change this parameter name.</p>
+<h3>Subscribing <code>NavigationManager.LocationChanged</code> event</h3>
+<p>The <code>BlazorSchoolRequestCultureProvider</code> only provides the language for the initial request. Blazor Server is a SPA framework and therefore, there is only one request. You need to subscribe to the <code>NavigationManager.LocationChanged</code> event to detect if the user has chosen a new language. You need to subscribe to the event in the first Razor Component called by <code>_Host.cshtml</code>. By default, it is <code>App.razor</code>.</p>
+<pre class="code" language="razor">@using System.Globalization
+@using System.Web;
+@using ReactiveI18NUrlBlazorServer.Data
+@using Microsoft.Extensions.Options 
+@inject NavigationManager NavigationManager
+@inject IOptions&lt;BlazorSchoolLocalizationOptions&gt; BlazorSchoolLocalizationOptions
+@implements IDisposable
+
+...
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += DetermineLanguage;
+    }
+
+    private void DetermineLanguage(object sender, LocationChangedEventArgs e)
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var urlParameters = HttpUtility.ParseQueryString(uri.Query);
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(urlParameters["language"] ?? BlazorSchoolLocalizationOptions.Value.DefaultLanguage);
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(urlParameters["language"] ?? BlazorSchoolLocalizationOptions.Value.DefaultLanguage);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= DetermineLanguage;
+    }
+}</pre>
+<h3>Localize your website</h3>
+<p>Follow the section "Localization" in the guide <a href="/tutorial/blazor-server/dotnet5/internationalization-and-localization-611149" title="Internationalization and Localization">Internationalization and Localization</a>, and once you have done so, you should have a <strong>Resources</strong> folder that contains all the language files. The next step is to use the <strong>Resources</strong> folder in <code>Startup.cs</code>.</p>
+<pre class=" code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.Configure&lt;BlazorSchoolLocalizationOptions&gt;(options =&gt;
+    {
+        options.ResourcesPath = "Resources";
+        options.DefaultLanguage = "en";
+    });
+    services.AddScoped(typeof(IStringLocalizer&lt;&gt;), typeof(BlazorSchoolStringLocalizer&lt;&gt;));
+    services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+    {
+        options.AddSupportedCultures(new[] { "en", "fr" });
+        options.AddSupportedUICultures(new[] { "en", "fr" });
+        options.RequestCultureProviders = new List&lt;IRequestCultureProvider&gt;()
+        {
+            new BlazorSchoolRequestCultureProvider(Configuration.Get&lt;BlazorSchoolLocalizationOptions&gt;())
+        };
+    });
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    ...
+    app.UseRequestLocalization();
+    app.UseStaticFiles();
+    app.UseRouting();
+    ...
+}</pre>
+<h3>Applying in a component</h3>
+<p>The final step is to apply to a component. Subscribe to the <code>NavigationManager.LocationChanged</code> event and re-render the component every time the event is fired, also remember to unsubscribe from the event when the component is being disposed.</p>
+<pre class="code" language="razor">@using Microsoft.Extensions.Localization
+@using System.Globalization
+@inject IStringLocalizer&lt;I18N&gt; Localizer
+@inject NavigationManager NavigationManager
+
+&lt;h3&gt;@Localizer["Name"]&lt;/h3&gt;
+
+@code {
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += Render;
+    }
+
+    private void Render(object sender, LocationChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= Render;
+    }
+}</pre>
+<p>Once you have applied to your component, you can navigate to your component and include <code>language</code> to change the language. For example, <strong>http://localhost:5283/i18n?language=fr</strong>, <strong>http://localhost:5283/i18n</strong>, <strong>http://localhost:5283/i18n?language=en</strong>.</p>

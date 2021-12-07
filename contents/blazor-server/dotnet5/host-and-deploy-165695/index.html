@@ -1,0 +1,18 @@
+<h1>Hosting and Deployment</h1>
+<p>Blazor Server is built on top of .NET Core, .NET Core is a cross platform framework. Taking advantage of .NET Core, Blazor Server websites can be hosted on both Linux and Windows OS. Regardless of the hosting OS, Blazor Server websites have 2 hosting models: Forward Proxy and Reverse Proxy.</p>
+<p>Kestrel is a cross platform, default server for Blazor Server. The following image illustrates the relationship between Blazor Server and Kestrel.</p>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\host-and-deploy-165695\9db946ee-4420-4b44-a3a0-4a5d04e44a65..png" alt="Blazor Server deployment model" width="1945" height="329" /></p>
+<p>Kestrel (or another hosting server) will take <code>Program.cs</code> as the entry point for Blazor Server, then in the <code>Program.cs</code> will use <code>Startup.cs</code> by default to set up the environment. You can change the <code>Startup.cs</code> to another <code>Startup</code> class based on your needs. In most cases, you don't need to create another <code>Startup</code> class.</p>
+<h1>Forward Proxy hosting</h1>
+<p>For simple websites, Forward Proxy hosting is the best choice because of the simplication when deploying a website. This image illustrates the Forward Proxy hosting model with Kestrel server.</p>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\host-and-deploy-165695\f2e60cd8-3b1b-438d-81be-2c88228665f1..png" alt="" width="1649" height="430" /></p>
+<p>In this hosting model, the Kestrel server must be bound directly to port 80 for HTTP protocol and 443 for HTTPS protocol. Any requests coming from the internet will call Kestrel directly to get a response.</p>
+<h1>Reverse Proxy hosting</h1>
+<p>For complicated websites, the Forward Proxy hosting model does not sustain the situation. You need to set up a Reverse Proxy hosting when:</p>
+<ul>
+    <li>There is a risk of attacks like DDos.</li>
+    <li>Port 80/443 are being used by another server.</li>
+    <li>Load balancing.</li>
+</ul>
+<p>This image illustrates the Reverse Proxy hosting model with Kestrel server.</p>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\host-and-deploy-165695\2c577d17-bfbd-47ec-8aa9-8cb3156f68b4..png" alt="" width="1942" height="372" /></p>
