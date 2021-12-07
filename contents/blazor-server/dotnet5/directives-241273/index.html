@@ -1,0 +1,112 @@
+<h1>Directives on Blazor Server</h1>
+<p>Directives are special keywords that come after the "@" symbol that adds additional behaviour to elements on your Blazor Server website. With Blazor Server's built-in directives, you can manage many aspects of user interactions. Some of the common uses of directives are:</p>
+<ul>
+    <li>Routing.</li>
+    <li>Implement interface.</li>
+    <li>Dependency injection.</li>
+    <li>Import namespaces.</li>
+</ul>
+<blockquote><a href="https://github.com/Blazor-School/directive-example-blazor-server" title="Blazor Server directive example">Download the example</a> for a working example containing the code snippets in this guide.</blockquote>
+<p>The different types of Blazor Server directives are as follows:</p>
+<ol>
+    <li>Compiling directives. This type of directive manipulates how a Razor Component is compiled.</li>
+    <li>DOM interactive directives. This type of directive binds properties to elements and interacts with the DOM element.</li>
+    <li>Utilities directives. This type of directive adds various features to a component and makes components more useful.</li>
+</ol>
+<blockquote>Note: In .NET 5, directives are not customizable or creatable. You can only use pre-built directives but not customize them or create your own directives.</blockquote>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Directive identifier</th>
+                <th class="text-center" scope="col">Description</th>
+                <th class="text-center" scope="col">Type</th>
+            </tr>
+            <tr>
+                <td>@attribute</td>
+                <td>Attach a dictionary of attributes to the element</td>
+                <td>DOM interactive</td>
+            </tr>
+            <tr>
+                <td>@on<strong>&lt;event&gt;</strong></td>
+                <td>Attach the event handlers to the element's event</td>
+                <td>DOM interactive</td>
+            </tr>
+            <tr>
+                <td>@<strong>&lt;C#-keyword&gt;</strong>, @{<strong>&lt;C# Code&gt;</strong>},@(<strong>&lt;C# Code&gt;</strong>)</td>
+                <td>Inject C# code to HTML template</td>
+                <td>Utilities</td>
+            </tr>
+            <tr>
+                <td>@bind-&lt;attribute&gt;:&lt;event&gt;</td>
+                <td>Create a 2-ways binding to an element attribute</td>
+                <td>DOM interactive</td>
+            </tr>
+            <tr>
+                <td>@key</td>
+                <td>Set a unique identifier for an element</td>
+                <td>DOM interactive</td>
+            </tr>
+            <tr>
+                <td>@ref</td>
+                <td>Refer the element to an C# instance</td>
+                <td>DOM interactive</td>
+            </tr>
+            <tr>
+                <td>@inherits</td>
+                <td>Specify the base class for a component</td>
+                <td>Compiling</td>
+            </tr>
+            <tr>
+                <td>@inject</td>
+                <td>Inject an instance into a component</td>
+                <td>Utilities</td>
+            </tr>
+            <tr>
+                <td>@namespace</td>
+                <td>Specify the namespace for a component</td>
+                <td>Compiling</td>
+            </tr>
+            <tr>
+                <td>@implements</td>
+                <td>Specify the interface for a component</td>
+                <td>Compiling</td>
+            </tr>
+            <tr>
+                <td>@page</td>
+                <td>Specify the route and parameter to a component</td>
+                <td>Utilities</td>
+            </tr>
+            <tr>
+                <td>@preservewhitespace</td>
+                <td>Remove all redundant white spaces from an element</td>
+                <td>Compiling</td>
+            </tr>
+            <tr>
+                <td>@section</td>
+                <td>Not apply for Blazor Server</td>
+                <td>N/A</td>
+            </tr>
+            <tr>
+                <td>@typeparam</td>
+                <td>Specify a generic class for a component</td>
+                <td>Compiling</td>
+            </tr>
+            <tr>
+                <td>@functions</td>
+                <td>Deprecated, use @code instead</td>
+                <td>N/A</td>
+            </tr>
+            <tr>
+                <td>@code</td>
+                <td>Attach a dictionary of attributes to the element</td>
+                <td>DOM interactive</td>
+            </tr>
+            <tr>
+                <td>@layout</td>
+                <td>Specify the layout for a component</td>
+                <td>Compiling</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

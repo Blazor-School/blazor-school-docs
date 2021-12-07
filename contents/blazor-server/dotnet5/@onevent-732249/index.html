@@ -1,0 +1,47 @@
+<h1>@on&lt;event&gt;</h1>
+<p>React to HTML events. HTML events are <strong>"things"</strong> that happen to HTML elements. When @on&lt;event&gt; is used, Blazor Server can <strong>"react"</strong> on these events.</p>
+<p>There are 2 ways to create an event handler for an element, with or without a delegate.</p>
+<hr class="my-4" />
+<h1>Event handler without delegate</h1>
+<p>Without a delegate, you will not be able to pass the event argument or parameter to the event handler but the syntax is simpler.</p>
+<p>For example, if you want to handle the click event, you can use the <code>@onclick</code> directive and assign it to a method without any param.</p>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+
+&lt;button @onclick="OnClick"&gt;Click me&lt;/button&gt;
+
+@code {
+    private async void OnClick()
+    {
+        await JSRuntime.InvokeVoidAsync("alert","Blazor School https://blazorschool.com");
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Event handler with a delegate</h1>
+<p>With a delegate, you will be able to get the event argument and can pass parameters to the event handler.</p>
+<h3>Get the event argument</h3>
+<p>To get the event argument, you just need to create a lambda with one argument and pass it to the event handler.</p>
+<p>For example, if you want to handle the <code>oninput</code> event, you can use the <code>@oninput</code> directive as follows:</p>
+<pre class="code" language="razor">&lt;input @oninput="(e) =&gt; OnInput(e)" /&gt;
+
+@code {
+    private void OnInput(ChangeEventArgs eventArgs)
+    {
+        LastKey = eventArgs.Value.ToString().LastOrDefault();
+    }
+}</pre>
+<p>Every <code>@on&lt;event&gt;</code> directive has different arguments. You will have a better look for each event later on. In this example, the <code>@oninput</code> uses <code>ChangeEventArgs</code> as the event argument.</p>
+<h3>Pass parameters to the event handler</h3>
+<p>To pass the parameter to the event handler, you will also need to create a lambda and pass the parameter to the event handler.</p>
+<p>For example, if you want to handle the <code>onkeydown</code> event, you can use the <code>@onkeydown</code> directive as follows:</p>
+<pre class="code" language="razor">&lt;input @onkeydown=&quot;() =&gt; OnKeyDown(Random.Next(0,100))&quot; /&gt;
+&lt;span&gt;Custom Parameter: @CustomParameter&lt;/span&gt;
+
+@code {
+    private int CustomParameter;
+    private Random Random = new();
+
+    private void OnKeyDown(int parameter)
+    {
+        CustomParameter = parameter;
+    }
+}</pre>

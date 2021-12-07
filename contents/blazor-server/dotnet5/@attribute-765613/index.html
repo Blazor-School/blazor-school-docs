@@ -1,0 +1,31 @@
+<h1>@attribute in an HTML element</h1>
+<p>Attach a dictionary of attributes to the element.</p>
+<h3>Example</h3>
+<pre class="code" language="razor">&lt;h3 @attributes="Dictionary"&gt;Attribute&lt;/h3&gt;
+
+@code {
+    Dictionary&lt;string, object&gt; Dictionary = new Dictionary&lt;string, object&gt;()
+    {
+        { "example","true" },
+        { "score", 10 },
+        { "object", new
+            {
+                Number = 100, 
+                Text = "Test"
+            }
+        }
+    };
+}</pre>
+<h3>Rendered HTML</h3>
+<pre class="code" language="html">&lt;h3 example="true" score="10" object="{ Number = 100, Text = Test }"&gt;Attribute&lt;/h3&gt;</pre>
+<hr class="my-4" />
+<h1>@attribute in directive section</h1>
+<p>Set an attribute for a component.</p>
+<h3>Example</h3>
+<pre class="code" language="razor">@attribute [Route("/attribute-in-directive-section")]
+
+&lt;h3&gt;AttributeInDirectiveSection&lt;/h3&gt;</pre>
+<p>Will equalize to</p>
+<pre class="code" language="razor">@page "/attribute-in-directive-section"
+
+&lt;h3&gt;AttributeInDirectiveSection&lt;/h3&gt;</pre>

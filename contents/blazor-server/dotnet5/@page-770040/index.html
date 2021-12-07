@@ -1,0 +1,15 @@
+<h1>@page</h1>
+<p>Define routing for a component. The route must start with a forward splash (/).</p>
+<hr class="my-4" />
+<h1>Example</h1>
+<pre class="code" language="razor">@page "/page"
+@page "/page/link-2"
+@page "/page/link-3"
+@page "/page/link-3/child-1"
+@page "/page/link-3/child-2"
+
+&lt;NavLink href="page"&gt;Link 1&lt;/NavLink&gt;
+&lt;NavLink href="page/link-2"&gt;Link 2&lt;/NavLink&gt;
+&lt;NavLink href="page/link-3"&gt;Link 3&lt;/NavLink&gt;
+&lt;NavLink href="page/link-3/child-1"&gt;Link 3.1&lt;/NavLink&gt;
+&lt;NavLink href="page/link-3/child-2"&gt;Link 3.2&lt;/NavLink&gt;</pre>
