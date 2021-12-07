@@ -1,0 +1,177 @@
+<h1>Managing data</h1>
+<p>This guide builds on the third step of the <a href="/tutorial/blazor-server/dotnet5/getting-started-788874" title="Getting Started with Blazor Server">Getting Started</a> tutorial, <a href="/tutorial/blazor-server/dotnet5/passing-data-to-child-component-686232" title="Passing Data to child component">Passing Data to child component</a>, and <a href="/tutorial/blazor-server/dotnet5/adding-navigation-189791" title="Adding navigation in Blazor Server">Adding Navigation</a>. At this stage of development, the online shop has a product list and the user can navigate to the product list and from the product list the user can also go to the check-out page.</p>
+<p>This step of the tutorial guides you through creating a shopping cart in the following phases:</p>
+<ul>
+    <li>Implement the purchase feature</li>
+    <li>Implement the cart system.</li>
+    <li>Show the cart item on the check-out page</li>
+</ul>
+<hr class="my-4" />
+<h1>Create the product service</h1>
+<p>In Blazor Server, a service is an instance of a class that you can make available anywhere on your website using Blazor Server's dependency injection system.</p>
+<p>Currently, the product list is only on the product list page and if the check-out page needs to display some of the product then it is not possible.</p>
+<p>The next step is to build a way for the website to share the product list so that both product list page and check-out page can access the product list. This section will walk you through adding a product service to share the list of products.</p>
+<h3>Define a product service</h3>
+<ol>
+    <li>Add a new class to the <code>Data</code> folder named <code>ProductService.cs</code>, as follows:</li>
+</ol>
+<pre class="code" language="csharp">public class ProductService
+{
+    private readonly List&lt;Product&gt; _products;
+
+    public ProductService()
+    {
+        _products = new()
+        {
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Name = "All roads lead to Blazor Server",
+                Description = "A tutorial book for Blazor Server technology"
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Name = "All roads lead to Blazor WASM",
+                Description = "A tutorial book for Blazor WASM technology."
+            },
+            new()
+            {
+                Id = Guid.NewGuid(),
+                Name = "How to be a good web programmer?",
+                Description = "Follow the journey of a programmer."
+            }
+        };
+    }
+
+    public List&lt;Product&gt; GetAllProducts()
+    {
+        return _products;
+    }
+}</pre>
+<ol start="2">
+    <li>Register <code>ProductService</code> in <code>Startup.cs</code>. To do that, go to the <code>Startup.cs</code> and look for the <code>ConfigureServices</code> method, register <code>ProductService</code>, as follows:</li>
+</ol>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    services.AddRazorPages();
+    services.AddServerSideBlazor();
+    services.AddSingleton&lt;ProductService&gt;();
+}</pre>
+<p><code>ProductService</code> will serve as a data provider and the data will be stored in a database. Right now, you need to declare <code>ProductService</code> as a singleton because singleton services will serve the same data on the entire website so that you can simulate the data from the database.</p>
+<h3>Use the product service</h3>
+<p>This section will walk you through using the <code>ProductService</code> to provide data for the product list page.</p>
+<ol>
+    <li>Navigate to the <code>ProductList.razor</code> and inject the <code>ProductService</code> into by adding the following code to the top of the page.</li>
+</ol>
+<pre class="code" language="razor">@inject ProductService ProductService</pre>
+<p>The <code>@inject</code> directive takes 2 arguments: the first is the <strong>class name</strong> and the second is the <strong>instance name</strong> of the injecting instance. In this case, you are injecting the <code>ProductService</code> and calling it as <code>ProductService</code>. It is a good practice to have the same instance name and class name of the injecting instance. The next step is to get the data from <code>ProductService</code>.</p>
+<ol start="2">
+    <li>Use the <code>ProductService</code> to provide data for the product list page. Update the <code>@code{}</code> section of the <code>ProductList.razor</code> as follows:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    private List&lt;Product&gt; Products;
+
+    protected override void OnInitialized()
+    {
+        Products = ProductService.GetAllProducts();
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Create the cart service</h1>
+<div>The next step is to build a way for users to add products to a cart. This section walks you through implementing a <strong>Buy</strong> button and setting up a cart service to store information about products in the cart.</div>
+<h3>Define a cart service</h3>
+<ol>
+    <li>Add a new class to the <code>Data</code> folder named <code>CartService.cs</code>, as follows:</li>
+</ol>
+<pre class="code" language="csharp">public class CartService
+{
+    private readonly List&lt;Product&gt; _items;
+
+    public CartService()
+    {
+        _items = new();
+    }
+
+    public void AddToCart(Product item)
+    {
+        _items.Add(item);
+    }
+
+    public List&lt;Product&gt; GetProductsInCart()
+    {
+        return _items;
+    }
+}</pre>
+<ol start="2">
+    <li>Register the <code>CartService</code> in <code>Startup.cs</code> as follows:</li>
+</ol>
+<pre class="code" language="csharp">services.AddScoped&lt;CartService&gt;();</pre>
+<p><code>CartService</code> will serve data differently for each customer so you will register the <code>CartService</code> as a scoped service. We will have a deeper look at all types of services later.</p>
+<h3>Use the cart service</h3>
+<p>This section will walk you through using the <code>CartService</code> to add a product to the cart.</p>
+<ol>
+    <li>In <code>ProductDetail.razor</code>, inject the CartService.</li>
+</ol>
+<pre class="code" language="razor">@inject CartService CartService</pre>
+<ol start="2">
+    <li>Implement the Buy method in <code>@code{}</code> section, which adds the current product to the cart.</li>
+</ol>
+<pre class="code" language="csharp">private void Buy()
+{
+    CartService.AddToCart(Product);
+}</pre>
+<hr class="my-4" />
+<h1>Create the checkout view</h1>
+<p>For customers to checkout, they need to see their cart, you can create the checkout view in two steps:</p>
+<ol>
+    <li>Create a checkout component and configure routing to the new component.</li>
+    <li>Display the items in the cart.</li>
+</ol>
+<h3>Set up the checkout component</h3>
+<p>To create the checkout view, follow the same steps you did to create the <code>ProductDetail.razor</code> and configure routing for the new component.</p>
+<ol>
+    <li>Generate a checkout component named <code>Checkout.razor</code> by right-clicking the <code>Pages</code> folder, choosing <strong>Add</strong>, and <strong>Razor Component</strong>.</li>
+    <li>Add <code>@page</code> directive at the top of the component and add a route for the component <code>Checkout.razor</code> with the path "/checkout".</li>
+</ol>
+<pre class="code" language="razor">@page "/check-out"</pre>
+<ol start="3">
+    <li>Verify the new <code>Checkout.razor</code> works as expected by clicking the <strong>Check-out</strong> link in the product list page. You can see the "Checkout" default text, and the URL has the pattern <code>https://localhost:port/check-out</code> where <code>port</code> is different for your project.</li>
+</ol>
+<p><img class="img-fluid" src="/contents/blazor-server/dotnet5/managing-data-159514/b49c8368-f01c-4342-86f7-88fbfeec7fc8..png" alt="" width="359" height="225" /></p>
+<h3>Display the items in the cart</h3>
+<p>This section shows you how to use the cart service to display the products in the cart.</p>
+<ol>
+    <li>In the <code>Checkout.razor</code>, import <code>Data</code> and inject the <code>CartService</code>.</li>
+</ol>
+<pre class="code" language="razor">@using Data;
+
+@page "/check-out"
+@inject CartService CartService</pre>
+<ol start="2">
+    <li>Define a list of products in the cart and initialize it in the <code>@code{}</code> section.</li>
+</ol>
+<pre class="code" language="razor">private List&lt;Product&gt; ProductsInCart = new();
+
+protected override void OnInitialized()
+{
+    ProductsInCart = CartService.GetProductsInCart();
+}</pre>
+<ol start="3">
+    <li>Update HTML template to display the items.</li>
+</ol>
+<pre class="code" language="razor">&lt;div&gt;Products in cart:&lt;/div&gt;
+&lt;div class="d-flex flex-column"&gt;
+    @foreach (var product in ProductsInCart)
+    {
+        &lt;ProductDetail Product="product" ShowBuyButton="false"&gt;&lt;/ProductDetail&gt;
+    }
+&lt;/div&gt;</pre>
+<hr class="my-4" />
+<h1>What's next</h1>
+<p>You now have an online shop with a product catalog, a shopping cart, and you can look up the items in the cart.</p>
+<p>To continue exploring Blazor Server:</p>
+<ul>
+    <li>Continue to <a href="/tutorial/blazor-server/dotnet5/using-forms-for-user-input-332781" title="Using EditForm tag">Using Forms for User Input</a> to finish the website by adding the checkout form.</li>
+    <li>Skip ahead to <a href="/tutorial/blazor-server/dotnet5/deploying-a-website-341989" title="Deploy Blazor Server">Deployment</a> to deploy your website to a local server or a cloud server.</li>
+</ul>
