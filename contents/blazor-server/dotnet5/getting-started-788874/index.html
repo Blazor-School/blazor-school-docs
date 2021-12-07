@@ -1,0 +1,99 @@
+<h1>Getting started with Blazor Server</h1>
+<p>Welcome to Blazor Server!</p>
+<p>This tuttorial introduces you to the essentials of Blazor Server by walking you through building an online shop with a catalogue, shopping cart and check-out form.</p>
+<p>To help you get started right away, we have prepared a <a href="https://github.com/Blazor-School/online-shop-blazor-server" target="_blank" rel="noopener" title="Online Shop Example">free download project on GitHub</a>.</p>
+<hr class="my-4" />
+<h1>Prerequisites</h1>
+<p>To get the most out of this tutorial, you should already have a basic understanding of the following:</p>
+<ul>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Learn/HTML" target="_blank" rel="noopener" title="Learning HTML: Guides and tutorials">HTML</a></li>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS" target="_blank" rel="noopener" title="CSS">CSS</a></li>
+    <li><a href="https://dotnet.microsoft.com/learn/csharp" target="_blank" rel="noopener" title="C#">C#</a></li>
+</ul>
+<hr class="my-4" />
+<h1 id="take-a-tour-of-the-example-application">Take a tour of the example website</h1>
+<p>You build Blazor Server websites with components. Components are basic UI units that let you reuse sets of UI functionality.</p>
+<p>A component can consists of:</p>
+<ul>
+    <li><strong>HTML tags</strong> that determine UI.</li>
+    <li><strong>@code { }</strong> that handles data and functionality.</li>
+    <li><strong>CSS</strong> that defines the look and feel.</li>
+</ul>
+<p>In this example we have the following components:</p>
+<ul>
+    <li><code>App.razor</code> - the first component to load and the container for other components.</li>
+    <li><code>ProductList.razor</code> - the list of products.</li>
+    <li><code>ProductDetail.razor</code> - the details of the product.</li>
+</ul>
+<p><img class="img-fluid" src="/contents/blazor-server/dotnet5/getting-started-788874/5ef1f663-08c1-464a-a89d-c9f4009c048c/0c84472d-3559-430a-9439-2bdd743bf4c8..png" alt="Blazor Tutorial - Online shop example" width="396" height="753" /></p>
+<hr class="my-4" />
+<h1>Create a blank project</h1>
+<p>To create a blank project, you will need Visual Studio 2019 or later with ASP.NET Web and .NET 5 Runtime</p>
+<p><img class="img-fluid" src="/contents/blazor-server/dotnet5/getting-started-788874/5ef1f663-08c1-464a-a89d-c9f4009c048c/3712fe8b-0c9e-4546-921f-8dbd55b750bf..png" alt="" width="838" height="235" /></p>
+<p>After that, you will see the template for Blazor Server:</p>
+<p><img class="img-fluid" src="/contents/blazor-server/dotnet5/getting-started-788874/5ef1f663-08c1-464a-a89d-c9f4009c048c/32b9c4ab-95b0-4e7e-8765-e3ba98c432be..png" alt="" width="1024" height="680" /></p>
+<hr class="my-4" />
+<h1>Create the product model</h1>
+<p>The first thing to do is to create a model of product. You will need to add class <code>Product.cs</code> in <code>Data</code> folder.</p>
+<pre class="code" language="csharp">public class Product
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+}</pre>
+<hr class="my-4" />
+<h1>Create the product detail component</h1>
+<p>In this step, you are going to create the first blazor component.This section guides you through creating and editing the Razor Component.</p>
+<ol>
+    <li>Head to the <code>Share</code> folder and add a Razor Component named <code>ProductDetai.razor</code>. To do this, right click on the <code>Share</code> folder and&nbsp; select <strong>Add -&gt; Razor Component</strong>.</li>
+</ol>
+<p><img class="img-fluid" src="/contents/blazor-server/dotnet5/getting-started-788874/5ef1f663-08c1-464a-a89d-c9f4009c048c/355d0356-a0c5-41cb-baad-193edf5f2773..png" alt="" width="656" height="464" /></p>
+<ol start="2">
+    <li>Define the template for for product details, as follow:</li>
+</ol>
+<pre class="code" language="html">&lt;div class="card"&gt;
+    &lt;div class="card-title"&gt;Product name&lt;/div&gt;
+    &lt;div class="card-body"&gt;Product description&lt;/div&gt;
+    &lt;div class="card-footer"&gt;&lt;button&gt;Buy&lt;/button&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+<ol class="mt-3" start="3">
+    <li>The <code>ProductDetail.razor</code> is going to need 2 parameters. One parameter is the <code>Product</code> and one is a boolean to indicate whether show the Buy button or not. We will add it to the <code>@code</code> section, as follow:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public Product Product { get; set; }
+    [Parameter]
+    public bool ShowBuyButton { get; set; }
+
+    private void Buy()
+    {
+
+    }
+}</pre>
+<ol class="mt-3" start="4">
+    <li>You need to create a binding for Product and html template, whenever the Product changes, the template gets updated as well. Change the Product name and Product description of the description to <code>@Product.Name</code> and <code>@Product.Description</code>, as follow:</li>
+</ol>
+<pre class="code" language="razor">@using Data
+
+&lt;div class="card"&gt;
+  &lt;div class="card-title"&gt;
+      @Product.Name
+  &lt;/div&gt;
+  &lt;div class="card-body"&gt;
+      @Product.Description
+  &lt;/div&gt;
+
+  @if (ShowBuyButton)
+  {
+      &lt;div class="card-footer"&gt;
+          &lt;button @onclick="Buy"&gt;Buy&lt;/button&gt;
+      &lt;/div&gt;
+  }
+&lt;/div&gt;</pre>
+<hr class="my-4" />
+<h1>What's next</h1>
+<p>In this section, you have created a component to display product data.</p>
+<p>To continue exploring Blazor Server and developing this website:</p>
+<ul>
+    <li>Continue to <a href="/tutorial/blazor-server/dotnet5/passing-data-to-child-component-686232" title="Passing Data to Child Component">Passing Data to Child Component</a> to create a product list page.</li>
+</ul>
