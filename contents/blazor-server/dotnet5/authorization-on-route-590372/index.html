@@ -1,0 +1,65 @@
+<h1>Authorization on Route</h1>
+<p>Blazor Server provides 2 different approaches to authorize users: <code>AuthorizeRouteView</code> and <code>AuthorizeView</code>. Both authorize users and provide their content according to their privilege.</p>
+<p>This guide provides information to help you decide which type of authorization works best for your situation. It introduces how to use the <code>AuthorizeRouteView</code>, if you need information about <code>AuthorizeView</code>, see <a href="/tutorial/blazor-server/dotnet5/authorization-and-authentication-969387" title="Authentication and authorization">Authentication and authorization</a>. It also summarizes the key differences between the 2 approaches.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/authorize-route-view-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Choosing an approach</h1>
+<p><code>AuthorizeRouteView</code> and <code>AuthorizeView</code> authorize user and display content based on the user's privilege. Each approach offers different advantages.</p>
+<ul>
+    <li><code>AuthorizeView</code> performs authorization at the component level, meaning that you will have more control over this. You can display unauthorized and authorizing messages differently for different components.</li>
+    <li><code>AuthorizeRouteView</code> as the name suggested, it performs authorization on the route, meaning that you will have a consistent display unauthorized and authorizing messages on the entire website.</li>
+</ul>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\authorization-on-route-590372\e85c666c-3825-4f87-b873-4e058da8c894..png" alt="" width="1757" height="907" /></p>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\authorization-on-route-590372\0c0cc6a2-acf4-4a9e-9914-502cea3f9a70..png" alt="" width="1888" height="786" /></p>
+<h3>Key differences</h3>
+<p>The table below summarizes the key differences between <code>AuthorizeRouteView</code> and <code>AuthorizeView</code>.</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td></td>
+                <td><code>AuthorizeRouteView</code></td>
+                <td><code>AuthorizeView</code></td>
+            </tr>
+            <tr>
+                <td>Need <code>CascadingAuthenticationState</code> component?</td>
+                <td>No</td>
+                <td>Yes</td>
+            </tr>
+            <tr>
+                <td>Declare in</td>
+                <td><code>App.razor</code></td>
+                <td>HTML template section of the component</td>
+            </tr>
+            <tr>
+                <td>Pass authorization parameter</td>
+                <td>As a parameter of <code>Authorize</code> attribute</td>
+                <td>As a parameter of <code>AuthorizeView</code></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<hr class="my-4" />
+<h1>Setting up the authorization</h1>
+<p>In order to have the authorization, you need to setup the <code>AuthenticationStateProvider</code> first, see <a href="/tutorial/blazor-server/authorization-and-authentication-969387" title="Authentication and authorization">Authentication and authorization</a>. The next step is to replace the <code>RouteView</code> component with <code>AuthorizeRouteView</code> component in <code>App.razor</code>.</p>
+<pre class="code" language="razor">&lt;Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true"&gt;
+    &lt;Found Context="routeData"&gt;
+        &lt;AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"&gt;
+            &lt;NotAuthorized&gt;
+                You are not authorized.
+            &lt;/NotAuthorized&gt;
+            &lt;Authorizing&gt;
+                Authorizing in process...
+            &lt;/Authorizing&gt;
+        &lt;/AuthorizeRouteView&gt;
+    &lt;/Found&gt;
+    &lt;NotFound&gt;
+        &lt;LayoutView Layout="@typeof(MainLayout)"&gt;
+            &lt;p&gt;Sorry, there's nothing at this address.&lt;/p&gt;
+        &lt;/LayoutView&gt;
+    &lt;/NotFound&gt;
+&lt;/Router&gt;</pre>
+<p>To do the authorization for a component, add the <code>@attribute</code> directive to use the <code>Authorize</code> attribute.</p>
+<pre class="code" language="razor">@attribute [Authorize]</pre>
+<p>If you don't specify any parameters then by default, Blazor Server will require the user to complete the authentication. To authorize the users by role or policy, simply pass it to the <code>Authorize</code> attribute like this.</p>
+<pre class="code" language="razor">@attribute [Authorize(Roles = "Admin,SuperAdmin", Policy = "CanBuyAlcohol")]</pre>

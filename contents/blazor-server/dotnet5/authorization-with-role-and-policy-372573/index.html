@@ -1,0 +1,177 @@
+<h1>Authorization with Role and Policy</h1>
+<p>On a complex website, there will be many roles or policies that each role and policy have their own privileges. For example, assuming you only want people with admin roles to access the admin panel, this is called authorization with role. Another case would be assuming you only want users with age 18 or older to access some pages on the website, this is called authorization with policy.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/authentication-authorization-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisites</h1>
+<p>To understand this guide, you need to have some basic knowledge:</p>
+<ul>
+    <li><a href="/tutorial/blazor-server/dotnet5/authorization-and-authentication-969387" title="Basic authentication and authorization">Basic authentication and authorization</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/dependency-injection-478834" title="Dependency Injection">Dependency Injection</a>.</li>
+</ul>
+<hr class="my-4" />
+<h1>Authorization with Role</h1>
+<p>As the name suggested, you authorize people with their roles. Assuming you have a resource and you define which role can access that resource, then any user with one or more roles in the role list can have access to the resource.</p>
+<h3>Setting up a protected page</h3>
+<p>Create a new <code>AdminPanel.razor</code> component in the <code>Page</code> folder.</p>
+<pre class="code" language="razor">@page "/admin-panel"
+
+&lt;AuthorizeView Roles="Admin,SuperAdmin"&gt;
+    &lt;NotAuthorized&gt;
+        You must be Admin or Super Admin to access this page.
+    &lt;/NotAuthorized&gt;
+    &lt;Authorized&gt;
+        &lt;h1&gt;Admin panel&lt;/h1&gt;
+    &lt;/Authorized&gt;
+&lt;/AuthorizeView&gt;</pre>
+<p>In this example, you are specifying users with either "Admin" or "SuperAdmin" can access the page. Users without any of those roles won't be able to access the page.</p>
+<h3>Set roles for the user</h3>
+<p>You need to set the roles for the user in the <code>ClaimPrincipal</code> object of <code>GetAuthenticationStateAsync</code> method. Continuation from the example in <a href="/tutorial/blazor-server/dotnet5/authorization-and-authentication-969387" title="Authentication and authorization">Authentication and authorization</a>. Add roles as strings to the claim as follows:</p>
+<pre class="code" language="csharp">private ClaimsIdentity CreateIdentityFromUser(User user)
+{
+    var result = new ClaimsIdentity(new Claim[]
+    {
+        new (ClaimTypes.Name, user.Username),
+        new (ClaimTypes.Hash, user.Password),
+    }, "BlazorSchool");
+            
+    var roles = _dataProviderService.GetUserRoles(user);
+
+    foreach(string role in roles)
+    {
+        result.AddClaim(new (ClaimTypes.Role, role));
+    }
+
+    return result;
+}</pre>
+<p>After that, use the <code>ClaimsIdentity</code> we just created in the above method to create a new <code>AuthenticationState</code> in the method <code>GetAuthenticationStateAsync</code>.</p>
+<p>Users with one of the roles Admin or SuperAdmin can now access the <code>AdminPanel.razor</code> component.</p>
+<hr class="my-4" />
+<h1>Authorization with Policy</h1>
+<div>Unlike Role authorization, Policy authorization is used for complex scenarios. Policy authorization allows you to combine many conditions into one policy and will allow the user to enter if all the conditions are satisfied. For example, assuming you only want users older than 18 and also a premium member to buy alcohol.</div>
+<h3>Customizing authorization rules</h3>
+<p>An essential feature of authorization by policy is to customize the authorization rules. The following steps demonstrate how to authorize users over 18.</p>
+<ol>
+    <li>Create a requirement class.</li>
+</ol>
+<pre class="code" language="csharp">public class AdultRequirement : IAuthorizationRequirement
+{
+    public static string ClaimName =&gt; "Age";
+}</pre>
+<ol start="2">
+    <li>Create a requirement handler class.</li>
+</ol>
+<pre class="code" language="csharp">public class AdultRequirementHandler : AuthorizationHandler&lt;AdultRequirement&gt;
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AdultRequirement requirement)
+    {
+        var (value, isSuccess) = TryRetrieveValue(context);
+
+        if (isSuccess &amp;&amp; value &gt;= 18)
+        {
+            context.Succeed(requirement);
+        }
+        else
+        {
+            context.Fail();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static (int, bool) TryRetrieveValue(AuthorizationHandlerContext context)
+    {
+        string value = context.User.FindFirst(ct =&gt; ct.Type == AdultRequirement.ClaimName)?.Value;
+
+        if (!string.IsNullOrEmpty(value))
+        {
+            int age = Convert.ToInt32(value);
+
+            return (age, true);
+        }
+        else
+        {
+            return (0, false);
+        }
+    }
+}</pre>
+<p>In this class, we will get the value of a claim with the name "Age" and compare that value to 18. If the condition is satisfactory, we call <code>context.Succeed(requirement)</code>. Otherwise, we call <code>context.Fail()</code>.</p>
+<h3>Customize authorization rules by authorizing resource data</h3>
+<div>In some cases, you need the authorizing resource data to authorize users. For example, you have a toy store and each toy on the store has different age restrictions. In that case, you need to pass the age restriction to the <code>AuthorizationHandler</code>. The following code demonstrates how to authorize a user by comparing the user data to the authorizing resource data.</div>
+<pre class="code" language="csharp">public class OverAgeRequirementHandler : AuthorizationHandler&lt;OverAgeRequirement&gt;
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, OverAgeRequirement requirement)
+    {
+        var (value, isSuccess) = TryRetrieveValue(context);
+        int minAge = Convert.ToInt32(context?.Resource ?? 0);
+
+        if (isSuccess &amp;&amp; value &gt;= minAge)
+        {
+            context.Succeed(requirement);
+        }
+        else
+        {
+            context.Fail();
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static (int, bool) TryRetrieveValue(AuthorizationHandlerContext context)
+    {
+        ...
+    }
+}</pre>
+<h3>Set user data for authorization</h3>
+<p>In the <code>AdultRequirementHandler</code> you just created, you will get data from the claim to authorize it. In order to do that, you need to put the data in the claim when a user logins. You need to update your <code>CreateIdentityFromUser</code> method:</p>
+<pre class="code" language="csharp">private ClaimsIdentity CreateIdentityFromUser(User user)
+{
+    var result = new ClaimsIdentity(new Claim[]
+    {
+        ...
+        new (AdultRequirement.ClaimName, user.Age.ToString()),
+        new ("IsPremiumMember", user.IsPremiumMember.ToString())
+    }, "BlazorSchool");
+    ...
+}</pre>
+<p>In this method, we also include the <code>IsPremiumMember</code> to demonstrate how to combine authorization rules later.</p>
+<h3>Defining a policy</h3>
+<p>A policy is defined by a combination of rules. You can define many policies and use them across your website to authorize users. You need to define a policy in <code>ConfigureServices</code> method in <code>Startup.cs</code>.</p>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddAuthorization(config =&gt;
+    {
+        config.AddPolicy("CanBuyAlcohol", policy =&gt;
+        {
+            policy.AddRequirements(new AdultRequirement());
+            policy.RequireClaim("IsPremiumMember", true.ToString());
+        });
+    });
+}</pre>
+<p>In this example, you are authorizing people for 2 conditions: they must be over 18 and must be a premium member. The first parameter of <code>config.AddPolicy(name, configurePolicy)</code> method is the name of the policy, which is <code>CanBuyAlcohol</code> and the second parameter is all the conditions of this policy. Later on, you will use the name <code>CanBuyAlcohol</code> to use this policy.</p>
+<p>Since <code>AdultRequirement</code> is a custom rule, you must register its requirement handler as well.</p>
+<pre class="code" language="csharp">services.AddSingleton&lt;IAuthorizationHandler, AdultRequirementHandler&gt;();</pre>
+<h3>Using the policy to authorize users</h3>
+<p>Once you have completed all the steps above, you will be able to use the <code>CanBuyAlcohol</code> policy in any component on your website as long as it is wrapped by <code>CascadingAuthenticationState</code> component in <code>App.razor</code>. To use the policy, specify its name in the <code>AuthorizeView</code> component as follows:</p>
+<pre class="code" language="razor">&lt;AuthorizeView Policy="CanBuyAlcohol"&gt;
+    &lt;Authorized&gt;
+        &lt;h3&gt;Welcome to the Alcohol Store&lt;/h3&gt;
+    &lt;/Authorized&gt;
+    &lt;NotAuthorized&gt;
+        You don't have permission to see this.
+    &lt;/NotAuthorized&gt;
+&lt;/AuthorizeView&gt;</pre>
+<h3>Passing authorizing resource data</h3>
+<p>If you need the resource data to authorize the user then you can pass resource data to the <code>AuthorizeView</code> by using <code>Resource</code> parameter. Then <code>AuthorizeView</code> will pass that data to the <code>AuthorizationHandler</code>. You can pass authorizing resource data as follows:</p>
+<pre class="code" language="razor">@foreach (Toy toy in SimulatedDataProviderService.Toys)
+{
+    &lt;h1&gt;@toy.Name&lt;/h1&gt;
+    &lt;AuthorizeView Policy="OverAge" Resource="toy.AgeRequired"&gt;
+        &lt;Authorized&gt;
+            &lt;button&gt;Buy this toy&lt;/button&gt;
+        &lt;/Authorized&gt;
+        &lt;NotAuthorized&gt;
+            Restricted
+        &lt;/NotAuthorized&gt;
+    &lt;/AuthorizeView&gt;
+}</pre>

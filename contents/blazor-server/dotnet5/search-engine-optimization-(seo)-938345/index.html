@@ -1,0 +1,184 @@
+<h1>Search Engine Optimization (SEO)</h1>
+<p>SEO plays a crucial part in any website, especially for SPA. In this guide, when referencing SEO, we mean the technical part and not the non-technical part. We only focus on how to provide your website information to search engines.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/seo-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisites</h1>
+<div>This guide assumes that you have a basic understanding of the following.</div>
+<ul>
+    <li><a href="/tutorial/blazor-server/dotnet5/component-interaction-550894" title="Component interaction">Component interaction</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/dependency-injection-478834" title="Dependency injection">Dependency injection</a>.</li>
+    <li><a href="https://developers.google.com/search/docs/beginner/seo-starter-guide?hl=en&amp;visit_id=637639370449073519-226133402&amp;rd=1" target="_blank" rel="noopener" title="Google SEO guidelines">Google SEO guidelines</a>.</li>
+</ul>
+<hr class="my-4" />
+<h1>The technical part of SEO</h1>
+<p>The goal of the technical part is to change the metadata tags in the <code>&lt;head&gt;</code> tag based on the request URL. For example, the <code>&lt;title&gt;</code> tag changes when the user navigates to a new component.</p>
+<p>Blazor Server does support SEO. However, the default template for Blazor Server does not support SEO and you have to implement it yourself.</p>
+<h3>Common mistakes when SEO with Blazor Server</h3>
+<p>Here are some common mistakes you need to avoid when implementing SEO for Blazor Server. Some of them work in the development stage but in production stage it does not work.</p>
+<ol>
+    <li>Use JS to change the metadata tags.</li>
+</ol>
+<p>Blazor Server is a SPA framework that renders on the server and thus, this approach will not work.</p>
+<ol start="2">
+    <li>Try to update the rendered HTML tag.</li>
+</ol>
+<p>Blazor Server is rendered on top of Razor Pages, the Razor Pages is not a SPA framework therefore it does not support updating the rendered HTML tag.</p>
+<hr class="my-4" />
+<h1>Implementing SEO for Blazor Server</h1>
+<p>The following steps are the steps to implement SEO for Blazor Server. These steps use the native Blazor Server technique and no third party is required.</p>
+<ol>
+    <li>Create a service <code>MetadataProvider.cs</code>.</li>
+    <li>Create a data transfer service <code>MetadataTransferService.cs</code>.</li>
+    <li>Add both services as scoped at <code>Startup.cs</code>.</li>
+    <li>Create a <code>Metadata.razor</code> component.</li>
+    <li>Use the <code>MetadataTransferService</code>&nbsp;and <code>MetadataProvider</code> to initialize the metadata.</li>
+    <li>Use <code>Metadata.razor</code> in <code>_Host.cshtml</code> page.</li>
+</ol>
+<h3>Creating the services</h3>
+<p>We are going to create the <code>MetadataProvider</code> and <code>MetadataTransferService</code>&nbsp;service. As the name suggested, the <code>MetadataProvider</code> will provider the route and its metadata details. You can store the data in the database and use this class to get the metadata along the route. This is an example of our <code>MetadataProvider</code> implementation.</p>
+<pre class="code" language="csharp">public class MetadataProvider
+{
+    public Dictionary&lt;string, MetadataValue&gt; RouteDetailMapping { get; set; } = new()
+    {
+        {
+            "/",
+            new()
+            {
+                Title = "Blazor School Example",
+                Description = "Visit more at https://blazorschool.com"
+            }
+        },
+        {
+            "/about",
+            new()
+            {
+                Title = "About us",
+                Description = "Email us: dotnetprotech@gmail.com - The DotNetPro team."
+            }
+        }
+    };
+}</pre>
+<p>The next step is to create the <code>MetadataTransferService</code>&nbsp;service. As the name suggested, the <code>MetadataTransferService</code> will act as a data transferer between components. See <a href="/tutorial/blazor-server/component-interaction-550894" title="Component Interaction">Component Interaction</a> for more information about the transfer service.</p>
+<pre class="code" language="csharp">public class MetadataTransferService : INotifyPropertyChanged, IDisposable
+{
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private string _title;
+
+    public string Title
+    {
+        get =&gt; _title;
+        set
+        {
+            _title = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _description;
+    private readonly NavigationManager _navigationManager;
+    private readonly MetadataProvider _metadataProvider;
+
+    public string Description
+    {
+        get =&gt; _description;
+        set
+        {
+            _description = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new(propertyName));
+    }
+
+    public MetadataTransferService(NavigationManager navigationManager, MetadataProvider metadataProvider)
+    {
+        _navigationManager = navigationManager;
+        _metadataProvider = metadataProvider;
+    }
+
+    public void Dispose()
+    {
+        
+    }
+}</pre>
+<p>You need 2 interfaces <code>INotifyPropertyChanged</code> and <code>IDisposable</code> for the transfer service. The <code>INotifyPropertyChanged</code> is to treat every property change equally, you can declare one event for each property also, this interface is not required. The <code>IDisposable</code> is also not required but it is recommended to have it because you are going to subscribe to the <code>LocationChanged</code> event from the <code>NavigationManager</code> and you need to unsubscribe to that event using the <code>Dispose</code> method. Add the <code>UpdateMetadata</code> method to update the metadata.</p>
+<pre class="code" language="csharp">private void UpdateMetadata(string url)
+{
+    var metadataValue = _metadataProvider.RouteDetailMapping.FirstOrDefault(vp =&gt; url.EndsWith(vp.Key)).Value;
+
+    if (metadataValue is null)
+    {
+        metadataValue = new()
+        {
+            Title = "Default",
+            Description = "Default"
+        };
+    }
+
+    Title = metadataValue.Title;
+    Description = metadataValue.Description;
+}</pre>
+<p>Subscribe to the <code>LocationChanged</code> event.</p>
+<pre class="code" language="csharp">public MetadataTransferService(NavigationManager navigationManager, MetadataProvider metadataProvider)
+{
+    ...
+    _navigationManager.LocationChanged += UpdateMetadata;
+}
+
+private void UpdateMetadata(object sender, LocationChangedEventArgs e)
+{
+    UpdateMetadata(e.Location);
+}
+
+public void Dispose()
+{
+    _navigationManager.LocationChanged -= UpdateMetadata;
+}</pre>
+<p>Whenever users navigate to a new page, the <code>LocationChanged</code> event is fired and the metadata is refreshed. The <code>LocationChanged</code> event will not fire when the user enters the first page because the initial location is not changed. To allow crawlers and users to see the metadata for the first time enter a page, add a call to <code>UpdateMetadata</code> method.</p>
+<pre class="code" language="csharp">public MetadataTransferService(NavigationManager navigationManager, MetadataProvider metadataProvider)
+{
+    ...
+    UpdateMetadata(_navigationManager.Uri);
+}</pre>
+<p>Register both of the services at the <code>Startup.cs</code>.</p>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddSingleton&lt;MetadataProvider&gt;();
+    services.AddScoped&lt;MetadataTransferService&gt;();
+}</pre>
+<blockquote>The <code>MetadataProvider</code> can also be a scoped service. You should choose which is the best fit in your case and not always make it as singleton as the example.</blockquote>
+<h3>Creating the metadata component</h3>
+<p>The <code>Metadata.razor</code> includes all the metadata tags you want on the website. Some basic tags that every website must have are the <code>&lt;title&gt;</code> and <code>&lt;meta name="description" /&gt;</code>. The <code>Metadata.razor</code> will use the data from the transfer service to render the HTML elements. This is an example of our <code>Metadata.razor</code> implementation.</p>
+<pre class="code" language="razor">@inject MetadataTransferService MetadataTransferService
+@implements IDisposable
+
+&lt;title&gt;@MetadataTransferService.Title&lt;/title&gt;
+&lt;meta name="description" content="@MetadataTransferService.Description" /&gt;
+
+@code {
+    protected override void OnInitialized()
+    {
+        MetadataTransferService.PropertyChanged += OnMetadataChanged;
+    }
+
+    private void OnMetadataChanged(object sender, PropertyChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        MetadataTransferService.PropertyChanged -= OnMetadataChanged;
+    }
+}</pre>
+<h3>Using the metadata component</h3>
+<p>Once you have the <code>Metadata.razor</code>, you need to use it in the <code>_Host.cshtml</code>. Keep in mind that <code>_Host.cshtml</code> is a Razor Page and your <code>Metadata.razor</code> is a Razor Component and to use a Razor Component inside a Razor Page is a bit different than using a Razor Component inside another Razor Component. Remove the existing <code>&lt;title&gt;</code> tag in the <code>_Host.cshtml</code>.</p>
+<pre class="code" language="razor">&lt;head&gt;
+    ...
+    &lt;component type=&quot;typeof(Metadata)&quot; render-mode=&quot;ServerPrerendered&quot;/&gt;
+&lt;/head&gt;</pre>
