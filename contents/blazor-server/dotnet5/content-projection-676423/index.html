@@ -1,0 +1,225 @@
+<h1>Content projection</h1>
+<p>This guide describes how to use content projection to create flexible, reusable components.</p>
+<p>Content projection is a pattern in which you insert, or project, the content you want to use inside another component. For example, you could have a <code>Highlight</code> component that accepts content provided by another component.</p>
+<p>The following sections describe common implementations of content projection in Blazor Server.</p>
+<ul>
+    <li>Single-slot content projection: A component which only has one slot of content to project.</li>
+    <li>Multiple-slot content projection: A component which has multiple slots of content to project.</li>
+    <li>Content projection with generic type: Make the projected content more dynamic by having a generic type.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-overview-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Single-slot content projection</h1>
+<p>The most basic form of content projection is single-slot content projection. Single-slot content projection refers to creating a component into which you can project to another component.</p>
+<p><img class="img-fluid" src="/contents/blazor-server/dotnet5/content-projection-676423/ee4b2560-074d-45e4-92d0-9b3cfd9c53f4..png" alt="" width="1717" height="928" /></p>
+<p>To create a component that has a single-slot content projection:</p>
+<ol>
+    <li>Create a component.</li>
+    <li>Declare a <code>ChildContent</code> parameter like this.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}</pre>
+<blockquote>The parameter must be <code>public</code> with the type <code>RenderFragment</code> and named <code>ChildContent</code>. This is a fixed syntax and you cannot change any of this.</blockquote>
+<ol start="3">
+    <li>In the template of your component, add <code>@ChildContent</code> where you want the projected content to appear.</li>
+</ol>
+<p>For example, the following component uses <code>@ChildContent</code> to highlight a text.</p>
+<pre class="code" language="razor">&lt;div style="background-color: green; color: white;"&gt;
+    @ChildContent
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}</pre>
+<p>With the <code>@ChildContent</code> in place, users of this component can now project their own message into the component. For example:</p>
+<pre class="code" language="razor">&lt;Highlight&gt;
+    &lt;span&gt;This text comes from parent.&lt;/span&gt;
+    &lt;span&gt;Another text comes from parent.&lt;/span&gt;
+&lt;/Highlight&gt;</pre>
+<hr class="my-4" />
+<h1>Multi-slot content projection</h1>
+<p>A component can have multiple slots. Each slot can have a <code>RenderFragment</code> that determines which content goes into that slot. This pattern is referred to as multi-slot content projection. With this pattern, you must specify where you want the projected content to appear.</p>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\content-projection-676423\95adbc4e-06d5-44fc-aecc-051c1a9355e4..png" alt="" width="1666" height="876" /></p>
+<p>To create a component that has a multi-slot content projection:</p>
+<ol>
+    <li>Create a component.</li>
+    <li>Declare <code>RenderFragment</code> parameters.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public RenderFragment Introduction { get; set; }
+    [Parameter]
+    public RenderFragment Middle { get; set; }
+    [Parameter]
+    public RenderFragment End { get; set; }
+}</pre>
+<ol start="3">
+    <li>In the template of your component, add <code>RenderFragment</code> property where you want the projected content to appear.</li>
+</ol>
+<p>For example, the following component uses multiple <code>RenderFragment</code> properties.</p>
+<pre class="code" language="razor">&lt;div&gt;
+    @Introduction
+&lt;/div&gt;
+&lt;h1&gt;Middle&lt;/h1&gt;
+&lt;div&gt;
+    @Middle
+&lt;/div&gt;
+&lt;h1&gt;End&lt;/h1&gt;
+&lt;div&gt;
+    @End
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public RenderFragment Introduction { get; set; }
+    [Parameter]
+    public RenderFragment Middle { get; set; }
+    [Parameter]
+    public RenderFragment End { get; set; }
+}</pre>
+<p>Users of this component can now project their own content into the component by using render fragment name tag. For example, for the fragment <code>public RenderFragment Introduction</code> they can use <code>&lt;Introduction&gt;</code> tag.</p>
+<pre class="code" language="razor">&lt;Article&gt;
+    &lt;Introduction&gt;
+        Study Blazor at Blazor School
+    &lt;/Introduction&gt;
+    &lt;Middle&gt;
+        Blazor tutorial for beginners, developers, students and for everyone interested. 
+        Step by step walk through with sample codes for each step and free downloadable example projects to demonstrate the whole walk through. All example codes are updated to .NET 5.
+    &lt;/Middle&gt;
+    &lt;End&gt;
+        There is also an app on Google Play with no ads and free content. 
+        You can check it out at &lt;a href="https://play.google.com/store/apps/details?id=com.blazorschool"&gt;https://play.google.com/store/apps/details?id=com.blazorschool&lt;/a&gt;
+    &lt;/End&gt;
+&lt;/Article&gt;</pre>
+<hr class="my-4" />
+<h1>Content projection with generic type</h1>
+<p>Generics introduces the concept of type parameters to Blazor Server, which makes it possible to design components that defer the specification of one or more types until the component is placed on HTML by the user of component. Let's start with creating a component to display a list of animals and you want each species displayed differently.</p>
+<h3>Creating models</h3>
+<p>Create a new interface <code>IAnimal</code>, 2 classes <code>Cat</code> and <code>Dog</code> in the Data folder.</p>
+<pre class="code" language="csharp">public interface IAnimal
+{
+    public string Name { get; set; }
+    public string Breed { get; set; }
+}
+
+public class Dog : IAnimal
+{
+    public string Name { get; set; }
+    public string Breed { get; set; }
+    public int BondLevel { get; set; }
+}
+
+public class Cat : IAnimal
+{
+    public string Name { get; set; }
+    public string Breed { get; set; }
+    public int Lives { get; set; }
+}</pre>
+<h3>Creating a content projection component</h3>
+<p>Create a new component <code>AnimalList</code> in the <code>Shared</code> folder.</p>
+<pre class="code" language="razor">&lt;h3&gt;Content projection with type&lt;/h3&gt;
+&lt;div style="color: white"&gt;
+    @foreach (var animal in Animals)
+    {
+    }
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public List&lt;IAnimal&gt; Animals { get; set; }
+}</pre>
+<h3>Declaring and passing data to a <code>RenderFragment</code></h3>
+<p>There are 2 versions of <code>RenderFragment</code>, the non-generic version <code>RenderFragment</code> and the generic version <code>RenderFragment&lt;T&gt;</code>. In order to pass the data to a projecting content, you need to use the <code>RenderFragment&lt;T&gt;</code>. In this case, those are <code>RenderFragment&lt;Cat&gt;</code> and <code>RenderFragment&lt;Dog&gt;</code>.</p>
+<pre class="code" language="razor">...
+@foreach (var animal in Animals)
+{
+    if (animal is Cat cat)
+    {
+        @CatTemplate(cat);
+    }
+
+    if (animal is Dog dog)
+    {
+        @DogTemplate(dog);
+    }
+}
+
+@code {
+    ...
+    [Parameter]
+    public RenderFragment&lt;Dog&gt; DogTemplate { get; set; }
+
+    [Parameter]
+    public RenderFragment&lt;Cat&gt; CatTemplate { get; set; }
+}</pre>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\content-projection-676423\8d36d2d6-aed0-47c3-8b67-79464cbf8a98..png" alt="" width="600" height="673" /></p>
+<blockquote>You can also use <code>RenderFragment&lt;T&gt;</code> for <code>ChildContent</code></blockquote>
+<h3>Using generic content projection component</h3>
+<ol>
+    <li>Initilize and pass the data to the component.</li>
+</ol>
+<pre class="code" language="razor">&lt;AnimalList Animals="Animals"&gt;
+
+&lt;/AnimalList&gt;
+
+@code {
+    public List&lt;IAnimal&gt; Animals { get; set; } = new()
+    {
+        new Cat()
+        {
+            Name = "Angry",
+            Breed = "Persian",
+            Lives = 4
+        },
+        new Dog()
+        {
+            Name = "Doggo",
+            Breed = "Golden Retriever",
+            BondLevel = 2
+        },
+        new Cat()
+        {
+            Name = "Hoy",
+            Breed = "Bengal",
+            Lives = 6
+        },
+        new Cat()
+        {
+            Name = "Lazy",
+            Breed = "Himalayan",
+            Lives = 7
+        },
+        new Dog()
+        {
+            Name = "Woofy",
+            Breed = "Akita",
+            BondLevel = 10
+        }
+    };
+}</pre>
+<ol start="2">
+    <li>Use <code>Context</code> to declare a reference to the data in <code>RenderFragment&lt;T&gt;</code>.</li>
+</ol>
+<pre class="code" language="razor">&lt;DogTemplate Context="dogCtx"&gt;
+    &lt;div style="background-color: blue"&gt;
+        &lt;div&gt;Cute dog. Its name is @dogCtx.Name type @dogCtx.Breed. Bond level: @dogCtx.BondLevel&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/DogTemplate&gt;</pre>
+<p>This image illustrates the data flow for the <code>Context="dogCtx"</code>.</p>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\content-projection-676423\7faa76e3-f35f-4b9a-8c95-492e6bef0e67..png" alt="" width="729" height="461" /></p>
+<p>Do the same thing for <code>CatTemplate</code>:</p>
+<pre class="code" language="razor">&lt;AnimalList Animals="Animals"&gt;
+    &lt;DogTemplate Context="dogCtx"&gt;
+        &lt;div style="background-color: blue"&gt;
+            &lt;div&gt;Cute dog. Its name is @dogCtx.Name type @dogCtx.Breed. Bond level: @dogCtx.BondLevel&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/DogTemplate&gt;
+    &lt;CatTemplate Context="catCtx"&gt;
+        &lt;div style="background-color: green"&gt;
+            &lt;div&gt;This is a cat. Its name is @catCtx.Name and the breed is @catCtx.Breed. Lives remaining: @catCtx.Lives&lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/CatTemplate&gt;
+&lt;/AnimalList&gt;</pre>

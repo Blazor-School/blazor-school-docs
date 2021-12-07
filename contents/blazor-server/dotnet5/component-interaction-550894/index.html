@@ -1,0 +1,398 @@
+<h1>Component Interaction</h1>
+<p>In modern websites, a page can have many components and they interchange their information frequently. There are many scenarios in which two or more components share information. There are 4 ways to exchange information between components.</p>
+<ol>
+    <li>Using <code>CascadingParameter</code> to pass parameters from one of the parent components to the child component. One-way notifying.</li>
+    <li>Using <code>Parameter</code> to pass parameters from the from the closest parent component to the child component. One-way notifying.</li>
+    <li>Combining&nbsp;<code>Parameter</code> and <code>delegate</code> to notify changes from the child component. Two-way notifying.</li>
+    <li>Using a service to share information across many components regardless of their relations. Two-way notifying.</li>
+</ol>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-overview-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Passing data from parent to child with <code>CascadingParameter</code></h1>
+<p><code>CascadingParameter</code> is good if you want data from beyond direct parent to the child. This image illustrates of <code>CascadingParameter</code>.</p>
+<p><img class="img-fluid" src="/contents/blazor-server/dotnet5/component-interaction-550894/2863d4ec-484b-4844-8ca4-aef968ac14e8..png" alt="" width="1288" height="1000" /></p>
+<p><code>CascadingParameter</code> can be used to pass parameters from an ancestor component to the descendant components. Any changes that occur in the descendant components will not notify the ancestor component but any changes that occur in the ancestor component will notify the descendant component.</p>
+<h3>Declaring the ancestor component</h3>
+<ol>
+    <li>Create a property to pass to the descendant component. This property must be public property. Otherwise, it cannot be passed on.</li>
+</ol>
+<pre class="code" language="csharp">public Lamp MostSellLamp { get; set; } = new()
+{
+    Name = "Best lamp",
+    Price = 9999
+};</pre>
+<ol start="2">
+    <li>Pass property as a cascading parameter.</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingValue Value="MostSellLamp"&gt;
+    &lt;LampList&gt;&lt;/LampList&gt;
+&lt;/CascadingValue&gt;</pre>
+<h3>Declaring the child component</h3>
+<ol>
+    <li>Create a property for with <code>CascadingParameter</code> attribute.</li>
+</ol>
+<pre class="code" language="csharp">[CascadingParameter]
+public Lamp BestLamp { get; set; }</pre>
+<ol start="2">
+    <li>Use it as a local property.</li>
+</ol>
+<pre class="code" language="razor">&lt;h3&gt;LampDetail&lt;/h3&gt;
+&lt;div&gt;Best lamp name: @BestLamp.Name&lt;/div&gt;
+&lt;div&gt;Best lamp price: @BestLamp.Price&lt;/div&gt;</pre>
+<h3>Multiple cascading parameters</h3>
+<p><code>CascadingParameter</code> distinguish parameters by their type. This is the reason we can have 2 different names in the previous example: the ancestor parameter name is <code>Lamp</code> and the descendant parameter name is <code>BestLamp</code> and Blazor Server still recognizes them. When you pass 2 parameters of the same type without naming them, Blazor Server will chose the closest <code>&lt;CascadingValue&gt;</code> with them same type to pass it to the descendant. To get both parameters, you have to name them differently.</p>
+<ol>
+    <li>Create another parameter.</li>
+</ol>
+<pre class="code" language="csharp">public Lamp WorstSellLamp { get; set; } = new()
+{
+    Name = "Worst lamp",
+    Price = 2021
+};</pre>
+<ol start="2">
+    <li>Pass both properties with their names.</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingValue Value="MostSellLamp" Name="GoodLamp"&gt;
+    &lt;CascadingValue Value="WorstSellLamp" Name="BadLamp"&gt;
+        &lt;LampList&gt;&lt;/LampList&gt;
+    &lt;/CascadingValue&gt;
+&lt;/CascadingValue&gt;</pre>
+<ol start="3">
+    <li>Receive both parameters in the descendant.</li>
+</ol>
+<pre class="code" language="csharp">[CascadingParameter(Name = "GoodLamp")]
+public Lamp BestLamp { get; set; }
+[CascadingParameter(Name = "BadLamp")]
+public Lamp WorstLamp { get; set; }</pre>
+<ol start="4">
+    <li>Use it as local properties.</li>
+</ol>
+<pre class="code" language="razor">&lt;div&gt;Best lamp name: @BestLamp.Name&lt;/div&gt;
+&lt;div&gt;Best lamp price: @BestLamp.Price&lt;/div&gt;
+&lt;div&gt;Best lamp name: @WorstLamp.Name&lt;/div&gt;
+&lt;div&gt;Best lamp price: @WorstLamp.Price&lt;/div&gt;</pre>
+<hr class="my-4" />
+<h1>Passing data from parent to child with <code>Parameter</code></h1>
+<div><code>Parameter</code> is a&nbsp; good choice if you want to pass a parameter from the parent component to the child component. This image illustrates of <code>Parameter</code>.</div>
+<div><img class="img-fluid" src="/contents/blazor-server/dotnet5/component-interaction-550894/1e49e469-f576-45ce-a68d-0976504dad70..png" alt="" width="1209" height="763" /></div>
+<p><code>Parameter</code> can be used to pass parameters from the parent component to its child components. Any changes that occur in its child components will not notify the parent component but any changes that occur in the parent component will notify the its child components.</p>
+<p>In the child component, the property has been passed as a reference to the parent's property. If you change the property's reference to a new object, it will not affect the parent's property. If you keep the reference to the parent's property and only change the value inside it, you will also change the parent's property values; Although the parent's property has a new value, Blazor Server will not render it, you will have to tell Blazor Server to render the parent component again to see the new value.</p>
+<ol>
+    <li>Declare a property with <code>Parameter</code> attribute within the child component.</li>
+</ol>
+<pre class="code" language="csharp">[Parameter]
+public Hardware Hardware { get; set; }</pre>
+<ol start="2">
+    <li>Create a property to pass to the child component. Like the <code>Cascading Parameter</code>, this property must be public.</li>
+</ol>
+<pre class="code" language="csharp">public List&lt;Hardware&gt; Hardwares { get; set; } = new()
+{
+    new()
+    {
+        Name = "Mainboard",
+        ProduceDate = new DateTime(2021, 4, 20)
+    },
+    new()
+    {
+        Name = "GPU",
+        ProduceDate = new DateTime(2022, 1, 1)
+    },
+    new()
+    {
+        Name = "CPU",
+        ProduceDate = new DateTime(2021, 6, 19)
+    }
+};</pre>
+<ol start="3">
+    <li>Pass the property to the child component.</li>
+</ol>
+<pre class="code" language="razor">@foreach (var hardware in Hardwares)
+{
+    &lt;HardwareDetail Hardware="hardware"&gt;&lt;/HardwareDetail&gt;
+}</pre>
+<ol start="4">
+    <li>Inside the child component, use the passed property as a local property.</li>
+</ol>
+<pre class="code" language="razor">&lt;div&gt;Name: @Hardware.Name&lt;/div&gt;
+&lt;div&gt;Produce Date: @Hardware.ProduceDate&lt;/div&gt;</pre>
+<hr class="my-4" />
+<h1>Processing passed parameter in child component</h1>
+<p>With the previous example, any changes that come from the child component will change the value of the parent component but Blazor Server won't re-render the parent component until something triggers the render process. One of the common ways to trigger the render process is to call <code>StateHasChanged()</code> method.</p>
+<h3>Setting the default value</h3>
+<p>In .NET 5, required parameter for a component is not supported. All component parameters are optional. In the child component, you cannot change the reference of a property but you can give default value for it as soon as you declare the property.</p>
+<pre class="code" language="csharp">[Parameter]
+public Phone Phone { get; set; } = new()
+{
+    Name = "Default name",
+    BatteryPercentage = 50
+};</pre>
+<h3>Changing the value</h3>
+<p>Parameters passed from the parent component are reference properties. Therefore you can change its value but not its reference.</p>
+<p>Change value the <span style="text-decoration: underline;"><strong>wrong</strong></span> way:</p>
+<pre class="code" language="csharp">// You must not change the reference of a parameter
+//Phone = new()
+//{
+//    Name = "ROG Phone 2",
+//    BatteryPercentage = 50
+//};</pre>
+<p>Change value the <span style="text-decoration: underline;"><strong>right</strong></span> way:</p>
+<pre class="code" language="csharp">Phone.Name = "ROG Phone 2";
+Phone.BatteryPercentage = 50;</pre>
+<p>If there is a nested object, then you must not change its reference either.</p>
+<hr class="my-4" />
+<h1>Combining <code>Parameter</code> with <code>delegate</code></h1>
+<p>You can combine <code>Parameter</code> attribute with <code>delegate</code> to pass parameter from the parent component to the child component and receive notifications when the child component updates its value. This image illustrates the combination.</p>
+<p><img class="img-fluid" src="/contents/blazor-server/dotnet5/component-interaction-550894/a911d849-2b00-42c4-86ce-bd557a91da41..png" alt="" width="1037" height="715" /></p>
+<ol>
+    <li>Declare a property and at least one method to pass to the child component within the parent component.</li>
+</ol>
+<pre class="code" language="csharp">public Phone Phone { get; set; } = new();
+
+public void Render()
+{
+    StateHasChanged();
+}
+
+public async Task RenderAsync()
+{
+    await InvokeAsync(() =&gt; StateHasChanged());
+}</pre>
+<p>This is a simple method that tells Blazor Server to render whenever the child component invokes it. You can have a complicated process with those methods, even returns a value to pass to the child component.</p>
+<ol start="2">
+    <li>Create respective properties to receive the passed parameters within the child component.</li>
+</ol>
+<pre class="code" language="csharp">[Parameter]
+public Phone Phone { get; set; } = new()
+{
+    Name = "Default name",
+    BatteryPercentage = 50
+};
+[Parameter]
+public Action OnUpdatePhoneValue { get; set; }
+[Parameter]
+public Func&lt;Task&gt; OnUpdatePhoneValueAsync { get; set; }</pre>
+<ol start="3">
+    <li>Invoke the passed delegates when the child component changes its value.</li>
+</ol>
+<pre class="code" language="razor">...
+&lt;input type="text" value="@Phone.Name" @oninput="OnNameChanged" /&gt;
+&lt;input type="range" min="0" max="100" value="@Phone.BatteryPercentage" @oninput="OnBatteryChanged" /&gt;
+
+@code {
+    ...
+    private void OnBatteryChanged(ChangeEventArgs arg)
+    {
+        Phone.BatteryPercentage = Convert.ToDouble(arg.Value);
+        OnUpdatePhoneValue?.Invoke();
+    }
+
+    private void OnNameChanged(ChangeEventArgs arg)
+    {
+        Phone.Name = arg.Value as string;
+        OnUpdatePhoneValueAsync?.Invoke();
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Sharing information by service class</h1>
+<div>This method of sharing information is a great way when you want to share parameters between many components and get a two-way notification, it's also decoupling your components. This image illustrates this methodology.</div>
+<p><img class="img-fluid" src="/contents/blazor-server/dotnet5/component-interaction-550894/812584cb-662e-4081-b79f-ad627a46517b..png" alt="" width="1784" height="1026" /></p>
+<h3>Creating the transfer service</h3>
+<p>In order to share data between components, you first need to create a scoped service.</p>
+<ol>
+    <li>Add a new class <code>StoreIndexTransferService</code> to the <code>Data</code> folder (or you can create a new folder for the transfer service).</li>
+</ol>
+<pre class="code" language="csharp">public class StoreIndexTransferService
+{
+    private List&lt;Game&gt; _games = new();
+    private Game _selectedGame = new();
+
+    public List&lt;Game&gt; Games
+    {
+        get =&gt; _games;
+        set =&gt; _games = value;
+    }
+
+    public Game SelectedGame
+    {
+        get =&gt; _selectedGame;
+        set =&gt; _selectedGame = value;
+    }
+}</pre>
+<p>You will need a full property here because later on, you will have an event attached for each of these properties.</p>
+<ol start="2">
+    <li>For each property you have declared, create a delegate and an event for the property.</li>
+</ol>
+<pre class="code" language="csharp">public delegate void OnGamesChangedEventHandler(object sender, List&lt;Game&gt; games);
+public event OnGamesChangedEventHandler OnGamesChanged;
+public delegate void OnSelectedGameChangedEventHandler(object sender, Game game);
+public event OnSelectedGameChangedEventHandler OnSelectedGameChanged;</pre>
+<blockquote>A delegate should have 2 parameters, the former parameter is the caller of the event and the latter is the data sent to the event handler.</blockquote>
+<ol start="3">
+    <li>Invoke the event handler inside the setter method.</li>
+</ol>
+<pre class="code" language="csharp">public List&lt;Game&gt; Games
+{
+    ...
+    set
+    {
+        _games = value;
+        OnGamesChanged?.Invoke(this, value);
+    }
+}
+
+public Game SelectedGame
+{
+    ...
+    set
+    {
+        _selectedGame = value;
+        OnSelectedGameChanged?.Invoke(this, value);
+    }
+}</pre>
+<ol start="4">
+    <li>Register the transfer service in <code>Startup.cs</code>.</li>
+</ol>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddScoped&lt;StoreIndexTransferService&gt;();
+}</pre>
+<h3>Using the transfer service</h3>
+<p>Once you have your service set up, you can use it in any component.</p>
+<ol>
+    <li>Inject <code>StoreIndexTransferService</code> and implement <code>IDisposable</code> interface in the component.</li>
+</ol>
+<pre class="code" language="razor">@inject StoreIndexTransferService StoreIndexTransferService
+@implements IDisposable</pre>
+<ol start="2">
+    <li>Declare methods to handle events from <code>StoreIndexTransferService</code>. The parameters of those methods must be the same as the delegate.</li>
+</ol>
+<pre class="code" language="csharp">// Method Handler for public delegate void OnGamesChangedEventHandler(object sender, List&lt;Game&gt; games);
+private void OnGameListChangedHandler(object sender, List&lt;Game&gt; games)
+{
+    StateHasChanged();
+}
+
+// Method Handler for public delegate void OnSelectedGameChangedEventHandler(object sender, Game game);
+private void OnSelectedGameChangedHandler(object sender, Game games)
+{
+    StateHasChanged();
+}</pre>
+<ol start="3">
+    <li>Set default values and subscribe events.</li>
+</ol>
+<pre class="code" language="csharp">protected override void OnInitialized()
+{
+    StoreIndexTransferService.Games = new()
+    {
+        new()
+        {
+            Name = "The advanture of Sinbad",
+            Price = 22
+        },
+        new()
+        {
+            Name = "DotA 2",
+            Price = 0
+        }
+    };
+    StoreIndexTransferService.SelectedGame = new();
+    StoreIndexTransferService.OnGamesChanged += OnGameListChangedHandler;
+    StoreIndexTransferService.OnSelectedGameChanged += OnSelectedGameChangedHandler;
+}</pre>
+<ol start="4">
+    <li>Unsubscribe the events on component disposing.</li>
+</ol>
+<pre class="code" language="csharp">public void Dispose()
+{
+    StoreIndexTransferService.OnGamesChanged -= OnGameListChangedHandler;
+    StoreIndexTransferService.OnSelectedGameChanged -= OnSelectedGameChangedHandler;
+}</pre>
+<blockquote>This step is not required by the framework but you must unsubscribe the events in order to avoid memory leaks.</blockquote>
+<ol start="5">
+    <li>Use the properties in the transfer service as local properties.</li>
+</ol>
+<pre class="code" language="razor">@foreach (var game in StoreIndexTransferService.Games)
+{
+    &lt;div @onclick="() =&gt; { StoreIndexTransferService.SelectedGame = game; }"&gt;
+        &lt;div&gt;Name: @game.Name&lt;/div&gt;
+        &lt;div&gt;Price: @game.Price&lt;/div&gt;
+    &lt;/div&gt;
+}</pre>
+<h3>Reference change and Value change</h3>
+<p>In the transfer service of the previous example, in <code>StoreIndexTransferService</code> we have the following code:</p>
+<pre class="code" language="csharp">public Game SelectedGame
+{
+    ...
+    set
+    {
+        _selectedGame = value;
+        OnSelectedGameChanged?.Invoke(this, value);
+    }
+}</pre>
+<p>The <code>OnSelectedGameChanged</code> event will invoke all the delegates associated with it when the setter is triggered. This setter will be triggered when the reference to <code>SelectedGame</code> change like this:</p>
+<pre class="code" language="csharp">StoreIndexTransferService.SelectedGame = new();</pre>
+<p>or something like this:</p>
+<pre class="code" language="razor">&lt;div @onclick="() =&gt; { StoreIndexTransferService.SelectedGame = game; }"&gt;</pre>
+<p>but not this:</p>
+<pre class="code" language="csharp">StoreIndexTransferService.SelectedGame.Name = "Brawlhalla";</pre>
+<p>This code will not change the property's reference but its value. The trigger for reference in the transfer service (in this case is <code>OnSelectedGameChanged</code>) will not be fired and all other components subscribed to it will not get the notification. To get the notification when a value changes, you need to put the event inside the model class (in this case is <code>Game</code>) and register to the change event in the transfer service.</p>
+<h3>Get notifications from Value change</h3>
+<ol>
+    <li>Set up the event and invoke the event whenever the value changes in the model class.</li>
+</ol>
+<pre class="code" language="csharp">public class Game : INotifyPropertyChanged
+{
+    private string _name;
+    private double _price;
+
+    public string Name
+    {
+        get =&gt; _name;
+        set
+        {
+            _name = value;
+            PropertyChanged?.Invoke(this, new(nameof(Name)));
+        }
+    }
+    public double Price
+    {
+        get =&gt; _price;
+        set
+        {
+            _price = value;
+            PropertyChanged?.Invoke(this, new(nameof(Price)));
+        }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+}</pre>
+<blockquote>In this example, we use the interface <code>INotifyPropertyChanged</code> implementation. This implementation is fast but you only have one event for all the properties within the class. You can declare one event for each property in the class to have more customization.</blockquote>
+<ol start="2">
+    <li>Subscribe to the property change event in the transfer service.</li>
+</ol>
+<pre class="code" language="csharp">public class StoreIndexTransferService : IDisposable
+{
+    public Game SelectedGame
+    {
+        get =&gt; _selectedGame;
+        set
+        {
+            _selectedGame.PropertyChanged -= PropertySelectedGameChangedEventHandler;
+            _selectedGame = value;
+            _selectedGame.PropertyChanged += PropertySelectedGameChangedEventHandler;
+            OnSelectedGameChanged?.Invoke(this, value);
+        }
+    }
+
+    private void PropertySelectedGameChangedEventHandler(object sender, PropertyChangedEventArgs propertyName)
+    {
+        OnSelectedGameChanged?.Invoke(this, _selectedGame);
+    }
+
+    public void Dispose()
+    {
+        SelectedGame.PropertyChanged -= PropertySelectedGameChangedEventHandler;
+    }
+}</pre>
+<blockquote>Always remember to unsubscribe from events whenever you no longer need them to avoid memory leaks in your website.</blockquote>

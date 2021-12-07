@@ -1,0 +1,215 @@
+<h1>JavaScript interaction</h1>
+<p>Unlike other SPA technologies, Blazor Server uses web assembly on the client side. That does not mean Blazor Server can't or should not use JavaScript. JavaScript is a traditional web development language and has a great number of libraries. Blazor Server has an interface <code>IJSRuntime</code> to access JavaScript. This guide shows how to interact with JavaScript in Blazor Server like calling a function, import JS only when needed and error handling and more to give you the idea how to work with JavaScript.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/javascript-interaction-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisites</h1>
+<p>To get the most information out of this guide, you need to understand the basic things below.</p>
+<ul>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript" target="_blank" rel="noopener" title="Mozilla Web Docs">JavaScript</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/component-lifecycle-683190" title="Blazor Server lifecycle methods">Blazor Server lifecycle methods</a>.</li>
+</ul>
+<hr class="my-4" />
+<h1>HTML5 events and Blazor events</h1>
+<p>There are 2 types of events in Blazor, which are vanilla HTML 5 event and Blazor event. For example, we have 2 <code>&lt;button&gt;</code> tags as below.</p>
+<pre class="code" language="razor">&lt;button onclick="alert('Hello world')"&gt;HTML5 event Hello world!&lt;/button&gt;
+&lt;button @onclick='async () =&gt; await JSRuntime.InvokeVoidAsync("alert", "Hello world")'&gt;Blazor event Hello world!&lt;/button&gt;</pre>
+<p>The former tag uses <code>onclick</code> which is an HTML5 event and the latter tag uses <code>@onclick</code> which is a Blazor event. Both tags are doing the same thing when clicked that is emitting a message to the user but in the declaration they are quite different. In this guide, we assume you know how HTML5 events work and we only cover Blazor events.</p>
+<hr class="my-4" />
+<h1>Calling a JavaScript function</h1>
+<p>When you call a JavaScript function, you must know that if the calling function returns anything because C# is a strongly typed language whereas JavaScript is a weakly typed language.</p>
+<h3>Calling a void function</h3>
+<p>A void function is a function that does not return anything. To call a void function, you need to call the <code>InvokeVoidAsync</code> method of <code>IJSRuntime</code>. In the previous example, you have seen how to call a void function.</p>
+<pre class="code" language="csharp">await JSRuntime.InvokeVoidAsync("alert", "Hello world")</pre>
+<p>The first parameter is the calling path to the function, it is scoped to <code>window</code> object. In this example, the calling path is not <code>alert()</code> but <code>window.alert()</code>. That means if you have a JavaScript object that you are not attached to <code>window</code>, you will not able to access it. The second parameter is the list of parameters to pass to the calling function.</p>
+<h3>Calling a function with return value</h3>
+<p>JavaScript is a weakly-typed language whereas C# is a strongly-typed language. For that reason you need to know the return type of the function before calling it.</p>
+<p>To call a function with return value, you need to call the <code>InvokeAsync&lt;T&gt;</code> method of <code>IJSRuntime</code>. Here is a snippet from our <code>SimpleJavaScript.razor</code> example.</p>
+<pre class="code" language="razor">&lt;button @onclick="EncodeSpace"&gt;Encode space&lt;/button&gt;
+&lt;div&gt;Encode result: @EncodeResult&lt;/div&gt;
+
+@code {
+    public string EncodeResult { get; set; }
+
+    private async Task EncodeSpace()
+    {
+        EncodeResult = await JSRuntime.InvokeAsync&lt;string&gt;("encodeURI", " ");
+    }
+}</pre>
+<p>In this example, you are calling <code>window.encodeURI(" ")</code> function and you are expecting a string return by specifying the generic for the <code>InvokeAsync</code> method <code>JSRuntime.InvokeAsync&lt;string&gt;</code>.</p>
+<hr class="my-4" />
+<h1>Defining complex JavaScript functions</h1>
+<p>Most of the time, problems can not be solved within one line JavaScript function and you have to create a method to be called again and again. For example, you may want to access features that Blazor Server does not currently support or perform complex JavaScript operations. In that case, you will need to declare complex functions. This section will walk you through how to create a simple calculator JavaScript library and use it in Blazor Server.</p>
+<ol>
+    <li>Create a new <code>Calculator.js</code> and <code>BlazorUtil.js</code> in <code>wwwroot/js</code> folder. You have to create the <code>js</code> folder yourself.</li>
+</ol>
+<pre class="code" language="javascript">export class Calculator
+{
+    minus(leftHand, rightHand)
+    {
+        return leftHand - rightHand;
+    }
+}</pre>
+<pre class="code" language="javascript">import { Calculator } from "./Calculator.js";
+
+class BlazorUtil
+{
+    calculator = new Calculator();
+}
+
+window.BlazorUtil = new BlazorUtil();</pre>
+<p>The idea is to make your javascript files modular. You can have another library like <code>Calculator.js</code> and <code>BlazorUtil.js</code> will centralize all of them. You also need to attach BlazorUtil to <code>window</code> by <code>window.BlazorUtil = new BlazorUtil();</code> as <code>IJSRuntime</code> only interact with <code>window</code>.</p>
+<ol start="2">
+    <li>Import <code>BlazorUtil.js</code> in <code>_Host.cshtml</code>.</li>
+</ol>
+<pre class="code" language="html">...
+&lt;script src="_framework/blazor.server.js"&gt;&lt;/script&gt;
+&lt;script src="/js/BlazorUtil.js" type="module"&gt;&lt;/script&gt;</pre>
+<ol start="3">
+    <li>Call the methods. We have set up a form to demonstrate how to call the <code>minus(leftHand, rightHand)</code>.</li>
+</ol>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+
+&lt;form&gt;
+    &lt;div&gt;
+        &lt;label&gt;Left Hand:&lt;input type="number" @bind-value="LeftHand" /&gt;&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label&gt;Right Hand:&lt;input type="number" @bind-value="RightHand" /&gt;&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label&gt;Result: @Result&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;button type="button" @onclick="Minus"&gt;Minus&lt;/button&gt;
+&lt;/form&gt;
+
+@code {
+    public int LeftHand { get; set; }
+    public int RightHand { get; set; }
+    public int Result { get; set; }
+
+    private async Task Minus()
+    {
+        Result = await JSRuntime.InvokeAsync&lt;int&gt;("BlazorUtil.calculator.minus", LeftHand, RightHand);
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Handling unpredictable JavaScript functions</h1>
+<p>JavaScript is a dynamic language which leads to its functions usually having unpredictable results. For example, a function does not have a return type and it can return a number, a string, a date, or does not return anything at all. Sometimes, a function takes too long to return results which will make Blazor Server website need to be refreshed by default.</p>
+<p>When calling a JavaScript function, you should always wrap it between a <code>try-catch</code> block because a single error in the JavaScript side will force the user to reload.</p>
+<h3>Handling unpredictable return types</h3>
+<p>The first unpredictable thing when calling a JavaScript function is you don't know extractly the return type of a function. We have set up a scenario to demonstrate how to handle this case.</p>
+<p>JavaScript function:</p>
+<pre class="code" language="javascript">returnValueSometimes(inputFactor)
+{
+    switch (inputFactor)
+    {
+        case 1:
+            return 100;
+        case 2:
+            return "Blazor School";
+        default:
+    }
+};</pre>
+<p>Razor Component:</p>
+<pre class="code" language="razor">&lt;form&gt;
+    &lt;div&gt;
+        &lt;label&gt;
+            Input Factor:
+            &lt;input type="number" @bind-value="InputFactor" /&gt;
+        &lt;/label&gt;
+        &lt;label&gt;Unpredictable Result: @UnpredictableResult&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;button type="button" @onclick="ExecuteUnpredictableFunction"&gt;Get Unpredictable Result&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/form&gt;
+
+@code {
+    public int InputFactor { get; set; } = 1;
+    public dynamic UnpredictableResult { get; set; } = 0;
+
+    private async Task ExecuteUnpredictableFunction()
+    {
+        try
+        {
+            UnpredictableResult = await JSRuntime.InvokeAsync&lt;dynamic&gt;("BlazorUtil.unpredictable.returnValueSometimes", InputFactor) ?? throw new InvalidOperationException();
+        }
+        catch
+        {
+            UnpredictableResult = "Error occured.";
+        }
+    }
+}</pre>
+<p>Make the return type is <code>dynamic</code> and wrap the calling <code>InvokeAsync</code> inside a <code>try-catch</code> block. But then, you have to handle the <code>dynamic</code> result in C# code.</p>
+<h3>Interrupting long execution</h3>
+<p>Sometimes, JavaScript functions are taking too long to respond. By default, if a function is taking too long to respond, Blazor Server will cancel after 60 seconds by default. Sometimes, you need to extend or shorten that timeout. We have set up a scenario to demonstrate how to set a timeout for a JavaScript function.</p>
+<p>JavaScript function:</p>
+<pre class="code" language="javascript">async hang()
+{
+    await sleep(3);
+    console.info("Execution on the client side has done!");
+
+    return "Done";
+}
+
+function sleep(seconds)
+{
+    return new Promise(resolve =&gt; setTimeout(resolve, seconds * 1000));
+}</pre>
+<p>Razor Component:</p>
+<pre class="code" language="razor">...
+&lt;button type="button" @onclick="ExecuteUnpredictableFunction"&gt;Get Unpredictable Result&lt;/button&gt;
+&lt;button type="button" @onclick="ExecuteHangingFunction"&gt;Execute Hanging Function&lt;/button&gt;
+
+@code {
+    ...
+    private async Task ExecuteHangingFunction()
+    {
+        CancellationTokenSource source = new CancellationTokenSource(TimeSpan.FromSeconds(InputFactor));
+        CancellationToken token = source.Token;
+        try
+        {
+            UnpredictableResult = await JSRuntime.InvokeAsync&lt;string&gt;("BlazorUtil.unpredictable.hang", cancellationToken: token) ?? throw new InvalidOperationException();
+        }
+        catch
+        {
+            UnpredictableResult = "Time out";
+        }
+    }
+}</pre>
+<p>You can set a timeout by creating a <code>new CancellationTokenSource(delay))</code>. You can cancel the JavaScript method anytime you want. To cancel before the timeout, call <code>source.Cancel();</code> method from the above example. Keep in mind that when you cancelling a JavaScript function in C#, you are telling C# to not to wait for the JS function but not telling the JS function to stop, the JS function still continues to execute.</p>
+<hr class="my-4" />
+<h1>Importing JavaScript on demand</h1>
+<p>Having everything imported when the users don't need it is a waste of resources and can slow the initial loading phrase down. Blazor Server supports importing on demand. Let's say we have this library <code>CustomLibrary.js</code>:</p>
+<pre class="code" language="javascript">export class CustomLibrary
+{
+    helloWorld()
+    {
+        alert("Hello World from CustomLibrary.js");
+    };
+}</pre>
+<p>Declare a new <code>import(path, moduleName)</code> in <code>BlazorUtil.js</code>:</p>
+<pre class="code" language="javascript">async import(path, moduleName)
+{
+    let module = await import(path);
+    let instance = new module[moduleName];
+    let instanceName = `${moduleName[0].toLowerCase()}${moduleName.slice(1)}`;
+    this[instanceName] = instance;
+}</pre>
+<p>Import the library on demand and call its functions in Razor Component:</p>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+
+&lt;button type="button" @onclick="Import"&gt;Import Custom Library&lt;/button&gt;
+&lt;button type="button" @onclick="HelloWorld"&gt;Hello World!&lt;/button&gt;
+
+@code {
+    private async Task Import()
+    {
+        await JSRuntime.InvokeVoidAsync("BlazorUtil.import", "./CustomLibrary.js", "CustomLibrary");
+    }
+
+    private async Task HelloWorld()
+    {
+        await JSRuntime.InvokeVoidAsync("BlazorUtil.customLibrary.helloWorld");
+    }
+}</pre>
