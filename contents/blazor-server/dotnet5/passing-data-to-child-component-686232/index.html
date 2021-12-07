@@ -1,0 +1,63 @@
+<h1>Passing data to child component</h1>
+<p>This guide builds on the first step of the <a href="/tutorial/blazor-server/dotnet5/getting-started-788874" title="Getting Started with Blazor Server">Getting Started</a> tutorial.</p>
+<p>At this stage of development, the online shop website has a basic product detail component.</p>
+<p>In the following sections, you will add the following feature to the website:</p>
+<ul>
+    <li>Create a product list page.</li>
+    <li>Display the details of each product on the product list page.</li>
+</ul>
+<hr class="my-4" />
+<h1>Create a product list page</h1>
+<p>In this section, you will update the website to display a list of products. You will use the class <code>Product.cs</code> we have created before as the model for product. This section guides you through editing the Razor Component.</p>
+<ol>
+    <li>Head to the <code>Page</code> folder and create a new Razor Component called <code>ProductList.razor</code>.</li>
+    <li>We will declare the product list in the <code>@code { }</code> section like this:</li>
+</ol>
+<pre class="code" language="razor">@using Data
+
+&lt;h2&gt;ProductList&lt;/h2&gt;
+
+@code {
+    private List&lt;Product&gt; Products;
+
+    protected override void OnInitialized()
+    {
+        Products = new()
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "All roads lead to Blazor Server",
+                    Description = "A tutorial book for Blazor Server technology"
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "All roads lead to Blazor WASM",
+                    Description = "A tutorial book for Blazor WASM technology."
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "How to be a good web programmer?",
+                    Description = "Follow the journey of a programmer."
+                }
+            };
+    }
+}</pre>
+<p>The <code>OnInitialized()</code> method fires when the page is rendered on the server. By doing this, you are telling the server to initate the value for <code>Products</code> after the page is rendered. The <code>@using</code> at the top of the page indicates that we are going to use every class in the <code>Data</code> folder, in our case, we are using the <code>Product.cs</code> from the <code>Data</code> folder.</p>
+<hr class="my-4" />
+<h1>Display the product detail</h1>
+<p>Currently, the product list now has the products to display, all you need to do is display the detail of each product. Add an <code>@foreach</code> syntax reference to create a foreach loop, as follows.</p>
+<pre class="code" language="razor">@foreach (var product in Products)
+{
+    &lt;ProductDetail Product="product"&gt;&lt;/ProductDetail&gt;
+}</pre>
+<p>The <code>@</code> symbol in Razor Component to tell ASP.NET to evaluate the following C# code and render the result to the HTML template. The <code>&lt;ProductDetail&gt;</code> tag is telling ASP.NET to look for the <code>ProductDetail.razor</code> and render the component in the HTML template. All you just do is tell ASP.NET that for each the product that you have here, render one <code>ProductDetail.razor</code> component and passing 2 parameters <code>Product="product" ShowBuyButton="true"</code> to the child component.</p>
+<hr class="my-4" />
+<h1>What's next</h1>
+<p>You have updated your website to show the product list.</p>
+<p>To continue exploring Blazor Server:</p>
+<ul>
+    <li>Continue to <a href="/tutorial/blazor-server/adding-navigation-189791" title="Adding navigation for Blazor Server">Adding navigation</a> to add a distinct URL so you can see the results of the product list.</li>
+</ul>
