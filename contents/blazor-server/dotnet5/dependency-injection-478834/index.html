@@ -1,0 +1,118 @@
+<h1>Dependency injection in Blazor Server</h1>
+<p>Dependencies are services or objects that a class/component needs to perform its function. Dependency injection, or DI, is a design pattern in which a class requests dependencies from other sources rather than creating them.</p>
+<p>Blazor Server's DI framework provides dependencies to a class upon instantiation. You can use Blazor Server DI to increase flexibility and modularity on your websites.</p>
+<blockquote><a href="https://github.com/Blazor-School/dependency-example-blazor-server" title="Dependency Injection Example">Download the example</a> for a working example containing the code snippets in this guide.</blockquote>
+<hr class="my-4" />
+<h1>Creating an injectable service</h1>
+<p>Create a new class <code>GreetingService</code> under the <code>Data</code> folder.</p>
+<pre class="code" language="csharp">namespace DependencyExampleBlazorSchool.Data
+{
+    public class GreetingService
+    {
+        public string Greet()
+        {
+            return $"Hello World from {nameof(GreetingService)}";
+        }
+    }
+}</pre>
+<p>The <code>GreetingService</code> has one method <code>Greet</code> that returns a string. We will call this method inside a component.</p>
+<hr class="my-4" />
+<h1>Registering an injectable service</h1>
+<p>After we have our injectable service, the next step is to register it to Blazor Server and then it will be injectable anywhere on the website.</p>
+<p>Open the <code>Startup.cs</code> and modify the <code>ConfigureService</code> as follow:</p>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    services.AddRazorPages();
+    services.AddServerSideBlazor();
+    services.AddSingleton&lt;GreetingService&gt;();
+}</pre>
+<p>The <code>services.AddSingleton&lt;GreetingService&gt;();</code> line will register the <code>GreetingService</code> as a singleton service. There are 3 types of services: singleton, transient, scoped. Here is the comparison between the types of services:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td>Singleton</td>
+                <td>One instance for the entire website.</td>
+            </tr>
+            <tr>
+                <td>Transient</td>
+                <td>Create a new instance every time it is injected.</td>
+            </tr>
+            <tr>
+                <td>Scoped</td>
+                <td>Create a new instance for each request.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<hr class="my-4" />
+<h1>Injecting services</h1>
+<p>Injecting services results in making them visible to a component.</p>
+<p>To inject a dependency into a component, use <code>@inject</code> directive at the directive section.</p>
+<pre class="code" language="razor">@inject Data.GreetingService GreetingService</pre>
+<p>The syntax of the inject directive is <code>@inject ServiceType ServiceInstanceName</code>. In the example above, the <code>Data.GreetingService</code> is the type of service and we are calling the injecting instance is <code>GreetingService</code>.</p>
+<p>The inject statement can be reduced to <code>@inject GreetingService GreetingService</code> by adding <code>@using Data</code> to import Data namespace before the inject statement.</p>
+<p>After the service is injected into the component, you can call methods of <code>GreetingService</code>.</p>
+<pre class="code" language="razor">@using Data 
+@inject GreetingService GreetingService
+@page "/basic-injection" 
+
+&lt;h3&gt;@GreetingService.Greet()&lt;/h3&gt;</pre>
+<p>In this example, you are using <code>Greet()</code> method from <code>GreetingService</code> to generate a string when Blazor Server renders the page.</p>
+<hr class="my-4" />
+<h1>Nested injecting services</h1>
+<p>The injection is not bound to a component, you can also inject a service into another service.</p>
+<ol>
+    <li>Create a new class <code>WaiterService</code> under <code>Data</code> folder.</li>
+</ol>
+<pre class="code" language="csharp">namespace DependencyExampleBlazorSchool.Data
+{
+    public class WaiterService
+    {
+        public string Serve()
+        {
+            return "How can I help you?";
+        }
+    }
+}</pre>
+<ol start="2">
+    <li>Declare a private variable for <code>GreetingService</code>.</li>
+</ol>
+<pre class="code" language="csharp">private readonly GreetingService _greetingService;</pre>
+<ol start="3">
+    <li>Declare a constructor and inject <code>GreetingService</code> into <code>WaiterService</code>.</li>
+</ol>
+<pre class="code" language="csharp">public WaiterService(GreetingService greetingService)
+{
+    _greetingService = greetingService;
+}</pre>
+<ol start="4">
+    <li>Now you can call methods in <code>GreetingService</code>.</li>
+</ol>
+<pre class="code" language="csharp">public string Serve()
+{
+    string greeting = _greetingService.Greet();
+
+    return $"{greeting}. How can I help you?";
+}</pre>
+<p>At this point, you will have the whole class as follow:</p>
+<pre class="code" language="csharp">namespace DependencyExampleBlazorSchool.Data
+{
+    public class WaiterService
+    {
+        private readonly GreetingService _greetingService;
+
+        public WaiterService(GreetingService greetingService)
+        {
+            _greetingService = greetingService;
+        }
+
+        public string Serve()
+        {
+            string greeting = _greetingService.Greet();
+
+            return $"{greeting}. How can I help you?";
+        }
+    }
+}</pre>
+<p>You can register and inject the <code>WaiterService</code> to a component to see the result as with <code>GreetingService</code>.</p>

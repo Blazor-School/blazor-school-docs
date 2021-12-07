@@ -1,0 +1,36 @@
+<h1>Scoped Service</h1>
+<p>Scoped service is a service type in Blazor Server DI. Scoped services are better for:</p>
+<ol>
+    <li>Business logic operations.</li>
+    <li>State is required.</li>
+</ol>
+<blockquote><a href="https://github.com/Blazor-School/dependency-example-blazor-server" title="Dependency Injection Example">Download the example</a> for a working example containing the code snippets in this guide.</blockquote>
+<hr class="my-4" />
+<h1>Creating a scoped service</h1>
+<ol>
+    <li>Navigate to the <code>Data</code> folder and create the <code>ScopedGuidProviderService.cs</code> class:</li>
+</ol>
+<pre class="code" language="csharp">using System;
+
+namespace DependencyExampleBlazorSchool.Data
+{
+    public class ScopedGuidProviderService : IGuidProviderService
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+    }
+}</pre>
+<ol start="2">
+    <li>Navigate to <code>Startup.cs</code> and register the service as a scoped service.</li>
+</ol>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddScoped&lt;ScopedGuidProviderService&gt;();
+}</pre>
+<blockquote>For injecting and using a service, please refer to <a href="/tutorial/blazor-server/dotnet5/dependency-injection-478834" title="Dependency Injection in Blazor Server">Dependency Injection</a>.</blockquote>
+<hr class="my-4" />
+<h1>Lifetime</h1>
+<p>Scoped services are created for each user request. Used for maintaining state within a request.</p>
+<p>In the example provided at the beginning of this context, you will see a scoped service being injected 2 times and their values are different for each request.</p>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\scoped-service-452590\557dd96b-7241-462f-acae-8d10af808343..png" alt="Scoped service in Blazor Server" width="1139" height="639" /></p>
+<blockquote>Note: Use the "Trigger new request" in the example to create a new request.</blockquote>
