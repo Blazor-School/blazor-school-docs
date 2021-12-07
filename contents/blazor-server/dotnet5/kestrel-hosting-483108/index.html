@@ -15,7 +15,7 @@
 <p>For Linux machines, go to <a href="https://docs.microsoft.com/en-us/dotnet/core/install/linux?WT.mc_id=dotnet-35129-website" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/dotnet/core/install/linux?WT.mc_id=dotnet-35129-website</a> and follow the instructions there.</p>
 <h3>Starting the Kestrel server</h3>
 <p>After you have .NET 5 SDK installed in the machine, open a cmd (Windows) or terminal (Linux) to the folder that contains the DLL file and start the Kestrel server by dotnet CLI.</p>
-<pre class="code" language="bat">dotnet BlazorSchool.dll</pre>
+<pre class="code" language="bash">dotnet BlazorSchool.dll</pre>
 <hr class="my-4" />
 <h1>Forward &amp; Reverse Proxy hosting</h1>
 <p>After you start the Kestrel server, you will see a notification message on how Kestrel listens.</p>
@@ -29,7 +29,7 @@
 </ul>
 <p>For Reverse Proxy, set the <strong>IP address</strong> to localhost, for Forward Proxy, set the <strong>IP address</strong> to the domain name or hosting machine IP or <code>[::]</code>.</p>
 <p>You can modify the url by using the parameter <code>--urls</code> as follows:</p>
-<pre class="code" language="bat">dotnet BlazorSchool.dll --urls="https://blazorschool.com;https://dotnetpro.tech"</pre>
+<pre class="code" language="bash">dotnet BlazorSchool.dll --urls="https://blazorschool.com;https://dotnetpro.tech"</pre>
 <p>In the above example, we demonstrate how to use 2 urls. You can also remove the second url per need.</p>
 <blockquote>You cannot use localhost as IP address for the Forward Proxy hosting model.</blockquote>
 <hr class="my-4" />
