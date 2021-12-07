@@ -37,7 +37,7 @@
 <p>If you are using the HTTPS protocol for Kestrel, you need to obtain a certificate for your website, you can do that using <a href="https://certbot.eff.org/" target="_blank" rel="noopener">Certbot</a> or <a href="https://www.iis.net/" target="_blank" rel="noopener">IIS</a>. Once you have the certificate, you can start using it for Kestrel.</p>
 <p>To use the SSL for Kestrel, you need to set it up in the <code>appsettings.json</code> file, the .NET CLI does not support setting up an SSL. The <code>appsettings.json</code> allows you to set up for complex scenarios. If your website has multiple endpoints, the <code>appsettings.json</code> uses the first match win strategy, and if none match, it will fall back to the default SSL.</p>
 <p>For default SSL, add the following config to the <code>appsettings.json</code>.</p>
-<pre class="code" language="javascript">"Kestrel":
+<pre class="code" language="json">"Kestrel":
 {
     "Certificates":
     {
@@ -49,7 +49,7 @@
     }
 }</pre>
 <p>Each endpoint can also have its own SSL with the following configuration.</p>
-<pre class="code" language="javascript">"Kestrel":
+<pre class="code" language="json">"Kestrel":
 {
     "Endpoints":
     {
