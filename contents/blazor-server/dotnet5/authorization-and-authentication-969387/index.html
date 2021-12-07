@@ -1,0 +1,202 @@
+<h1>Authentication and authorization</h1>
+<p>Both authentication and authorization play a crucial part in every Blazor Server website. Authentication is the process of acquiring user information. Authorization is the process of using acquired information to check if the user has the right to access certain resources or not. This guide will walk you through on how to do authentication and authorization in Blazor Server.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/authentication-authorization-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisites</h1>
+<p>To prepare your website for authentication and authorization, you should have a basic understanding of the following:</p>
+<ul>
+    <li><a href="/tutorial/blazor-server/dotnet5/component-lifecycle-683190" title="Component lifecycle">Component lifecycle</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/dependency-injection-478834" title="Dependency injection">Dependency injection</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/local-storage-407302" title="Local storage">Local storage</a>.</li>
+</ul>
+<hr class="my-4" />
+<h1>Authenticating users</h1>
+<p>Authentication is the process of acquiring user information. Therefore, authentication must happen before you can authorize users. Once the user is successfully authenticated, you need to store the authenticated results into local storage and later on, retrieve the results and verify that.</p>
+<h3>Login flow</h3>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\authorization-and-authentication-969387\2fa6a75d-2caf-42d7-99fe-d66ec7ea1e41..png" alt="" width="1416" height="2175" /></p>
+<h3>Logout flow</h3>
+<div><img class="img-fluid" src="\contents\blazor-server\dotnet5\authorization-and-authentication-969387\fbe5f66f-a956-4056-a395-4dfef287dc7b..png" alt="" width="1469" height="617" /></div>
+<h3>Provide authentication state flow</h3>
+<div><img class="img-fluid" src="\contents\blazor-server\dotnet5\authorization-and-authentication-969387\5dab652c-17f6-4330-8f65-f2b76461757a..png" alt="" width="1469" height="3537" /></div>
+<h3>Setup the <code>AuthenticationStateProvider</code></h3>
+<p>Blazor Server uses <code>AuthenticationStateProvider</code> to authenticating users. You need to replace the built-in <code>AuthenticationStateProvider</code> to do the authentication yourself.</p>
+<ol>
+    <li>Create an extension class of <code>AuthenticationStateProvider</code>. We call it <code>WebsiteAuthenticator</code> in our example.</li>
+</ol>
+<pre class="code" language="csharp">public class WebsiteAuthenticator : AuthenticationStateProvider
+{
+    private readonly ProtectedLocalStorage _protectedLocalStorage;
+    private readonly SimulatedDataProviderService _dataProviderService;
+
+    public WebsiteAuthenticator(ProtectedLocalStorage protectedLocalStorage, SimulatedDataProviderService dataProviderService)
+    {
+        _protectedLocalStorage = protectedLocalStorage;
+        _dataProviderService = dataProviderService;
+    }
+
+    public override async Task&lt;AuthenticationState&gt; GetAuthenticationStateAsync()
+    {
+        var principal = new ClaimsPrincipal();
+
+        try
+        {
+            var storedPrincipal = await _protectedLocalStorage.GetAsync&lt;string&gt;("identity");
+
+            if (storedPrincipal.Success)
+            {
+                var user = JsonConvert.DeserializeObject&lt;User&gt;(storedPrincipal.Value);
+                var (_, isLookUpSuccess) = LookUpUser(user.Username, user.Password);
+                    
+                if (isLookUpSuccess)
+                {
+                    var identity = CreateIdentityFromUser(user);
+                    principal = new(identity);
+                }
+            }
+        }
+        catch
+        {
+
+        }
+
+        return new AuthenticationState(principal);
+    }
+
+    public async Task LoginAsync(LoginFormModel loginFormModel)
+    {
+        var (userInDatabase, isSuccess) = LookUpUser(loginFormModel.Username, loginFormModel.Password);
+        var principal = new ClaimsPrincipal();
+
+        if (isSuccess)
+        {
+            var identity = CreateIdentityFromUser(userInDatabase);
+            principal = new ClaimsPrincipal(identity);
+            await _protectedLocalStorage.SetAsync("identity", JsonConvert.SerializeObject(userInDatabase));
+        }
+
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
+    }
+
+    public async Task LogoutAsync()
+    {
+        await _protectedLocalStorage.DeleteAsync("identity");
+        var principal = new ClaimsPrincipal();
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
+    }
+
+    private static ClaimsIdentity CreateIdentityFromUser(User user)
+    {
+        return new ClaimsIdentity(new Claim[]
+        {
+            new (ClaimTypes.Name, user.Username),
+            new (ClaimTypes.Hash, user.Password),
+            new("age", user.Age.ToString())
+        }, "BlazorSchool");
+    }
+
+    private (User, bool) LookUpUser(string username, string password)
+    {
+        var result = _dataProviderService.Users.FirstOrDefault(u =&gt; username == u.Username &amp;&amp; password == u.Password);
+
+        return (result, result is not null);
+    }
+}</pre>
+<blockquote>You have to implement <code>SimulatedDataProviderService</code> to store and retrieve the data from the database yourself.</blockquote>
+<p>You need an empty <code>try-catch</code> block when retrieving local storage because local storage is only available in the client. If the Blazor Server renders any component that requires authenticated users, the method <code>GetAuthenticationStateAsync</code> will be called and local storage will not be available there. The method <code>GetAuthenticationStateAsync</code> will be called again later by the client. This also helps make sensitive data secure to any search engine.</p>
+<ol start="2">
+    <li>Register the <code>WebsiteAuthenticator</code> in <code>Startup.cs</code>.</li>
+</ol>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddScoped&lt;WebsiteAuthenticator&gt;();
+    services.AddScoped&lt;AuthenticationStateProvider&gt;(sp =&gt; sp.GetRequiredService&lt;WebsiteAuthenticator&gt;());
+}</pre>
+<p>The first line initilizes your class as a scoped service. The second line is to replace your scoped service into built-in <code>AuthenticationStateProvider</code>.</p>
+<ol start="3">
+    <li>Wrap <code>CascadingAuthenticationState</code> around <code>App.razor</code>.</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingAuthenticationState&gt;
+    &lt;Router AppAssembly="@typeof(Program).Assembly" PreferExactMatches="@true"&gt;
+        ...
+    &lt;/Router&gt;
+&lt;/CascadingAuthenticationState&gt;</pre>
+<h3>Creating a login page</h3>
+<p>The login page allows users to input their information for you to verify. It can be an independent page or you can also use the <a href="/tutorial/blazor-server/dotnet5/content-projection-676423" title="Content Projection">Content Projection</a> technique to reduce the amount of work when you want to display a login form if the user is not authenticated.</p>
+<ol>
+    <li>Inject your implementation class of <code>AuthenticationStateProvider</code>.</li>
+</ol>
+<pre class="code" language="razor">@inject WebsiteAuthenticator WebsiteAuthenticator</pre>
+<ol start="2">
+    <li>Create a login form. See <a href="/tutorial/blazor-server/dotnet5/forms-227030" title="Blazor Server Forms">Blazor Server Forms</a>.</li>
+</ol>
+<pre class="code" language="razor">&lt;EditForm Model="LoginFormModel" Context="Login"&gt;
+    &lt;div&gt;
+        &lt;label&gt; Username: 
+            &lt;InputText @bind-Value="LoginFormModel.Username"&gt;&lt;/InputText&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label&gt; Password:
+            &lt;InputText type="password" @bind-Value="LoginFormModel.Password"&gt;&lt;/InputText&gt;
+        &lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;button @onclick="TryLogin"&gt;Submit&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/EditForm&gt;
+
+@code {
+    private LoginFormModel LoginFormModel { get; set; } = new();
+
+    private async Task TryLogin()
+    {
+        await WebsiteAuthenticator.LoginAsync(LoginFormModel);
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Authorizing users</h1>
+<div>Authorization is the process of using acquired information to check if the user has the right to access certain resources or not. For example, you only want unauthenticated users to see the login form and vice versa. The first thing you need to do is to authorize your login form. You can use <code>AuthorizeView</code> along with its render fragments: <code>NotAuthorized</code>, <code>Authorizing</code>, <code>Authorized</code> to do that. <code>AuthorizeView</code> is a pre-built component using <a href="/tutorial/blazor-server/dotnet5/content-projection-676423" title="Content Projection">Content Projection</a> technique to determine what to display to the users according to their authenticated status.</div>
+<ol>
+    <li>Wrap the login form into <code>AuthorizeView</code> component and also, inside the <code>NotAuthorized</code> render fragment. By doing this, you will hide the login form when a user is authenticated.</li>
+</ol>
+<pre class="code" language="razor">&lt;AuthorizeView Context="Account"&gt;
+    &lt;NotAuthorized&gt;
+        &lt;EditForm Model="LoginFormModel" Context="Login"&gt;
+            ...
+        &lt;/EditForm&gt;
+    &lt;/NotAuthorized&gt;
+&lt;/AuthorizeView&gt;</pre>
+<ol start="2">
+    <li>Right now, when the user is authenticated, they will see a blank page and you need to notify them that they are authenticated. Add <code>Authorized</code> render fragment to notify them.</li>
+</ol>
+<pre class="code" language="razor">&lt;AuthorizeView Context="Account"&gt;
+    &lt;NotAuthorized&gt;
+        ...
+    &lt;/NotAuthorized&gt;
+    &lt;Authorized&gt;
+        &lt;button type="button" class="btn btn-primary" @onclick="TryLogout"&gt;Logout&lt;/button&gt;
+    &lt;/Authorized&gt;
+&lt;/AuthorizeView&gt;
+
+@code {
+    ...
+    private async Task TryLogout()
+    {
+        await WebsiteAuthenticator.LogoutAsync();
+    }
+}</pre>
+<ol start="3">
+    <li>In some cases, the authentication process can take a long time to provide the authenticated result. In that case, you also want the user to see something instead of a blank page. Add <code>Authorizing</code> render fragment to show the process of authenticating the user. The time taken to authenticate a user depends on the <code>GetAuthenticationStateAsync</code> method of your class.</li>
+</ol>
+<pre class="code" language="razor">&lt;AuthorizeView Context="Account"&gt;
+    &lt;NotAuthorized&gt;
+        ...
+    &lt;/NotAuthorized&gt;
+    &lt;Authorized&gt;
+        ...
+    &lt;/Authorized&gt;
+    &lt;Authorizing&gt;
+        Authorizing in process...
+    &lt;/Authorizing&gt;
+&lt;/AuthorizeView&gt;</pre>

@@ -1,0 +1,211 @@
+<h1>Local storage in Blazor Server</h1>
+<p>Local storage is an internal database created into the browser, which you can use to save data in a key-value format. The data stored in local storage has no expiration date and will persist until the user decides to delete it.</p>
+<p>This guide describes how to manage the data from local storage.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/local-storage-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Manage local storage with <code>ProtectedLocalStorage</code></h1>
+<p><code>ProtectedLocalStorage</code> is a built-in class that allows programmers to manage local storage. The data stored by <code>ProtectedLocalStorage</code> is encrypted but at the cost of incrementing the size of the data. Local storage has a limit of 5MB per site unless the user wants more.</p>
+<p><code>ProtectedLocalStorage</code> only available on the client side. If you use <code>ProtectedLocalStorage</code> on any server life cycle methods like <code>OnInitialized()</code> you will get an error. Look at <a href="/tutorial/blazor-server/dotnet5/component-lifecycle-683190" title="Component lifecycle">Lifecycle event sequence</a> table to see what lifecycle methods are triggered by the client side.</p>
+<h3>Using <code>ProtectedLocalStorage</code> in a component</h3>
+<p>To use <code>ProtectedLocalStorage</code> in a component, you need to inject it in the directive section of the component.</p>
+<pre class="code" language="razor">@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedLocalStorage ProtectedLocalStorage</pre>
+<h3>Using <code>ProtectedLocalStorage</code> in a service</h3>
+<p>To use <code>ProtectedLocalStorage</code> in a service, you need to inject it in the constructor of the service.</p>
+<pre class="code" language="csharp">public class &lt;Class Name&gt;
+{
+    private readonly ProtectedLocalStorage _protectedLocalStorage;
+
+    public &lt;Class Name&gt;(ProtectedLocalStorage protectedLocalStorage)
+    {
+        _protectedLocalStorage = protectedLocalStorage;
+    }
+}</pre>
+<h3>Storing and retrieving local storage without scope</h3>
+<p>To store data in local storage, you need to call the method <code>SetAsync(key, value)</code> of <code>ProtectedLocalStorage</code>. In our example, we have set up a form to store data to the local storage.</p>
+<pre class="code" language="razor">&lt;form&gt;
+    &lt;div&gt;
+        &lt;label&gt;Key: &lt;input type="text" @bind-value="LocalStorageKey" /&gt;&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label&gt;Value: &lt;input type="text" @bind-value="LocalStorageValue" /&gt;&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;button type="button" @onclick="StoreKeyAsync"&gt;Store Key&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/form&gt;
+
+@code {
+    public string LocalStorageKey { get; set; }
+    public string LocalStorageValue { get; set; }
+
+    private async Task StoreKeyAsync()
+    {
+        await ProtectedLocalStorage.SetAsync(LocalStorageKey, LocalStorageValue);
+    }
+}</pre>
+<p>To retrieve data from local storage, you need to call the method <code>GetAsync(key)</code> of <code>ProtectedLocalStorage</code>. In our example, we have set up a form to get the data from local storage.</p>
+<pre class="code" language="razor">&lt;form&gt;
+    &lt;div&gt;
+        &lt;label&gt;Key: &lt;input type="text" @bind-value="LocalStorageQueryKey" /&gt;&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;button type="button" @onclick="GetValueAsync"&gt;Get Value&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div&gt;Value: @LocalStorageQueryValue&lt;/div&gt;
+&lt;/form&gt;
+
+@code {
+    public string LocalStorageQueryKey { get; set; }
+    public string LocalStorageQueryValue { get; set; }
+
+    private async Task GetValueAsync()
+    {
+        var result = await ProtectedLocalStorage.GetAsync&lt;string&gt;(LocalStorageQueryKey);
+        
+        if (result.Success)
+        {
+            LocalStorageQueryValue = result.Value;
+        }
+    }
+}</pre>
+<p>If you use the <code>ProtectedLocalStorage</code> to store the data then you can only use <code>ProtectedLocalStorage</code> to retrieve the value back because the actual data stored in the browser will be encrypted.</p>
+<p><img class="img-fluid" src="\contents\blazor-server\dotnet5\local-storage-407302\a9d60096-0e8a-4c3d-a8a0-52a928fc3136..png" alt="" width="1080" height="181" /></p>
+<h3>Scoped local storage</h3>
+<div>Just like CSS, the data in local storage can be scoped. Although you cannot have a key multiple times, you can divide them into areas so the key in one area cannot access the others. Keep in mind that local storage keys are case-sensitive.</div>
+<div>To store the data in scope, you need to call <code>SetAsync(purpose, key, value)</code> of <code>ProtectedLocalStorage</code>. The <code>purpose</code> parameter is important as it will be used to retrieve the key later on. You can reuse the previous example and change the <code>SetAsync</code> method as:</div>
+<pre class="code" language="razor">...
+private async Task StoreKeyAsync() 
+{ 
+    await ProtectedLocalStorage.SetAsync("login", LocalStorageKey, LocalStorageValue);
+}</pre>
+<p>To retrieve the data in scope, you need to call the method <code>GetAsync(purpose, key)</code> of <code>ProtectedLocalStorage</code>.</p>
+<pre class="code" language="csharp">...
+private async Task GetValueAsync()
+{
+    ProtectedBrowserStorageResult&lt;string&gt; result = new();
+
+    try
+    {
+        result = await ProtectedLocalStorage.GetAsync&lt;string&gt;("login", LocalStorageQueryKey);
+    }
+    catch
+    {
+    }
+    finally
+    {
+        LocalStorageQueryValue = result.Success ? result.Value : "Not success.";
+    }
+}</pre>
+<p>Anytime you are accessing the scoped local storage, you should wrap it in a try catch block because if you don't, Blazor Server will emit an error <code><span class="message-body-wrapper"><span class="message-flex-body"><span class="message-body devtools-monospace"><span class="objectBox objectBox-string">Error: System.Security.Cryptography.CryptographicException: The payload was invalid</span></span></span></span></code> and stop the website.</p>
+<h3>Deleting data from local storage</h3>
+<div>To delete a key from local storage, call the method <code>DeleteAsync(key)</code> of <code>ProtectedLocalStorage</code>. Deleting a key does not distinguish if the data is scoped data or not.</div>
+<hr class="my-4" />
+<h1>Manage local storage with JavaScript</h1>
+<p>Although you can use <code>ProtectedLocalStorage</code> to access local storage, you can also use JavaScript to access the local storage. There are several advantages when using JavaScript to deal with local storage, some of them are:</p>
+<ul>
+    <li>See the list of local storage keys.</li>
+    <li>Lightweight data.</li>
+    <li>Clear all data.</li>
+</ul>
+<p>JavaScript is only available on the client side. If you use JavaScript on any server life cycle methods like <code>OnInitialized()</code> you will get an error. Look at <a href="/tutorial/blazor-server/dotnet5/component-lifecycle-683190" title="Component lifecycle">Lifecycle event sequence</a> table to see what lifecycle methods are triggered by the client side. The following are the steps for using JavaScript to manage local storage, it does not cover how to interact with JavaScript in Blazor Server. For understand how to interact with JavaScript, look at <a href="/tutorial/blazor-server/dotnet5/javascript-interaction-567632" title="JavaScript Interaction">JavaScript Interaction</a>.</p>
+<ol>
+    <li>Create a new <code>BlazorUtil.js</code> file under folder <code>wwwroot/js</code>.</li>
+</ol>
+<pre class="code" language="javascript">class BlazorUtil
+{
+    getAllStorage()
+    {
+        return Object.entries(localStorage);
+    };
+}
+
+window.BlazorUtil = new BlazorUtil();</pre>
+<ol start="2">
+    <li>Import the <code>BlazorUtil.js</code> file in <code>_Host.cshtml</code>.</li>
+    <li>Inject <code>IJSRunTime</code> into the component or the service.</li>
+    <li>Call JavaScript to manage local storage.</li>
+</ol>
+<h3>Storing data into local storage</h3>
+<p>To store the data in local storage, call the <code>setItem(keyName, keyValue)</code> of the <code>localStorage</code>. In our example, we have set up a form to store data to the local storage.</p>
+<pre class="code" language="razor">&lt;form&gt;
+    &lt;div&gt;
+        &lt;label&gt;Key: &lt;input type="text" @bind-value="LocalStorageKey" /&gt;&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;label&gt;Value: &lt;input type="text" @bind-value="LocalStorageValue" /&gt;&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;button type="button" @onclick="StoreKeyAsync"&gt;Store Key&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/form&gt;
+
+@code {
+    public string LocalStorageKey { get; set; }
+    public string LocalStorageValue { get; set; }
+
+    private async Task StoreKeyAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, LocalStorageValue);
+    }
+}</pre>
+<h3>Retriving and deleting data into local storage</h3>
+<p>To retrieve the data in local storage, call the <code>getItem(keyName)</code> of the <code>localStorage</code>. In our example, we have set up a form to retrieve data from the local storage.</p>
+<pre class="code" language="razor">&lt;form&gt;
+    &lt;div&gt;
+        &lt;label&gt;Key: &lt;input type="text" @bind-value="LocalStorageQueryKey" /&gt;&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+        &lt;button type="button" @onclick="GetValueAsync"&gt;Get Value&lt;/button&gt;
+        &lt;button type="button" @onclick="DeleteValueAsync"&gt;Delete Key&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div&gt;Value: @LocalStorageQueryValue&lt;/div&gt;
+&lt;/form&gt;
+
+@code {
+    public string LocalStorageQueryKey { get; set; }
+    public string LocalStorageQueryValue { get; set; }
+
+    private async Task GetValueAsync()
+    {
+        LocalStorageQueryValue = await JSRuntime.InvokeAsync&lt;string&gt;("localStorage.getItem", LocalStorageQueryKey);
+    }
+
+    private async Task DeleteValueAsync()
+    {
+        await JSRuntime.InvokeAsync&lt;string&gt;("localStorage.removeItem", LocalStorageQueryKey);
+    }
+}</pre>
+<h3>Retriving and cleaning all the data in local storage</h3>
+<p>To retrieve all the data in the local storage is a bit different because in .NET 5, Blazor Server is not supporting for referring JavaScript objects, you have to use the method we have created <code>BlazorUtil.js</code>. In our example, we have created a form to demonstrate the feature.</p>
+<pre class="code" language="razor">&lt;div&gt;
+    &lt;div&gt;All local storage data:&lt;/div&gt;
+    &lt;button type="button" @onclick="GetAllLocalStorageDataAsync"&gt;Refresh&lt;/button&gt;
+    &lt;button type="button" @onclick="ClearAllDataAsync"&gt;Clean All&lt;/button&gt;
+    @foreach (KeyValuePair&lt;string, string&gt; keyValuePair in AllData)
+    {
+        &lt;div&gt;@keyValuePair.Key: @keyValuePair.Value&lt;/div&gt;
+    }
+&lt;/div&gt;
+
+@code {
+    public Dictionary&lt;string, string&gt; AllData { get; set; } = new();
+
+    private async Task GetAllLocalStorageDataAsync()
+    {
+        var jsonElement = await JSRuntime.InvokeAsync&lt;JsonElement&gt;("BlazorUtil.getAllStorage");
+        var enumerator = jsonElement.EnumerateArray();
+        AllData.Clear();
+
+        while (enumerator.MoveNext())
+        {
+            var keyValue = JsonConvert.DeserializeObject&lt;List&lt;string&gt;&gt;(enumerator.Current.GetRawText());
+            AllData.Add(keyValue[0], keyValue[1]);
+        }
+    }
+
+    private async Task ClearAllDataAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("localStorage.clear");
+    }
+}</pre>
