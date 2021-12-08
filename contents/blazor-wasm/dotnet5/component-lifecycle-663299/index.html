@@ -1,0 +1,157 @@
+<h1>Component Lifecycle</h1>
+<p>A component of Blazor WebAssembly will have many states. A component lifecycle begins when the component is navigated to or it is used in another component. At some point, the instance of the component will be discarded. Blazor WebAssembly provides hooks for you to interfere with the process of each state of a component. This guide will introduce all the states of a component and their order.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-lifecycle-blazor-wasm" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Introduction to lifecycle hook</h1>
+<p>A lifecycle hook is a method that is fired when a component is switching its state. For example, from non-existent to initialized, from initialized to parameters set. The following image illustrates the lifecycle sequence of a component, from start to finish.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\component-lifecycle-663299\ff4c1b6e-0089-460c-b5c4-13d5c7b75b5d..png" alt="" width="2380" height="2364" /></p>
+<p>The lifecycle of a component begins with <code>OnInitialized</code> method and ends with <code>Dispose</code> method. To have <code>Dispose</code> method in your component, you will need to implement the <code>IDisposable</code> by using the directive <code>@implement</code> in the directive section of the component.</p>
+<p>The following table illustrates all the hooking methods and their purposes in sequence from the component is created to being disposed.</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered" style="width: 875px;">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Hook method</th>
+                <th class="text-center" scope="col">Purpose</th>
+            </tr>
+            <tr>
+                <td><code>OnInitialized()</code></td>
+                <td>This method is called right after Blazor WebAssembly rendered the component.</td>
+            </tr>
+            <tr>
+                <td><code>OnInitializedAsync()</code></td>
+                <td>Same as <code>OnInitialized</code> but for <code>async</code> operations.</td>
+            </tr>
+            <tr>
+                <td><code>OnParametersSet()</code></td>
+                <td>Respond to property with <code>[Parameter]</code> attribute changes.</td>
+            </tr>
+            <tr>
+                <td><code>OnParametersSetAsync()</code></td>
+                <td>Same as <code>OnParametersSet()</code> but for <code>async</code> operations.</td>
+            </tr>
+            <tr>
+                <td><code>OnAfterRender(true)</code></td>
+                <td>This method is called right after the component is rendered, initialized and has its parameters set.</td>
+            </tr>
+            <tr>
+                <td><code>OnAfterRenderAsync(true)</code></td>
+                <td>Same as <code>OnAfterRender(true)</code> but for <code>async</code> operations.</td>
+            </tr>
+            <tr>
+                <td><code>OnAfterRender(false)</code></td>
+                <td>Response to the <code>StateHasChanged()</code> method.</td>
+            </tr>
+            <tr>
+                <td><code>OnAfterRenderAsync(false)</code></td>
+                <td>Same as <code>OnAfterRender(false)</code> but for <code>async</code> operations.</td>
+            </tr>
+            <tr>
+                <td><code>Dispose()</code></td>
+                <td>To use this method, the component must have <code>@implements IDisposable</code> directive. Otherwise, it is just a normal method and will not be called by Blazor WebAssembly. This method responds to clean up the component.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<h3>Lifecycle example</h3>
+<div>The following example illustrates the lifecycle of a component. First, the component is not rendered. When you click on the Toggle button, the component will be rendered, thus triggering the hook methods in sequence. When you click on the Toggle button again, the component is removed and triggering the <code>Dispose</code> method.</div>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="\contents\blazor-wasm\dotnet5\component-lifecycle-663299\2fcc84ca-baf7-4fb3-8f10-b10b95fbd75a..mp4" type="video/mp4" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Main phases of a component</h1>
+<p>In the previous section, you have learned the hooking methods sequence. In summary, Blazor WebAssembly components have 4 main phases: <strong>Initialize</strong>, <strong>ParametersSet</strong>, <strong>AfterRender</strong> and <strong>Dispose</strong>. Each phase has 2 hooking methods for synchronous and asynchronous operations except <strong>Dispose</strong> phase only has a hooking method for synchronous operations. We will go through all of the phases one by one in the next sections.</p>
+<hr class="my-4" />
+<h1>Initialize and Dispose phase</h1>
+<p>Initialize is the first phase of a component. This phase has 2 hooking methods: <code>OnInitialized</code> and <code>OnInitializedAsync</code> for both synchronous and asynchronous tasks. In this phase, you can:</p>
+<ul>
+    <li>Perform fetching data from the API.</li>
+    <li>Register for events.</li>
+    <li>Set the default value for the properties.</li>
+    <li>Execute JavaScript.</li>
+</ul>
+<p>Our <code>InitializeAndDispose.razor</code> demonstrates some tasks you can do in the Initialize phase.</p>
+<pre class="code" language="csharp">protected override async Task OnInitializedAsync()
+{
+    await JSRuntime.InvokeVoidAsync("alert", "Blazor School");
+    Company = new()
+    {
+        Name = "DotNetPro"
+    };
+    NavigationManager.LocationChanged += OnLocationChanged;
+    ProductName = await HttpClient.GetStringAsync("/sample-data/product.txt");
+}</pre>
+<h3>Clean up resources after use</h3>
+<p>To avoid memory leaks, improve performance and avoid unwanted results, you need to clean up resources after use. Dispose is the phase to free resources that won't be collected automatically. To have your component dispose correctly, you need to use <code>@implement</code> directive to implement <code>IDisposable</code> interface. Then put cleanup code logic in <code>Dispose()</code> method. Blazor WebAssembly will automatically call the <code>Dispose()</code> method when needed.</p>
+<p>In this phase, you need to:</p>
+<ul>
+    <li>Unsubscribe from events.</li>
+    <li>Stop working tasks.</li>
+    <li>Close opening stream.</li>
+</ul>
+<p>Our <code>InitializeAndDispose.razor</code> demonstrates how to unsubscribe from an event.</p>
+<pre class="code" language="csharp">public void Dispose()
+{
+    NavigationManager.LocationChanged -= OnLocationChanged;
+}</pre>
+<hr class="my-4" />
+<h1>ParametersSet phase</h1>
+<p>Once the component has been initialized, it will switch to ParametersSet phase. In this phase, you can reactive to the changes from the parent component or from the parameters changed in the url (it looks like the <code>LocationChanged</code> event from <code>NavigationManager</code> but they are 2 different triggers). The following image illustrates how ParametersSet phase is triggered.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\component-lifecycle-663299\394e2b96-b412-4dec-b6d2-6a584139675b..png" alt="" width="1335" height="672" /></p>
+<p>Our <code>ParametersSet.razor</code>shows how to pass a parameter to the <code>CompanyDetail.razor</code> component and has a method to change its value.</p>
+<pre class="code" language="razor">@foreach (var company in Companies)
+{
+    &lt;CompanyDetail Company="company"&gt;&lt;/CompanyDetail&gt;
+}
+&lt;button class="btn btn-primary" @onclick="UpdateCompanyName"&gt;Update Company Name&lt;/button&gt;
+
+@code {
+    private List&lt;Company&gt; Companies { get; set; } = new()
+    {
+        new()
+        {
+            Name = "DotNetPro"
+        },
+        new()
+        {
+            Name = "Microsoft"
+        }
+    };
+
+    private void UpdateCompanyName()
+    {
+        Companies[0].Name = "DotNetPro Technology";
+        Companies[1].Name = "Microsoft Corporation";
+    }
+}</pre>
+<p>Our <code>CompanyDetail.razor</code> component shows how to receive the parameter from the parent and how to use the hooking methods to react when it changes.</p>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime 
+
+&lt;h3&gt;@Company.Name&lt;/h3&gt;
+
+@code {
+    [Parameter]
+    public Company Company { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("alert", "Parent changes values");
+    }
+}</pre>
+<hr class="my-4" />
+<h1>AfterRender phase</h1>
+<p>Like the hooking methods of ParametersSet phase, AfterRender hooking methods to react to changes. Instead of reacting to parameters change as ParametersSet phase, AfterRender hooking methods react to <code>StateHasChanged()</code> method. Whenever <code>StateHasChanged()</code> called by the current component itself or from the parent component, the hooking methods of AfterRender are fired. The following image illustrates how AfterRender phase triggered.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\component-lifecycle-663299\e765ab75-d00d-4092-a9bc-8f11495bb1e7..png" alt="" width="1586" height="728" /></p>
+<p>Our <code>AfterRender.razor</code> component demonstrate how to trigger AfterRender hooking methods and how to react when triggered.</p>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+
+&lt;button class="btn btn-primary" @onclick="_ =&gt; StateHasChanged()"&gt;Trigger AfterRender&lt;/button&gt;
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("alert", $"AfterRender phase triggered with firstRender is {firstRender}");
+    }
+}</pre>

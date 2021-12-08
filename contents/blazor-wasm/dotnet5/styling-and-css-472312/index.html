@@ -1,0 +1,126 @@
+<h1>Styling and CSS</h1>
+<p>Styling a component is using CSS to improve UI and UX of a component. In Blazor WebAssembly, there are 2 types of styling a component:</p>
+<ul>
+    <li>Isolated CSS.</li>
+    <li>Shared CSS.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/styling-component-blazor-wasm" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Isolated CSS</h1>
+<p>To understand and be able to apply the technique to your project, this section will walk you through:</p>
+<ul>
+    <li>What is isolated CSS?</li>
+    <li>How Blazor WebAssembly isolates styles?</li>
+    <li>Creating an isolated CSS style.</li>
+    <li>Overriding an isolated style.</li>
+</ul>
+<h3>What is isolated CSS?</h3>
+<p>Isolated CSS is a method to reuse the CSS selector. The CSS is defined in a component and only affects that component whether the name is unique or not. The following illustrates how isolated CSS is compared to the shared CSS.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\styling-and-css-472312\d75602e6-31ed-4972-b192-cfac13df5327..png" alt="" width="1624" height="806" /></p>
+<p>In the picture, <code>.person-detail</code> is declared at 2 components and also, used inside the component. The <code>.person-detail</code> from the <code>PersonInformation</code> will not affect the <code>.person-detail</code> from the <code>PersonRoleManagement</code> component and vise versa. It demonstrates that you can reuse the CSS class name without worrying about the class name being declared somewhere on the website.</p>
+<h3>How Blazor WebAssembly isolates styles?</h3>
+<p>Assuming your Razor Component code is:</p>
+<pre class="code" language="razor">&lt;div class="row person-detail person-border"&gt;
+    ...
+&lt;/div&gt;</pre>
+<p>Blazor WebAssembly will generate the following HTML and CSS:</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\styling-and-css-472312\e4b91599-4e7b-4b6c-ae32-f7196e55eab0..png" alt="" width="920" height="403" /></p>
+<p>In HTML, Blazor WebAssembly will generate the HTML with an extra attribute (<strong>b-3zucffhpbe</strong>) which is the scope name. Each component will have a different scope name. In CSS, Blazor WebAssembly will add that scope name to the CSS class. The style only applies when the class name and the scope name are matched so you can reuse the class name in another component.</p>
+<h3>Creating an isolated CSS style</h3>
+<p>To create an isolated CSS style, you need to create a razor CSS file. All the styles declared in the razor CSS file will be automatically scoped to that razor component. To create a razor CSS file, add a new file in this pattern <strong>&lt;ComponentName&gt;.razor.css</strong>. For example, if you have <code>PersonInformation.razor</code> component then your razor CSS file would be <code>PersonInformation.razor.css</code>.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\styling-and-css-472312\4ae3d19f-8d2b-4a97-86a7-06d86ab88266..png" alt="" width="500" height="83" /></p>
+<h3>Overriding an isolated style</h3>
+<p>Isolated styles are defined in a component, sometimes, you want to change the style of that component in a specific place without impacting the other places. The overriding class will be defined in the parent component razor CSS file as the following image illustrates:</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\styling-and-css-472312\f7e63b2c-688e-460a-803f-0f2bf8347fc2..png" alt="" width="717" height="479" /></p>
+<ul>
+    <li>Wrap the children inside an HTML with a CSS class. In our example, we wrapped it inside another <code>&lt;div&gt;</code> tag with <code>overriding</code> CSS class.</li>
+</ul>
+<pre class="code" language="html">&lt;div class="overriding wrapper p-4"&gt;
+    &lt;h3&gt;Overrided&lt;/h3&gt;
+    &lt;PersonInformation&gt;&lt;/PersonInformation&gt;
+&lt;/div&gt;</pre>
+<ul>
+    <li>Create a the razor CSS file for the parent component. In our example, the parent component is <code>OverridingIsolatedStyle.razor</code>.</li>
+</ul>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\styling-and-css-472312\ce404f5c-c16a-4d03-b26c-d71c8728c068..png" alt="" width="500" height="87" /></p>
+<ul>
+    <li>Use the <code>::deep</code> keyword with syntax: <code>parentStyle ::deep overridedStyle</code>. In the example, we are going to override the class <code>.person-detail</code> which is declared in <code>PersonInformation.razor.css</code>.</li>
+</ul>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\styling-and-css-472312\6808ac58-9fcc-4788-bf18-5d099c2f580f..png" alt="" width="892" height="662" /></p>
+<p>The example not only demonstrates how to override a component's isolated style but also demonstrates how to override only when needed.</p>
+<blockquote>The <code>::deep</code> keyword only works when you put it in an razor CSS file.</blockquote>
+<hr class="my-4" />
+<h1>Shared CSS</h1>
+<p>This section will walk you through the following topics to help you understand shared CSS in Blazor WebAssembly:</p>
+<ul>
+    <li>What is shared CSS?</li>
+    <li>What is CSS selector pollution?</li>
+    <li>Global CSS style.</li>
+    <li>Embedded CSS style.</li>
+    <li>Reference to an external CSS file.</li>
+    <li>Compare between sharing CSS techniques.</li>
+</ul>
+<h3>What is shared CSS?</h3>
+<p>Shared CSS is a method to use the same CSS for many components. The following illustrates how shared CSS is compared to the isolated CSS.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\styling-and-css-472312\d75602e6-31ed-4972-b192-cfac13df5327..png" alt="" width="1624" height="806" /></p>
+<p>In the picture, <code>.person-border</code> is defined in <code>app.css</code> and is used in <code>PersonInformation</code> and <code>PersonRoleManagement</code>.</p>
+<h3>What is CSS selector pollution?</h3>
+<p>CSS selector pollution is a common problem when developing websites and not only in Blazor WebAssembly but also in other frameworks like Angular, jQuery, Vue, etc...</p>
+<p>When developing websites using these frameworks, HTML tags are usually divided by component and later, the component will be injected into another component. When a component defines a CSS selector and another component defines the same CSS selector, the 2 CSS selectors will be merged and give unpredictable results. For example, assuming we don't use isolated CSS technique in the previous example, the <code>PersonInformation</code> and <code>PersonRoleManagement</code> both define <code>.person-detail</code> and all the styles will be merged. The following image illustrates the merge result.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\styling-and-css-472312\704f25ed-4763-44cb-bfaa-86cef1354330..png" alt="" width="1722" height="1337" /></p>
+<p>As you can see, the merge result is unpredictable. If the <code>PersonInformation</code> component is rendered first, you get the first result, if the <code>PersonRoleManagement</code> is rendered first, you get the second result.</p>
+<h3>Global CSS style</h3>
+<p>Global CSS style is a native technique provided by Blazor WebAssembly. You can declare your CSS selector at <code>app.css</code> and it will automatically affect the entire website.</p>
+<ul>
+    <li>Declare a new CSS selector at <code>wwwroot/css/app.css</code>. In our example, you can see the class <code>.person-border</code> in the <code>app.css</code> file.</li>
+</ul>
+<pre class="code" language="css">.person-border
+{
+    border: 5px solid #7b3cc3;
+}</pre>
+<ul>
+    <li>Use it as with other CSS selectors.</li>
+</ul>
+<pre class="code" language="razor">&lt;div class="person-border"&gt;
+    ...
+&lt;/div&gt;</pre>
+<h3>Embedded CSS style</h3>
+<p>Embedded CSS style is a technique where the <code>&lt;style&gt;</code> tag is inside the component.</p>
+<pre class="code" language="razor">&lt;h3 class="embedded-style"&gt;Welcome to &lt;/h3&gt;
+
+&lt;style&gt;
+    .embedded-style::after
+    {
+        content: "Blazor School";
+    }
+&lt;/style&gt;</pre>
+<h3>Reference to an external CSS file</h3>
+<p>Reference to an external CSS file is a technique similar to Embedded CSS style, but instead of having the <code>&lt;style&gt;</code> tag inside the component, you will put <code>&lt;link&gt;</code> tag.</p>
+<ul>
+    <li>Create a new CSS file in <code>/wwwroot/css/external-css-file.css</code>.</li>
+</ul>
+<pre class="code" language="css">.external-style::after
+{
+    content: "Blazor School";
+}</pre>
+<ul>
+    <li>Use <code>&lt;link&gt;</code> tag in your component.</li>
+</ul>
+<pre class="code" language="html">&lt;link href="/css/external-css-file.css" rel="stylesheet" /&gt;
+&lt;h3 class="external-style"&gt;Welcome to &lt;/h3&gt;</pre>
+<h3>Compare between sharing CSS techniques</h3>
+<p>As described above, there are 3 ways to share the CSS styles across the website.</p>
+<ol>
+    <li>Global CSS style.</li>
+    <li>Embedded CSS style.</li>
+    <li>Reference to an external CSS file.</li>
+</ol>
+<p>This section will talk about each technique, their pros and cons, and how to avoid CSS selector pollution.</p>
+<p><strong>Global CSS Style: </strong>This is the best technique provided by Microsoft. If you combine this technique with <strong>Isolated CSS</strong> technique, you will never worry about CSS selector pollution at all. <span class="hightlight-text">Blazor School</span> strongly recommends that you combine both techniques in your project.</p>
+<p><strong>Embedded CSS Style:</strong> This technique is easy to perform, you can see both styles and HTML tags in one place. It's good when you design UI/UX for a component. <span class="hightlight-text">Blazor School</span> recommends that you use this technique when developing a component to have a vast view of your component but do not use it in the production stage. First, you will get the CSS selector pollution later on. Second, if a component is rendered multiple times then the style will be rendered multiple times also, leaving a mess to the generated HTML tags and reduce the performance of your website.</p>
+<p><strong>Reference to an external CSS file:</strong> This technique requires a bit of work compared to Embedded CSS Style technique but you will find it easier to change the style due to the CSS hot reload. <span class="hightlight-text">Blazor School</span> recommends that you use this technique when developing a component to have a vast view of your component but do not use it in the production stage. First, you will get the CSS selector pollution later on. Second, if a component is rendered multiple times, then the <code>&lt;link&gt;</code> tag will be rendered multiple times also. The following video will show how to hot reload your CSS when performing this technique.</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="\contents\blazor-wasm\dotnet5\styling-and-css-472312\1f3619f3-9ddc-4795-88b6-337a22944e5d..mp4" type="video/mp4" />
+    </video>
+</div>

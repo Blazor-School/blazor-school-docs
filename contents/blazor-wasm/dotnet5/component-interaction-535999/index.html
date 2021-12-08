@@ -1,0 +1,240 @@
+<h1>Component Interaction</h1>
+<p>Component is the building block of a web page. A component has its UI, the according logic and is also reusable. A web page will have many components to display different parts of the page. For that reason, the interaction between components is needed. The interaction contains sharing data and how to react when the data is changed. There are 4 ways to exchange data between components:</p>
+<ol>
+    <li>Using <code>CascadingParameter</code> to pass parameters from one of the parent components to the child component. One-way notifying.</li>
+    <li>Using <code>Parameter</code> to pass parameters from the from the closest parent component to the child component. One-way notifying.</li>
+    <li>Combining&nbsp;<code>Parameter</code> and <code>delegate</code> to notify changes from the child component. Two-way notifying.</li>
+    <li>Using transfer service technique to share information across many components regardless of their relations. Two-way notifying.</li>
+</ol>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-interaction-blazor-wasm" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Passing data using <code>CascadingParameter</code></h1>
+<p>Using <code>CascadingParameter</code> is a good way to share data from the grandparent or parent component to the descendant components. The following image illustrates how <code>CascadingParameter</code> works.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\component-interaction-535999\cf7e1d52-da78-434e-9a8b-2a9d99ca975e..png" alt="" width="1288" height="1000" /></p>
+<p>When using <code>CascadingParameter</code> to pass data, any data changes that occur in the descendants components will not notify the ancestor component but any data changes from the ancestor component will notify the descendant component.</p>
+<h3>Creating the ancestor component</h3>
+<ol>
+    <li>Create a new component and declare a public property.</li>
+</ol>
+<pre class="code" language="csharp">public Person FirstPerson { get; set; } = new()
+{
+    Name = "Person from grand parent component"
+};</pre>
+<ol start="2">
+    <li>Use <code>CascadingValue</code> component to pass the value.</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingValue Value="FirstPerson"&gt;
+    &lt;CPParent&gt;&lt;/CPParent&gt;
+&lt;/CascadingValue&gt;</pre>
+<p>The <code>CascadingValue</code> component should wrap the parent component. Otherwise it cannot be passed.</p>
+<h3>Creating the descendant component</h3>
+<ol>
+    <li>Create a new component and declare a public property with <code>CascadingParameter</code> attribute.</li>
+</ol>
+<pre class="code" language="csharp">[CascadingParameter]
+public Person ReceivedPerson { get; set; }</pre>
+<ol start="2">
+    <li>Use the property as other properties.</li>
+</ol>
+<pre class="code" language="razor">&lt;span&gt;Received value: @ReceivedPerson.Name&lt;/span&gt;</pre>
+<p>The property of the descendant is not required to have the same property name. As in the example, you are passing <code>FirstPerson</code> from the ancestor component to <code>ReceivedPerson</code> in the descendant component. Instead, <code>CascadingParameter</code> in the descendant component will look for the same type from the ancestor component. The example code will not work if <code>FirstPerson</code> and <code>ReceivedPerson</code> are not the same type. Here is the result of the example.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\component-interaction-535999\6ea750fe-42e3-4f18-aaee-1438a5cac722..png" alt="" width="529" height="253" /></p>
+<h3>Passing multiple <code>CascadingParameter</code></h3>
+<p>The previous example demonstrates how to pass a single parameter using <code>CascadingParameter</code>. You can also pass multiple parameters using <code>CascadingParameter</code>, if you have 2 parameters with the same type, you will have to name that parameter. In the following example, you will pass another parameter with the <code>Person</code> type.</p>
+<ol>
+    <li>Declare multiple parameters in the ancestor component.</li>
+</ol>
+<pre class="code" language="csharp">public Person FirstPerson { get; set; } = new()
+{
+    Name = "Person from grand parent component"
+};
+
+public Person SecondPerson { get; set; } = new()
+{
+    Name = "Another person from grand parent component"
+};</pre>
+<ol start="2">
+    <li>Using nested <code>CascadingValue</code> to pass the parameters, you can change the order as you want. You will need to name the passing parameter by adding <code>Name="&lt;ParameterName&gt;"</code>.</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingValue Value="FirstPerson" Name="GrandParentFirstPerson"&gt;
+    &lt;CascadingValue Value="SecondPerson" Name="GrandParentSecondPerson"&gt;
+        &lt;CPParent&gt;&lt;/CPParent&gt;
+    &lt;/CascadingValue&gt;
+&lt;/CascadingValue&gt;</pre>
+<ol start="3">
+    <li>In your descendant component, declare a property with <code>CascadingParameter</code> attribute and pass the name you have specified at the previous step.</li>
+</ol>
+<pre class="code" language="csharp">[CascadingParameter(Name = "GrandParentFirstPerson")]
+public Person Received1stPerson { get; set; }
+[CascadingParameter(Name = "GrandParentSecondPerson")]
+public Person Received2ndPerson { get; set; }</pre>
+<blockquote>You don't need to declare all the passed parameters in your descendant component, just declare what you need to use. For example, you can remove <code>Received1stPerson</code> from the descendant component.</blockquote>
+<hr class="my-4" />
+<h1>Passing data using <code>Parameter</code></h1>
+<p><code>Parameter</code>component is a built-in attribute that allows you to pass data from the parent component to the child component.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\component-interaction-535999\436cab55-f03b-48e7-858d-0faa57ff570a..png" alt="" width="1209" height="763" /></p>
+<p>This approach does not support feedback from the child component. Any changes from the child component will not notify the parent component. However, any changes that come from the parent component will notify the child component. The child component receives the property as a reference to the parent's property, if you make a change in the child component, the parent's property will have a new value but the UI will not show the old value until you call <code>StateHasChanged()</code> in your parent component.</p>
+<h3>Creating the child component</h3>
+<ol>
+    <li>Create a new component and declare a public property with <code>Parameter</code> attribute.</li>
+</ol>
+<pre class="code" language="csharp">[Parameter]
+public Person ReceivingPerson { get; set; }</pre>
+<ol start="2">
+    <li>Use the property as a local property.</li>
+</ol>
+<pre class="code" language="razor">&lt;div&gt;Received Value: @ReceivingPerson.Name&lt;/div&gt;</pre>
+<h3>Creating the parent component</h3>
+<ol>
+    <li>Create a new component and declare a public property.</li>
+</ol>
+<pre class="code" language="csharp">public Person PersonInParentComponent { get; set; } = new()
+{
+    Name = "Person from the parent component."
+};</pre>
+<ol start="2">
+    <li>Pass the property <code>PersonInParentComponent</code> to the child component.</li>
+</ol>
+<pre class="code" language="razor">&lt;PChild ReceivingPerson="PersonInParentComponent"&gt;&lt;/PChild&gt;</pre>
+<p>You can see the following result:</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\component-interaction-535999\62e7971d-a3ac-4dbf-aa34-049a19bba3d6..png" alt="" width="535" height="183" /></p>
+<h3>Common mistake</h3>
+<p>A common mistake when using the <code>Parameter</code> is to change the reference of the child property. This will break the bond between the child component and parent component. Normally, when the change happens inside the child component, the parent component gets the new value but the UI is not updated. Try to avoid changing the reference of the child property.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\component-interaction-535999\6458379a-fc97-40aa-9015-49b791e553be..png" alt="" width="1138" height="1547" /></p>
+<p>However, changing the reference when declaring the property is totally fine. The following code is totally fine.</p>
+<pre class="code" language="csharp">[Parameter]
+public Person ReceivingPerson { get; set; } = new()
+{
+    Name = "Default name"
+};</pre>
+<hr class="my-4" />
+<h1>Passing data using <code>Parameter</code> and <code>delegate</code></h1>
+<p>This technique is preferred when you want to pass a parameter to a child component, process that parameter and then notify back to the parent component. The following image describes this technique:</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\component-interaction-535999\ff4ad0eb-b55e-46c6-8e60-d3543ecdaf0d..png" alt="" width="1037" height="715" /></p>
+<ol>
+    <li>Create a child component and declare 2 parameters with <code>Parameter</code> attribute.</li>
+</ol>
+<pre class="code" language="csharp">[Parameter]
+public Person ReceivingPerson { get; set; }
+
+[Parameter]
+public Action OnReceivingPersonChanged { get; set; }</pre>
+<p>In this example, <code>ReceivingPerson</code> is the data that the parent component will pass and <code>OnReceivingPersonChanged</code> is the delegate to notify data changes.</p>
+<blockquote>
+    <p>You can use any kind of delegate (<code>Action</code>, <code>Func</code>, <code>Predicate</code>) as the parameter.</p>
+</blockquote>
+<ol start="2">
+    <li>Invoke the <code>OnReceivingPersonChanged</code> delegate when the data is changed to notify the parent to update its UI.</li>
+</ol>
+<pre class="code" language="razor">&lt;form&gt;
+    &lt;label&gt;
+        Receiving Person:
+        &lt;input type="text" value="@ReceivingPerson.Name" @oninput="ChangeOnReceivingPerson" /&gt;
+    &lt;/label&gt;
+&lt;/form&gt;
+
+@code {
+    ...
+
+    private void ChangeOnReceivingPerson(ChangeEventArgs eventArgs)
+    {
+        ReceivingPerson.Name = eventArgs.Value as string;
+        OnReceivingPersonChanged?.Invoke();
+    }
+}</pre>
+<ol start="3">
+    <li>Create a parent component and declare a property and a method to update the UI.</li>
+</ol>
+<pre class="code" language="csharp">public Person Person { get; set; } = new()
+{
+    Name = "Person from parent"
+};
+
+public void OnPersonChanged()
+{
+    StateHasChanged();
+}</pre>
+<ol start="4">
+    <li>Pass the property and the method to the child component.</li>
+</ol>
+<pre class="code" language="razor">&lt;PDChild ReceivingPerson="Person" OnReceivingPersonChanged="OnPersonChanged"&gt;&lt;/PDChild&gt;</pre>
+<p>And you are done.</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="\contents\blazor-wasm\dotnet5\component-interaction-535999\cb94653b-338e-4a27-8d9f-e06ea807de62..mp4" type="video/mp4" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Passing data using a transfer service</h1>
+<div>This technique can be applied to any situation, it is a great way to decoupling your code and share parameters between components and get a notification when the data is manipulated. The following image describes the transfer service.</div>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\component-interaction-535999\4f5fb82d-b662-47fa-a032-fe2651d2f1a9..png" alt="" width="1784" height="1026" /></p>
+<h3>Creating the model</h3>
+<p>The model contains properties, you can create an event and a delegate for each property or you can just implement the <code>INotifyPropertyChanged</code> interface. The difference is that by using <code>INotifyPropertyChanged</code> interface, you will have one event per class instead of one event for each property. In this section example, we will choose the first approach.</p>
+<pre class="code" language="csharp">public class Game
+{
+    private string _name;
+
+    public string Name
+    {
+        get =&gt; _name;
+        set
+        {
+            _name = value;
+            OnNameChanged?.Invoke(this, value);
+        }
+    }
+
+    public delegate void OnNameChangedHandler(object sender, string name);
+    public event OnNameChangedHandler OnNameChanged;
+}</pre>
+<h3>Creating the transfer service</h3>
+<p>The transfer service is a scoped service that will hold the data to transfer between the components.</p>
+<pre class="code" language="csharp">public class GameTransferService
+{
+    public Game Game { get; set; } = new();
+}</pre>
+<h3>Registering the transfer service</h3>
+<p>After creating the service, head to the <code>Program.cs</code> to register the transfer service as a scoped service.</p>
+<pre class="code" language="csharp">public static async Task Main(string[] args)
+{
+    ...
+    builder.Services.AddScoped&lt;GameTransferService&gt;();
+    ...
+}</pre>
+<h3>Using the transfer service in a component</h3>
+<p>To use the transfer service in a component, you need to have <code>@inject</code> directive to inject the transfer service and have the <code>@implements</code> to implement <code>IDisposable</code> interface. In the initialized phase, you will subscribe to the event of the <code>Game</code> model. You will use the property in the transfer service directly instead of creating a property in your component.</p>
+<pre class="code" language="razor">@inject GameTransferService GameTransferService
+@implements IDisposable
+
+&lt;div&gt;Shared Game Name: @GameTransferService.Game.Name&lt;/div&gt;
+
+@code {
+    protected override void OnInitialized()
+    {
+        GameTransferService.Game.OnNameChanged += OnGameNameChanged;
+    }
+
+    private void OnPersonChanged(object sender, Person person)
+    {
+        StateHasChanged();
+    }
+
+    private void OnGameNameChanged(object sender, string name)
+    {
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        GameTransferService.Game.OnNameChanged -= OnGameNameChanged;
+    }
+}</pre>
+<blockquote>
+    <p>Always remember to unsubscribe from the event using the <code>Dispose</code> method of <code>IDisposable</code> interface.</p>
+</blockquote>
+<p>And now with the help of transfer service, you can share the data between components easily.</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="\contents\blazor-wasm\dotnet5\component-interaction-535999\2a04e1be-1029-40b1-8ba5-75b209ab0bd5..mp4" type="video/mp4" />
+    </video>
+</div>
