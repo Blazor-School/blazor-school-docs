@@ -1,0 +1,86 @@
+<h1>Binding a model to HTML</h1>
+<p>This guide builds on the previous steps of the <a href="/tutorial/blazor-wasm/dotnet5/creating-the-api-607600">Creating the API</a> tutorial. This guide shows you how to bind a property of a model to the HTML tag using Blazor WebAssembly. You will be able to display the product after completing this guide.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/online-shop-blazor-wasm" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Updating the base address</h1>
+<p>The first thing when you start working with a Blazor WebAssembly is to change the <code>BaseAddress</code>. <code>BaseAddress</code> is the address of your API, in our case, it's <code>http://localhost:5000</code>. You can change the <code>BaseAddress</code> in the <code>Program.cs</code> as follows:</p>
+<pre class="code" language="csharp">public static async Task Main(string[] args)
+{
+    ...
+    builder.Services.AddScoped(sp =&gt; new HttpClient { BaseAddress = new ("http://localhost:5000") });
+    ...
+}</pre>
+<hr class="my-4" />
+<h1>Creating the product model</h1>
+<p>After you have changed the <code>BaseAddress</code>, you need to create a model for the product and then we will use that model later on to display the product in <code>ProductDetail.razor</code>. Create a <code>Product.cs</code> in the <code>Data</code> folder. By default, the <code>Data</code> folder is not there and therefore, you need to create it.</p>
+<pre class="code" language="csharp">public class Product
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+}</pre>
+<hr class="my-4" />
+<h1>Creating the product detail component</h1>
+<p>The next step is to create a component for displaying a product.</p>
+<ol>
+    <li>Right click on the <code>Shared</code> folder and add select <strong>Add</strong> =&gt; <strong>Razor Component</strong>.</li>
+</ol>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\binding-a-model-to-html-635434\531396ac-bdc8-4743-9538-7b6a228694ea..png" alt="" width="656" height="464" /></p>
+<ol start="2">
+    <li>In the <code>@code</code> section of the component. Declare a list of properties that you need.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public Product Product { get; set; }
+    [Parameter]
+    public bool ShowBuyButton { get; set; }
+    private bool IsAddedToCart { get; set; }
+}</pre>
+<p>We are going to get the product from the parent so you need to declare the <code>Product</code> property with a <code>[Parameter]</code> attribute. The same thing with <code>ShowBuyButton</code>.</p>
+<p><code>IsAddedToCart</code> is to check if the item is already in the cart or not.</p>
+<ol start="3">
+    <li>Create UI for the component.</li>
+</ol>
+<pre class="code" language="razor">&lt;div class="card"&gt;
+    &lt;div class="card-title"&gt;
+        @Product.Name
+    &lt;/div&gt;
+    &lt;div class="card-body"&gt;
+        @Product.Description
+    &lt;/div&gt;
+
+    &lt;div class="card-footer"&gt;
+        @if (IsAddedToCart)
+        {
+            &lt;div&gt;Added to cart&lt;/div&gt;
+        }
+        else if(ShowBuyButton)
+        {
+            &lt;button class="btn btn-primary" @onclick="Buy"&gt;Buy&lt;/button&gt;
+        }
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+<ol start="4">
+    <li>Initialize <code>IsAddedToCart</code> and define the <code>Buy</code> method.</li>
+</ol>
+<pre class="code" language="razor">@inject HttpClient HttpClient
+
+...
+
+@code {
+    ...
+    protected override async Task OnInitializedAsync()
+    {
+        IsAddedToCart = await HttpClient.GetFromJsonAsync&lt;bool&gt;($"api/Cart/IsItemInCart?id={Product.Id}");
+    }
+
+    private async Task Buy()
+    {
+        await HttpClient.PostAsync("api/Cart/AddToCart", JsonContent.Create&lt;Guid&gt;(Product.Id));
+        IsAddedToCart = true;
+    }
+}</pre>
+<p><code>IsAddedToCart</code> will send a request to the API to get the result. The <code>Buy</code> method will send a request to the API to add the product to the cart, after that, it will mark the product already in the cart.</p>
+<hr class="my-4" />
+<h1>What's next</h1>
+<p>The next guide will help you create a product list where you will use the <code>ProductDetail.razor</code> component we just created in this guide. Continue to <a href="/tutorial/blazor-wasm/dotnet5/passing-data-to-child-component-511133">Passing Data to child component</a>.</p>

@@ -1,0 +1,47 @@
+<h1>Using child component</h1>
+<p>This guide builds on the previous steps of the <a href="/tutorial/blazor-wasm/dotnet5/binding-a-model-to-html-635434">Binding a Model to HTML</a> tutorial. At this stage, you already have a page to display a single product. This guide will help you to add the following feature to your online shop:</p>
+<ul>
+    <li>Set URL for a component.</li>
+    <li>Use <code>@foreach</code> to display a list of products.</li>
+</ul>
+<hr class="my-4" />
+<h1>Set URL for a component</h1>
+<p>The first step is to create a new component.</p>
+<ol>
+    <li>Add a <code>ProductList.raor</code> component to the <code>Shared</code> folder.</li>
+    <li>Add a <code>@page</code> directive at the top of the page.</li>
+</ol>
+<pre class="code" language="razor">@page "/product-list"</pre>
+<hr class="my-4" />
+<h1>Display a list of products</h1>
+<p>The next thing you want to do is display a list of products. To display a list of products, you need to have a list of products first.</p>
+<ol>
+    <li>Create a property of <code>List&lt;Product&gt;</code> and initialize at <code>OnInitializedAsync</code> as follows:</li>
+</ol>
+<pre class="code" language="razor">...
+@inject HttpClient HttpClient
+
+...
+
+@code {
+    private List&lt;Product&gt; Products { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Products = await HttpClient.GetFromJsonAsync&lt;List&lt;Product&gt;&gt;("api/Product/GetAllProducts");
+    }
+}</pre>
+<p>Whenever the component is used or navigated, the <code>OnInitializedAsync</code> will be executed and then, by using <code>HttpClient.GetFromJsonAsync</code> you are getting the <code>Products</code> from the API server.</p>
+<ol start="2">
+    <li>Display the list of products.</li>
+</ol>
+<pre class="code" language="razor">...
+@foreach (var product in Products)
+{
+    &lt;ProductDetail Product="product" ShowBuyButton="true"&gt;&lt;/ProductDetail&gt;
+}
+...</pre>
+<p>You pass each product to a <code>ProductDetail</code> component and also tell the <code>ProductDetail</code> to show the buy button.</p>
+<hr class="my-4" />
+<h1>What's next?</h1>
+<p>The next step will be <a href="/tutorial/blazor-wasm/dotnet5/creating-navigation-647263">Creating Navigation</a> to create a link to the check-out page from the product list page.</p>
