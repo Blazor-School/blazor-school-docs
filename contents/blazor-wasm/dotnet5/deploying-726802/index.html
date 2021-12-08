@@ -10,7 +10,7 @@
     <li>Prepare the website. You can follow the <a href="/tutorial/blazor-wasm/dotnet5/getting-started-342861">Getting Started</a> steps to create your own website or download <a href="https://github.com/Blazor-School/online-shop-blazor-wasm" target="_blank" rel="noopener">the Blazor WebAssemby Online Shop</a> it.</li>
     <li>Open a cmd in the root folder of the project and use the <code>dotnet publish</code> command.</li>
 </ol>
-<pre class="code" language="bat">dotnet publish -c Release -o "YourFolder"</pre>
+<pre class="code" language="bash">dotnet publish -c Release -o "YourFolder"</pre>
 <p>By default, <code>publish</code> command uses the debug build configuration. For production ready, you need to specify the <code>-c Release</code> to specify build by release configuration. The <code>-o "YourFolder"</code> part is to specify the output folder, if you don't specify the output folder, you can see the published files at <em>[project_folder]/bin/[configuration]/[framework]/publish/</em> folder by default.</p>
 <hr class="my-4" />
 <h1>Hosting your website</h1>
@@ -34,7 +34,7 @@
 <ol start="2">
     <li>Open a cmd in the root folder of NGINX then run the command:</li>
 </ol>
-<pre class="code" language="bat">nginx</pre>
+<pre class="code" language="bash">nginx</pre>
 <ol start="3">
     <li>Open localhost and observe the result.</li>
 </ol>
