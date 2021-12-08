@@ -1,0 +1,57 @@
+<h1>Update from <span class="hightlight-text">.NET 5</span> to <span class="hightlight-text">.NET 6</span></h1>
+<p><span class="hightlight-text">.NET 6</span> was released on 10-Nov-2021. Since then, Blazor has greatly improved. This tutorial will walk you through how to update your Blazor WebAssembly project from <span class="hightlight-text">.NET 5</span> to <span class="hightlight-text">.NET 6.</span></p>
+<p>To update to a new version of Blazor WebAssembly, you need to follow 4 steps:</p>
+<ol>
+    <li>Change the target framework.</li>
+    <li>Upgrade NuGet packages.</li>
+    <li>Add <code>HeadOutlet</code> to <code>Program.cs</code>.</li>
+    <li>Remove unnecessary codes (optional).</li>
+</ol>
+<blockquote>You can <a href="https://github.com/Blazor-School/upgrade-NET6-blazor-wasm" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisites</h1>
+<p>To perform this update, you are required to have the following tools:</p>
+<ul>
+    <li>Visual Studio 2022 Current.</li>
+    <li>.NET 6 Runtime.</li>
+</ul>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\update-from-dotnet-5-to-dotnet-6-682674\c453c4b3-01c7-4818-869b-2c28a106063a..png" alt="" width="422" height="181" /></p>
+<hr class="my-4" />
+<h1>Change the target framework</h1>
+<p>The first step to update Blazor WebAssembly to a newer version is updating the target framework. Right click to your project, select <strong>Properties</strong>.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\update-from-dotnet-5-to-dotnet-6-682674\d367e33c-53e0-43ad-886b-6fde04f49139..png" alt="" width="349" height="897" /></p>
+<p>Select .NET 6 as the target framework.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\update-from-dotnet-5-to-dotnet-6-682674\95da3ef1-1bbf-4b71-8635-7a75a511485f..png" alt="" width="926" height="320" /></p>
+<hr class="my-4" />
+<h1>Upgrade NuGet packages</h1>
+<p>Once you updated your target framework, you are required to upgrade the NuGet packages as well. Right click on your project, select <strong>Manage NuGet packages</strong>.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\update-from-dotnet-5-to-dotnet-6-682674\650b9dc2-c31b-4a88-be61-7104a66335e1..png" alt="" width="368" height="903" /></p>
+<p>Open <strong>Uptades</strong> tab and update 2 packages: <code>Microsoft.AspNetCore.Components.WebAssembly</code>, <code>Microsoft.AspNetCore.Components.WebAssembly.DevServer</code>.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\update-from-dotnet-5-to-dotnet-6-682674\48598974-a92b-42f9-933c-9f9df79f6db8..png" alt="" width="1028" height="278" /></p>
+<hr class="my-4" />
+<h1>Add <code>HeadOutlet</code> to <code>Program.cs</code></h1>
+<p><code>HeadOutlet</code> is a new component of Blazor WebAssembly .NET 6. It will help you modify the information in the <code>&lt;head&gt;</code> tag easier. Make sure to add <code>HeadOutlet</code>. Open <code>Program.cs</code> and modify the code as follow:</p>
+<pre class="code" language="csharp">public static async Task Main(string[] args)
+{
+    ...
+    builder.RootComponents.Add&lt;App&gt;("#app");
+    builder.RootComponents.Add&lt;HeadOutlet&gt;("head::after");
+    ...
+}</pre>
+<hr class="my-4" />
+<h1>Remove unnecessary codes (optional)</h1>
+<p>This step is an optional step. However, if you follow this step, it will make your code shorter and keep your project up to date. Remove the namespace, <code>Program</code> and <code>Main</code> declaration. Your code will look like this:</p>
+<pre class="code" language="csharp">using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Net.Http;
+using UpgradeNET6BlazorWasm;
+
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.RootComponents.Add&lt;App&gt;(&quot;#app&quot;);
+builder.RootComponents.Add&lt;HeadOutlet&gt;(&quot;head::after&quot;);
+
+builder.Services.AddScoped(sp =&gt; new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+...
+await builder.Build().RunAsync();</pre>

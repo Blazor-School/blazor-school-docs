@@ -1,0 +1,22 @@
+<h1>Default Layout for Components</h1>
+<p><code>_Imports.razor</code> will help you to set the default layout for all components inside a folder. It is used to group components that use the same layout. The layout set in <code>_Imports.razor</code> will override the layout set in <code>RouteView</code>.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/layout-blazor-wasm" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Creating a layout</h1>
+<p>Before setting the layout for components, you need a layout first. Follow the steps described in <a href="/tutorial/blazor-wasm/theming-and-layout-652073">Theming and Layouts guide</a> to create a layout. In this example, we will use the following layout:</p>
+<pre class="code" language="razor">@inherits LayoutComponentBase
+
+&lt;h3&gt;LayoutForFolder&lt;/h3&gt;
+@Body</pre>
+<hr class="my-4" />
+<h1>Creating a component folder</h1>
+<p>In this step, you need to put components that are using the same layout in a same folder. This image taken from our example.</p>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\default-layout-for-multiple-components-201432\cade471b-9645-46fa-a541-edd1406e07ec..png" alt="" width="500" height="201" /></p>
+<p>In the example, we put <code>FirstComponentInFolder</code> and <code>SecondComponentInFolder</code> component to the <code>LayoutByFolder</code> folder.</p>
+<hr class="my-4" />
+<h1>Creating <code>_Imports.razor</code></h1>
+<p>The next step is to create a Razor component with the name <code>_Imports.razor</code> in the folder. You need to use the <code>@layout</code> directive to set the default layout for the folder.</p>
+<pre class="code" language="razor">@layout LayoutForFolder</pre>
+<blockquote>The <code>_Imports.razor</code> is a special component, for this technique to work, you will need to name your component extractly <code>_Imports.razor</code>.</blockquote>
+<blockquote>There is a <code>_Imports.razor</code> component at the same level of <code>App.razor</code>. Do not use <code>@layout</code> directive in this component.</blockquote>
+<p><img class="img-fluid" src="\contents\blazor-wasm\dotnet5\default-layout-for-multiple-components-201432\22fe7993-c201-48fe-9ba1-bee5c18d24f0..png" alt="" width="655" height="325" /></p>

@@ -1,0 +1,32 @@
+<h1>Forms</h1>
+<p>Using forms is a way of collecting user data. Blazor WebAssembly has a built-in <code>&lt;EditForm&gt;</code> component, you can also use HTML <code>&lt;form&gt;</code> tag.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/form-blazor-wasm" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Comparing between <code>&lt;EditForm&gt;</code> and <code>&lt;form&gt;</code></h1>
+<p><code>EditForm</code> is a built-in component with many pre-build functions like validation, handle submits, allow nested <code>EditForm</code>.</p>
+<p><code>&lt;form&gt;</code> is an HTML tag and have no pre-build functions.</p>
+<h3>Syntax comparison</h3>
+<pre class="code" language="razor">&lt;div&gt;EditForm:&lt;/div&gt;
+&lt;EditForm Model="Person"&gt;
+    &lt;InputText @bind-Value="Person.Name"&gt;&lt;/InputText&gt;
+&lt;/EditForm&gt;
+
+&lt;div&gt;HTML form:&lt;/div&gt;
+&lt;form&gt;
+    &lt;input type="text" @bind="Person.Name"/&gt;
+&lt;/form&gt;
+
+@code {
+    public Person Person { get; set; } = new();
+}</pre>
+<p><code>EditForm</code> requires a <code>Model</code> parameter, whereas <code>&lt;form&gt;</code> does not.</p>
+<hr class="my-4" />
+<h1>Comparing between Blazor and HTML form controls</h1>
+<p>Form controls are the element that are used to collect user's data. Some examples of form controls are textbox, combo box, radio, checkbox and so on.</p>
+<p>HTML form controls are <code>&lt;input&gt;</code> with different <code>type</code> attribute. Some of HTML form controls example are:</p>
+<pre class="code" language="html">&lt;input type="text" /&gt;
+&lt;input type="radio" /&gt;</pre>
+<p>Blazor form controls are built-in components that can be only used inside the <code>EditForm</code> component. Those components have pre-build functions. Some of Blazor form controls example are:</p>
+<pre class="code" language="razor">&lt;InputText&gt;&lt;/InputText&gt;
+&lt;InputDate&gt;&lt;/InputDate&gt;</pre>
+<p>Blazor form controls are good in general, it has done a lot of work about validation, UI. On the other hands, Blazor form controls has some limitations. For example, <code>InputText</code> is only supporting <code>onchange</code> HTML event and there is no way for it to change it to another HTML event, <code>oninput</code> for an example.</p>
