@@ -1,0 +1,91 @@
+<h1>Introduction to the Blazor Server .NET 6</h1>
+<p>This tutorial will introduce you to Blazor Server for .NET 6. This tutorial includes:</p>
+<ul>
+    <li>What make Blazor a stand-out framework?</li>
+    <li>The history of Blazor.</li>
+    <li>Hosting models in comparison.</li>
+    <li>Tutorial series.</li>
+    <li>Contribution to this series.</li>
+</ul>
+<hr class="my-4" />
+<h1>What make Blazor a stand-out framework?</h1>
+<p>
+    Started in 2018, Blazor is developed by Microsoft as an SPA (single page application) framework. Most existing SPA frameworks like Angular, Vue, React built with TypeScript/JavaScript language. Blazor in the contrast, use C# to build
+    the website then the code will be compiled to WebAssembly and run directly on the browser. Blazor also optimize the communication between browser and server by using WebAssembly instead of traditional JSON. In summary:
+</p>
+<ul>
+    <li>Build a website with a strong type language (C#).</li>
+    <li>Optimize communication between client and server by using WebAssembly.</li>
+    <li>Optimize performance by using WebAssembly to execute logic on the browser.</li>
+    <li>Requires zero to minimal JavaScript knowledge to build a website.</li>
+    <li>Compatible with existing JavaScript libraries.</li>
+</ul>
+<hr class="my-4" />
+<h1>The history of Blazor</h1>
+<p>
+    The initial release of Blazor includes several hosting models like: Blazor Server, Blazor WebAssembly, Blazor PWAs, Blazor Native, Blazor Hybrid and created quite confusion for the community because there are so many versions of Blazor
+    and one can't decide what to use. Realizing that confusion, Microsoft simplify Blazor into 2 hosting models: Blazor Server and Blazor WebAssembly.
+</p>
+<hr class="my-4" />
+<h1>Hosting models in comparison</h1>
+<table class="table table-bordered">
+    <tbody>
+        <tr>
+            <td></td>
+            <td>Blazor Server</td>
+            <td>Blazor WebAssembly</td>
+        </tr>
+        <tr>
+            <td>Access to server resource</td>
+            <td>Directly</td>
+            <td>Indirect</td>
+        </tr>
+        <tr>
+            <td>Built-in SignalR Core</td>
+            <td>Yes</td>
+            <td>No</td>
+        </tr>
+        <tr>
+            <td>Built-in service worker?</td>
+            <td>No</td>
+            <td>Yes</td>
+        </tr>
+        <tr>
+            <td>Validation and process</td>
+            <td>At server</td>
+            <td>At client</td>
+        </tr>
+        <tr>
+            <td>Ready for production?</td>
+            <td>Yes</td>
+            <td>Yes</td>
+        </tr>
+        <tr>
+            <td>Client-Server communication</td>
+            <td>By WebAssembly</td>
+            <td>By JSON, WebAssembly</td>
+        </tr>
+    </tbody>
+</table>
+<p>Blazor Server can be hosted on a web server (NGINX, Apache, ...), Azure AppService.</p>
+<p>
+    Blazor WebAssembly is a frontend website and can be hosted on Azure Static WebApp, Azure AppService, or a web server (NGINX, Apache, ...). For a full functional Blazor WebAssembly you need to combine with a backend technology (Azure
+    Function, Grpc, ASP.NET Web API).
+</p>
+<hr class="my-4" />
+<h1>Tutorial series</h1>
+<p>After attending this tutorial series, you will confident in website development with Blazor Server. This tutorial series is for beginner to expert level with the following main points:</p>
+<ul>
+    <li>Build an online store website.</li>
+    <li>Blazor Server fundamental.</li>
+    <li>Built-in features.</li>
+    <li>Advanced techniques.</li>
+    <li>Hosting and deployment.</li>
+    <li>Migrate to a new version.</li>
+</ul>
+<hr class="my-4" />
+<h1>Contributions to this series</h1>
+<p>Since 09-Dec-2021, Blazor School became a community documentation that means individual can improve tutorials from Blazor School.</p>
+<p><a href="https://github.com/Blazor-School/blazor-school-docs/issues" target="_blank" rel="noopener" title="Report problems or submit suggestions for future docs">Report problems or submit suggestions for future docs</a>.</p>
+<p>Contribute to Blazor community documentation by create a <a href="https://github.com/Blazor-School/blazor-school-docs/pulls" target="_blank" rel="noopener">pull request</a> on the Blazor School Docs repository.</p>
+<p>Our community values respectful, supportive communication.</p>
