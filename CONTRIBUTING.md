@@ -35,13 +35,13 @@ We would love for you to contribute to Blazor School Docs and help make it even 
  - Video must:
    + Video must be typed of mp4.
    + Be wrapped inside `<div class="ratio ratio-21x9"></div>`. 
-   + You must use `video` tag for video. The `video` tag must have `weight`, `height`, `controls="controls"` as attributes.
-   + You must have `source` tag to refer to the video. The `source` tag must have `type="video/mp4"`.
+   + You must use `video` tag for video. The `video` tag must have `controls="controls"` as attributes.
+   + You must have `source` tag to refer to the video.
    + A good example of a video: 
    ```
    <div class="ratio ratio-21x9">
-    <video controls="controls" width="300" height="150">
-        <source src="\contents\blazor-wasm\dotnet5\theming-and-layout-652073\d0c5ffb2-07aa-4a7c-83bf-abc1fbcaf4fd..mp4" type="video/mp4">
+    <video controls="controls">
+        <source src="\contents\blazor-server\dotnet6\collect-information-987786\test-the-form.mp4">
     </video>
    </div>
    ```
