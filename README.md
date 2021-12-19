@@ -26,6 +26,7 @@ This project is the content that you see in Blazor School.
 
 ## Who can contribute to the documentation?
 Everyone can contribute to the documentation, your changes will reflect on Blazor School respectively.
+Follow the [Contribute Guidelines](https://github.com/Blazor-School/blazor-school-docs/blob/master/CONTRIBUTING.md) and [Code of Conducts](https://github.com/Blazor-School/blazor-school-docs/blob/master/CODE_OF_CONDUCT.md)
 
 ## Community
 Join the conversation and help the community.
