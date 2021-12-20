@@ -1,0 +1,42 @@
+<h1>Component</h1>
+<p>Component is the main building block of Blazor Server. In this series, you will learn how to use component efficiency. This tutorial includes:</p>
+<ul>
+    <li>Component lifecycle.</li>
+    <li>Layout page.</li>
+    <li>Routing and parameterized.</li>
+    <li>Navigation.</li>
+    <li>Styling component with CSS.</li>
+    <li>Component interaction.</li>
+    <li>Content projection.</li>
+    <li>JavaScript interaction.</li>
+</ul>
+<p>In this tutorial, you will have an overview of component:</p>
+<ul>
+    <li>What is a component?</li>
+    <li>Structure of a component.</li>
+    <li>Component types.</li>
+</ul>
+<hr class="my-4" />
+<h1>What is a component?</h1>
+<p>A component in Blazor Server is called Razor Component. Component is the main building block of Blazor Server. The following is an example of a website page to demonstrate the role of a component.</p>
+<p><img src="contents\blazor-server\dotnet6\component-431555\blazor-server-page-example.png" alt="blazor-server-page-example.png" width="1080" height="767" /></p>
+<p>A website page is created by the combination of many components. Each component in charge of a piece of logic and UI in a page. Components are reusable.</p>
+<blockquote>Razor Component (<code>.razor</code>) is not Razor Page (<code>.cshtml</code>). Blazor Server does not use Razor Page as component. Do not confuse between them.</blockquote>
+<hr class="my-4" />
+<h1>Structure of a component</h1>
+<p>Each component has 3 sections:</p>
+<ol>
+    <li>Directive section: This section is usually for Dependency Injection, using a .NET library, implement an interface, etc...</li>
+    <li>UI section: You can define the UI for the component in this section. This section can contain C# code and HTML.</li>
+    <li>Code section: This section is used for declaring methods, property, etc...</li>
+</ol>
+<p><img src="contents\blazor-server\dotnet6\component-431555\blazor-server-component-structure.png" alt="blazor-server-component-structure.png" width="1332" height="727" /></p>
+<hr class="my-4" />
+<h1>Component types</h1>
+<p>There are 4 component types:</p>
+<ol>
+    <li>Dependent component: A component that has <code>@page</code> directive. This type of component allows you to have parameter from the URL, mainly for integrate between components. This type must not be used in another component.</li>
+    <li>Independent component: A component that does not have <code>@page</code> directive. This type of component allows you to solve a very specific problem and must be used within another component.</li>
+    <li>Layout component: A component that inherits from <code>LayoutComponentBase</code>. This type of component determine the layout of a page or entire website.</li>
+    <li>Hybrid component: A component that is not one of the type above. We don't recommend having those components because of the code will not maintainable.</li>
+</ol>
