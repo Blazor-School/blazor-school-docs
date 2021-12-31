@@ -65,3 +65,4 @@
 <h1>Layout overriding priority</h1>
 <div>In case your component has multiple layout set by different techniques, Blazor Server will select only one layout to display based on how they are set. The following image illustrates the overriding chain in Blazor Server:</div>
 <p><img src="contents\blazor-server\dotnet6\website-layout-455367\layout-overriding-chain.png" alt="layout-overriding-chain.png" width="1557" height="285" /></p>
+<p><code>RouteView</code> is the first in the chain, which means anything later will override <code>RouteView</code>. <code>LayoutView</code> is the last in the chain, which means nothing can override <code>LayoutView</code>.</p>
