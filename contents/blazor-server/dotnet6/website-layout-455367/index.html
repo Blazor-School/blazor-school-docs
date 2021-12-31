@@ -39,7 +39,7 @@
 <pre class="code" language="razor">&lt;RouteView RouteData="routeData" DefaultLayout="typeof(SecondaryLayout)" /&gt;</pre>
 <hr class="my-4" />
 <h1>Default layout for folder</h1>
-<p>You can group similar Dependent components (see <strong>Component types</strong> section in <a href="https://blazorschool.com/tutorial/blazor-server/dotnet6/component-431555" title="Blazor Server Component .NET 6">Blazor Server Component .NET 6</a>) into a folder. Furthermore, instead of set a layout for each component, you can set the default layout for all the components in the same folder or it's subfolders. Assuming you have the following folder structure:</p>
+<p>You can group similar Dependent components (see <strong>Component types</strong> section in <a href="https://blazorschool.com/tutorial/blazor-server/dotnet6/component-431555" title="Blazor Server Component .NET 6">Blazor Server Component .NET 6</a>) into a folder. Furthermore, instead of set a layout for each component, you can set the default layout for all the components in the same folder and it's subfolders. Assuming you have the following folder structure:</p>
 <p><img src="contents\blazor-server\dotnet6\website-layout-455367\layout-for-folder-folder-structure.png" alt="layout-for-folder-folder-structure.png" width="350" height="157" /></p>
 <p>Create a new component with the name <code>_Imports.razor</code> in the folder you want to set default layout for all components inside. Add <code>@layout</code> directive at the directive section of the component. For example:</p>
 <pre class="code" language="razor">@layout FolderLayout</pre>
