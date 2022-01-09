@@ -14,14 +14,14 @@
 <p>To create a link for the user to click, you have 2 options: <code>NavLink</code> component and <code>&lt;a&gt;</code> tag.</p>
 <h3><code>&lt;a&gt;</code> tag</h3>
 <p><code>&lt;a&gt;</code> tag is useful when you want to create a simple link, or you want to customize your logic which <code>NavLink</code> cannot provide. An example of <code>&lt;a&gt;</code> tag:</p>
-<pre class="code" language="html">&lt;a href="page-3"&gt;Page 3 (HTML tag)&lt;/a&gt;</pre>
+<pre class="code" language="razor">&lt;a href="page-3"&gt;Page 3 (HTML tag)&lt;/a&gt;</pre>
 <h3><code>NavLink</code> component</h3>
 <p><code>NavLink</code> component is useful when you want to build a navigation bar. With <code>NavLink</code> component, you can highlight the menu of the current page of the current page or relative pages without any code. For example, when you are using Blazor School, at the right corner of the website, you will see the menu <strong>Tutorial</strong> is being highlighted.</p>
 <p><img src="contents\blazor-server\dotnet6\navigation-471116\navlink-component-example.png" alt="navlink-component-example.png" width="300" height="105" /></p>
 <p>To create a link with <code>NavLink</code>, you need to use specify the <code>href</code> for the <code>NavLink</code>. For example:</p>
 <pre class="code" language="razor">&lt;NavLink href="page-1-1"&gt;Page 1.1&lt;/NavLink&gt;</pre>
 <p>With the above code, Blazor Server will generate the following HTML tag:</p>
-<pre class="code" language="html">&lt;a href="page-1-1"&gt;Page 1.1&lt;/a&gt;</pre>
+<pre class="code" language="razor">&lt;a href="page-1-1"&gt;Page 1.1&lt;/a&gt;</pre>
 <h3>Highlight current menu with <code>NavLink</code></h3>
 <p>Each menu links to a URL, if the browser URL matches the menu URL, the link will have some CSS classes to highlight itself. To determine when the browser URL matches with the link, use parameter <code>Match</code> of <code>NavLink</code> component. In case you don't specify the <code>Match</code> parameter, Blazor Server will assume it is <code>NavLinkMatch.Prefix</code>. Here is an example of using <code>Match</code> parameter:</p>
 <pre class="code" language="razor">&lt;NavLink href="page-2" Match="NavLinkMatch.All"&gt;Page 2&lt;/NavLink&gt;</pre>
@@ -33,11 +33,11 @@
 <p>For <code>NavLinkMatch.All</code> value, it will be a match if the browser URL as sane as the <code>href</code> value of <code>NavLink</code> and vice versa.</p>
 <h3>Custom highlighting CSS classes</h3>
 <p>When the browser URL matches with a <code>NavLink</code>, the link will be highlighted with the CSS class <code>active</code> by default. For example, when a link matches with the browser URL, Blazor Server will render the following tag:</p>
-<pre class="code" language="html">&lt;a href="page-1" class="active"&gt;Page 1&lt;/a&gt;</pre>
+<pre class="code" language="razor">&lt;a href="page-1" class="active"&gt;Page 1&lt;/a&gt;</pre>
 <p>If you want to change the highlighting CSS class, you can use <code>ActiveClass</code> parameter of <code>NavLink</code> component. Assuming you have the following <code>NavLink</code> tag:</p>
 <pre class="code" language="razor">&lt;NavLink href="page-1" ActiveClass="btn btn-primary"&gt;Page 1&lt;/NavLink&gt;</pre>
 <p>When the browser URL is <strong>https://localhost:XXXX/page-1</strong>, Blazor Server will render the following tag:</p>
-<pre class="code" language="html">&lt;a href="page-1" class="btn btn-primary"&gt;Page 1&lt;/a&gt;</pre>
+<pre class="code" language="razor">&lt;a href="page-1" class="btn btn-primary"&gt;Page 1&lt;/a&gt;</pre>
 <hr class="my-4" />
 <h1>Navigate by code</h1>
 <p>To navigating by code, you need to inject <code>NavigationManager</code> to your component and use the injected instance to navigate to another page. For example:</p>
