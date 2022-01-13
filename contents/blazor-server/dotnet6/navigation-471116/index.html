@@ -4,6 +4,7 @@
     <li>Types of navigation.</li>
     <li>Navigate by link.</li>
     <li>Navigate by code.</li>
+    <li>Detect navigation.</li>
 </ul>
 <blockquote>You can <a href="https://github.com/Blazor-School/navigation-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
 <hr class="my-4" />
@@ -59,3 +60,31 @@
 <p><img src="contents\blazor-server\dotnet6\navigation-471116\history-stack-example.png" alt="history-stack-example.png" width="209" height="173" /></p>
 <p>To navigate without storing the history stack, you can pass <code>replace</code> parameter to the method <code>NavigateTo</code>. For example:</p>
 <pre class="code" language="csharp">NavigationManager.NavigateTo("/", replace: false);</pre>
+<hr class="my-4" />
+<h1>Detect navigation</h1>
+<p>You can detect a navigation whether triggered by code or by a link in Blazor Server with <code>LocationChange</code> event of <code>NavigationManager</code>. The following code demonstrate how to listen to the <code>LocationChange</code> event:</p>
+<pre class="code" language="razor">@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+&lt;h3&gt;Current URL: @NavigationManager.Uri&lt;/h3&gt;
+
+@code {
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs)
+    {
+        JSRuntime.InvokeVoidAsync("alert", "Navigation detected!");
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
+</pre>
+<blockquote>Always remember to unsubscribe the event in <code>Dispose</code> method when you subscribe to any event.</blockquote>
