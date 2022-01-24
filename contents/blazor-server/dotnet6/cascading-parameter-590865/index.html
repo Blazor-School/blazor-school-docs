@@ -92,9 +92,9 @@
     <li>Detect changes from the descendant components.</li>
 </ul>
 <h3>Detect changes from the ancestor component</h3>
-<p>Anytime the ancestor component changes the value of a cascading parameter, the descendant components will be re-rendered. You can also listen to these changes by override the <code>OnParametersSet</code> method. See <a href="/tutorial/blazor-server/dotnet6/component-lifecycle-431616" title="Component Lifecycle">Component Lifecycle</a> tutorial.</p>
+<p>Anytime the ancestor component changes the value of a cascading parameter, the descendant components will be re-rendered. You can also listen to these changes by override the <code>OnParametersSet()</code> method of your descendant component. See <a href="/tutorial/blazor-server/dotnet6/component-lifecycle-431616" title="Component Lifecycle">Component Lifecycle</a> tutorial.</p>
 <h3>Detect changes from the descendant components</h3>
-<p>Whenever a descendant component changes the value of a cascading parameter, the ancestor will not be re-rendered, unlike changes from the ancestor component. To make the ancestor component react to changes, you need to notify the ancestor component whenever you made a change in the descendant component.</p>
+<p>Whenever a descendant component changes the value of a cascading parameter, the ancestor will not be re-rendered, unlike changes from the ancestor component. To make the ancestor component reacts to the changes, you need to notify the ancestor component whenever you made a change in the descendant component.</p>
 <ol>
     <li><strong>In your ancestor component</strong>, declare a notify method in the code section.</li>
 </ol>
