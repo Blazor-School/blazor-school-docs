@@ -67,7 +67,7 @@
     <li>Detect changes from the child component.</li>
 </ul>
 <h3>Detect changes from the parent component</h3>
-<p>Anytime the parent component changes the value of a passed parameter, the child components will be re-rendered. You don't need to detect the changes from the parent component most of the time. In case you want to detect those changes, you can override the <code>OnParametersSet()</code> method of your child component.</p>
+<p>Anytime the parent component changes the value of a passed parameter, the child components will be re-rendered. You don't need to detect the changes from the parent component most of the time. In case you want to detect those changes, you can override the <code>OnParametersSet()</code> method of your child component. See <a href="https://blazorschool.com/tutorial/blazor-server/dotnet6/component-lifecycle-431616" title="Component Lifecycle">Component Lifecycle</a> tutorial.</p>
 <h3>Detect changes from the child component</h3>
 <p>Unlike the changes coming from the parent component, anytime a child component update a value of a passed parameter, the parent component will not be re-rendered. To make the parent component reacts to the changes, you need to pass a delegate to the child component as well. Whenever the child component update the parameter value, the child component will call the delegate to notify the parent component to update itself.</p>
 <ol>
@@ -78,7 +78,7 @@
     public ExampleClass ExampleInstance { get; set; } = new();
 
     [Parameter]
-    public Action&lt;ExampleClass&gt; ExampleInstanceChanged { get; set; } = _ =&gt; { };
+    public EventCallback ExampleInstanceChanged { get; set; }
 }</pre>
 <ol start="2">
     <li>Whenever you update the parameter, remember to call the delegate of that parameter.</li>
@@ -88,7 +88,7 @@
     public void UpdateValue()
     {
         ExampleInstance.Data = "Value changed at child";
-        ExampleInstanceChanged?.Invoke(ExampleInstance);
+        ExampleInstanceChanged.InvokeAsync();
     }
 }</pre>
 <ol start="3">
@@ -96,7 +96,7 @@
 </ol>
 <pre class="code" language="razor">@code {
     ...
-    public void OnExampleInstanceChanged(ExampleClass newValue)
+    public void OnExampleInstanceChanged()
     {
         InvokeAsync(StateHasChanged);
     }
