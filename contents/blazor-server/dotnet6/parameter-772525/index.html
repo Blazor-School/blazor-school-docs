@@ -92,16 +92,6 @@
     }
 }</pre>
 <ol start="3">
-    <li><strong>In your parent component</strong>, declare a method to react to the changes.</li>
+    <li><strong>In your parent component</strong>, pass the method <code>StateHasChanged</code> along with the parameter to the child component.</li>
 </ol>
-<pre class="code" language="razor">@code {
-    ...
-    public void OnExampleInstanceChanged()
-    {
-        InvokeAsync(StateHasChanged);
-    }
-}</pre>
-<ol start="4">
-    <li>Pass the method along with the parameter to the child component.</li>
-</ol>
-<pre class="code" language="razor">&lt;Child ExampleInstance="ExampleInstance" ExampleInstanceChanged="OnExampleInstanceChanged" /&gt;</pre>
+<pre class="code" language="razor">&lt;Child ExampleInstance="ExampleInstance" ExampleInstanceChanged="StateHasChanged" /&gt;</pre>
