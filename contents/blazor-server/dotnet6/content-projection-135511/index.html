@@ -1,0 +1,88 @@
+<h1>Content Projection</h1>
+<p>Content Projection is the concept of generic component, which allow you to design a component that defer the specification of one or more UI part to the user of that component. In other word, you can handle the common logic and defer the specific logic to the user of that component. Some examples where Content Projection useful are: a component that will make any child component/HTML tags to display right to left; A tab container component that handles all the logic about tabs without knowing the tabs, the user of the tab container component will decide how many tabs are there. In this tutorial, you will discover:</p>
+<ul>
+    <li>Comprehensive view.</li>
+    <li>Implementing the Content Projection technique.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/content-projection-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Comprehensive view</h1>
+<p>In Blazor Server, there are 2 types of Content Projection:</p>
+<ol>
+    <li>Single-slot content projection.</li>
+    <li>Multi-slot content projection.</li>
+</ol>
+<hr class="my-4" />
+<h1>Single-slot content projection</h1>
+<p>The single-slot content projection has a single projected slot with the name <code>ChildContent</code>. The following image illustrates the single-slot content projection component:</p>
+<p><img src="contents\blazor-server\dotnet6\content-projection-135511\single-slot-explain.png" alt="single-slot-explain.png" width="2067" height="1257" /></p>
+<h3>Creating a single-slot content projection component</h3>
+<ol>
+    <li>Create a new component.</li>
+    <li>Define a parameter with the nullable type <code>RenderFragment</code> in the code section. For example:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}</pre>
+<ol start="3">
+    <li>Use the <code>@ChildContent</code> as the placeholder for projecting another content. For example:</li>
+</ol>
+<pre class="code" language="razor">&lt;div&gt;
+    @ChildContent
+&lt;/div&gt;
+</pre>
+<blockquote>You cannot change the parameter name of ChildContent. It is a fixed name defined by Blazor Server.</blockquote>
+<h3>Using the single-slot content projection component</h3>
+<p>To use the single-slot content projection component you just created at the previous step, you will need to define the projecting content between the component tag. In the following example, we named our single-slot content projection component as <code>SingleSlotChild</code>:</p>
+<pre class="code" language="razor">&lt;SingleSlotChild&gt;
+    &lt;span&gt;Content to project&lt;/span&gt;
+&lt;/SingleSlotChild&gt;
+</pre>
+<p>The result:</p>
+<p><img src="contents\blazor-server\dotnet6\content-projection-135511\result-single-slot.png" alt="result-single-slot.png" width="385" height="221" /></p>
+<hr class="my-4" />
+<h1>Multi-slot content projection</h1>
+<p>The multi-slot content projection as the name suggested, it has many slots for projecting the content. Furthermore, you can name your slots as you want. The following image illustrates the multi-slot content projection component:</p>
+<p><img src="contents\blazor-server\dotnet6\content-projection-135511\multi-slot-explain.png" alt="multi-slot-explain.png" width="2067" height="2003" /></p>
+<h3>Creating a multi-slot content projection component</h3>
+<ol>
+    <li>Create a new component.</li>
+    <li>For each slot in your component, declare a parameter in the code section accordingly. For example:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public RenderFragment? Slot1 { get; set; }
+    [Parameter]
+    public RenderFragment? Slot2 { get; set; }
+}</pre>
+<p>The <code>Slot1</code> and <code>Slot2</code> in the above example is the slot name, you will later use this slot name to define its content. You can also set the default UI for a slot with a delegate with <code>(__builder)</code>. You must follow the syntax <code>(__builder) =&gt; { }</code>. For example:</p>
+<pre class="code" language="csharp">[Parameter]
+public RenderFragment? Slot3 { get; set; } = (__builder) =&gt;
+{
+    &lt;div&gt;Default Slot 3&lt;/div&gt;
+};</pre>
+<ol start="3">
+    <li>Render all of your slots in your component. For example:</li>
+</ol>
+<pre class="code" language="razor">&lt;div&gt;
+    &lt;h3&gt;MultipleSlotsChild&lt;/h3&gt;
+    &lt;div&gt;
+        @Slot1
+    &lt;/div&gt;
+    &lt;div&gt;
+        @Slot2
+    &lt;/div&gt;
+    &lt;div&gt;
+        @Slot3
+    &lt;/div&gt;
+&lt;/div&gt;</pre>
+<h3>Using the multi-slot content projection component</h3>
+<p>To use the multi-slot content projection component, you need to define the content for each slot with its slot name. For example:</p>
+<pre class="code" language="razor">&lt;MultipleSlotsChild&gt;
+    &lt;Slot1&gt;&lt;span&gt;Slot 1 content&lt;/span&gt;&lt;/Slot1&gt;
+    &lt;Slot2&gt;&lt;span&gt;Slot 2 content&lt;/span&gt;&lt;/Slot2&gt;
+&lt;/MultipleSlotsChild&gt;</pre>
+<p>The result:</p>
+<p><img src="contents\blazor-server\dotnet6\content-projection-135511\result-multi-slot.png" alt="result-multi-slot.png" width="381" height="393" /></p>
+<p>You can see the slot 3 is projecting to the default UI we have set inside the component, as the component user does not define the UI for slot 3.</p>
