@@ -1,0 +1,132 @@
+<h1>Generic Projection</h1>
+<p>Content Projection is about generic UI, Generic Projection extends the Content Projection furthermore, it is about generic UI and generic data that associated with the UI. Generic Projection will hide some logic such as looping, if-else, ... In this tutorial:</p>
+<ul>
+    <li>Understand Generic Projection.</li>
+    <li>Understand the data flow in Generic Projection.</li>
+    <li>Implementing the Generic Projection technique.</li>
+    <li>The advantages of Generic Projection.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/content-projection-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Understand Generic Projection</h1>
+<p>Without Generic Projection, all logic assembly in one component. Furthermore, that component is not reusable in terms of UI because that component itself define what the UI will look like.</p>
+<p>With Generic Projection, you will be able to separate the common logic like if-else, looping in the generic projection component. Also, the generic projection component itself will not define what the UI will look like, but the user of that component will. The following image illustrates the advantage of Generic Projection compared to not using it:</p>
+<p><img src="contents\blazor-server\dotnet6\gemeric-projection-351543\without-generic-projection.png" alt="without-generic-projection.png" width="1083" height="700" /></p>
+<p><img src="contents\blazor-server\dotnet6\gemeric-projection-351543\with-generic-projection.png" alt="with-generic-projection.png" width="1049" height="1000" /></p>
+<hr class="my-4" />
+<h1>Understand the data flow in Generic Projection</h1>
+<p>The generic projection component user (let's call it&nbsp;<strong>Component1</strong>) can pass data to the generic projection component (let's call it <strong>GenericProjectionComponent1</strong>) by <code>Parameter</code>. After the <strong>GenericProjectionComponent1</strong> have processed the input data to output data, the <strong>GenericProjectionComponent1</strong> will omit the output data to the <strong>Component1</strong> by <code>Context</code>. The <strong>Component1</strong> will receive the <code>Context</code> and then use it within the projecting content. The following image illustrate the data flow of the Generic Projection technique:</p>
+<p><img src="contents\blazor-server\dotnet6\gemeric-projection-351543\data-flow.png" alt="data-flow.png" width="1026" height="500" /></p>
+<hr class="my-4" />
+<h1>Implementing the Generic Projection technique</h1>
+<p>To implement of the Generic Projection, you will need to:</p>
+<ol>
+    <li>Define the generic projection component.</li>
+    <li>Pass and retrieve data.</li>
+</ol>
+<h3>Define the generic projection component</h3>
+<ol>
+    <li>Create a new component (let's call it&nbsp;<strong>GenericProjectionChild</strong>).</li>
+    <li>Declare projecting slots and the input data in the code section. For example:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public RenderFragment&lt;Cat&gt;? CatTemplate { get; set; }
+
+    [Parameter]
+    public RenderFragment&lt;Dog&gt;? DogTemplate { get; set; }
+
+    [Parameter]
+    public RenderFragment&lt;Bird&gt;? BirdTemplate { get; set; }
+
+    [Parameter]
+    public List&lt;IAnimal&gt; InputData { get; set; } = new();
+}</pre>
+<p>Instead of the <code>RenderFragment</code> for declaring a projecting slot as with the Content Projection technique, the Generic Projection technique use the generic version <code>RenderFragment&lt;T&gt;</code>, the <code>T</code> is the data that associates with the projecting slot.</p>
+<ol start="3">
+    <li>Perform logic (optional) and render the projecting slots with the <code>Invoke(T)</code> method in the UI section. For example:</li>
+</ol>
+<pre class="code" language="razor">@foreach (var animal in InputData)
+{
+    &lt;div&gt;
+        @if (animal is Cat cat)
+        {
+            @CatTemplate?.Invoke(cat)
+        }
+
+        @if (animal is Dog dog)
+        {
+            @DogTemplate?.Invoke(dog)
+        }
+
+        @if (animal is Bird bird)
+        {
+            @BirdTemplate?.Invoke(bird)
+        }
+    &lt;/div&gt;
+}</pre>
+<h3>Pass and retrieve data</h3>
+<p>As for the example, you can pass data to the <strong>GenericProjectionChild</strong> by using the <code>InputData</code>. To retrieve the output data from the <strong>GenericProjectionChild</strong> component, you can declare a variable in the <code>Context</code> keyword. For example:</p>
+<pre class="code" language="razor">&lt;GenericProjectionChild InputData="Animals" Context="OutputFromProjection"&gt;
+    &lt;DogTemplate&gt;
+        &lt;div&gt;My name is @OutputFromProjection.Name, I am a dog.&lt;/div&gt;
+    &lt;/DogTemplate&gt;
+    &lt;CatTemplate&gt;
+        &lt;div&gt;My name is @OutputFromProjection.Name, I am a cat.&lt;/div&gt;
+    &lt;/CatTemplate&gt;
+    &lt;BirdTemplate&gt;
+        &lt;div&gt;My name is @OutputFromProjection.Name, I am a bird.&lt;/div&gt;
+    &lt;/BirdTemplate&gt;
+&lt;/GenericProjectionChild&gt;</pre>
+<h3>The result</h3>
+<p>With the <code>Animals</code> property is defined as follows:</p>
+<pre class="code" language="razor">@code {
+    public List&lt;IAnimal&gt; Animals { get; set; } = new()
+    {
+        new Dog() { Name = "Doggy" },
+        new Cat() { Name = "Pussy" },
+        new Bird() { Name = "Birb" },
+        new Cat() { Name = "Kitty" },
+    };
+}</pre>
+<p>Will give the following result:</p>
+<p><img src="contents\blazor-server\dotnet6\gemeric-projection-351543\the-result.png" alt="the-result.png" width="381" height="479" /></p>
+<hr class="my-4" />
+<h1>The advantages of Generic Projection</h1>
+<p>As we mentioned at the beginning of this tutorial, the Generic Projection technique help you hide the logic in the high level and also defer the UI to the component user. In this section, we will compare the code without Generic Projection and the code with Generic Projection so you can have a closer look at its advantages.</p>
+<p>Code without the Generic Projection:</p>
+<pre class="code" language="razor">@foreach(var animal in Animals)
+{
+    @if(animal is Dog)
+    {
+        &lt;div&gt;My name is @animal.Name, I am a dog.&lt;/div&gt;
+    }
+
+    @if(animal is Cat)
+    {
+        &lt;div&gt;My name is @animal.Name, I am a cat.&lt;/div&gt;
+    }
+        
+    @if(animal is Bird)
+    {
+        &lt;div&gt;My name is @animal.Name, I am a bird.&lt;/div&gt;
+    }
+}</pre>
+<p>Code with the Generic Projection:</p>
+<pre class="code" language="razor">&lt;GenericProjectionChild InputData="Animals" Context="OutputFromProjection"&gt;
+    &lt;DogTemplate&gt;
+        &lt;div&gt;My name is @OutputFromProjection.Name, I am a dog.&lt;/div&gt;
+    &lt;/DogTemplate&gt;
+    &lt;CatTemplate&gt;
+        &lt;div&gt;My name is @OutputFromProjection.Name, I am a cat.&lt;/div&gt;
+    &lt;/CatTemplate&gt;
+    &lt;BirdTemplate&gt;
+        &lt;div&gt;My name is @OutputFromProjection.Name, I am a bird.&lt;/div&gt;
+    &lt;/BirdTemplate&gt;
+&lt;/GenericProjectionChild&gt;</pre>
+<p>In summaries, the Generic Projection technique help you to create a high level component with the following advantages:</p>
+<ul>
+    <li>Separation of concern.</li>
+    <li>Reusable component.</li>
+    <li>Easier to extend and maintain the website.</li>
+</ul>
