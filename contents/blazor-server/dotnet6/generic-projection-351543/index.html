@@ -11,12 +11,12 @@
 <h1>Understand Generic Projection</h1>
 <p>Without Generic Projection, all logic assembly in one component. Furthermore, that component is not reusable in terms of UI because that component itself define what the UI will look like.</p>
 <p>With Generic Projection, you will be able to separate the common logic like if-else, looping in the generic projection component. Also, the generic projection component itself will not define what the UI will look like, but the user of that component will. The following image illustrates the advantage of Generic Projection compared to not using it:</p>
-<p><img src="contents\blazor-server\dotnet6\gemeric-projection-351543\without-generic-projection.png" alt="without-generic-projection.png" width="1083" height="700" /></p>
-<p><img src="contents\blazor-server\dotnet6\gemeric-projection-351543\with-generic-projection.png" alt="with-generic-projection.png" width="1049" height="1000" /></p>
+<p><img src="contents\blazor-server\dotnet6\generic-projection-351543\without-generic-projection.png" alt="without-generic-projection.png" width="1083" height="700" /></p>
+<p><img src="contents\blazor-server\dotnet6\generic-projection-351543\with-generic-projection.png" alt="with-generic-projection.png" width="1049" height="1000" /></p>
 <hr class="my-4" />
 <h1>Understand the data flow in Generic Projection</h1>
 <p>The generic projection component user (let's call it&nbsp;<strong>Component1</strong>) can pass data to the generic projection component (let's call it <strong>GenericProjectionComponent1</strong>) by <code>Parameter</code>. After the <strong>GenericProjectionComponent1</strong> have processed the input data to output data, the <strong>GenericProjectionComponent1</strong> will omit the output data to the <strong>Component1</strong> by <code>Context</code>. The <strong>Component1</strong> will receive the <code>Context</code> and then use it within the projecting content. The following image illustrate the data flow of the Generic Projection technique:</p>
-<p><img src="contents\blazor-server\dotnet6\gemeric-projection-351543\data-flow.png" alt="data-flow.png" width="1026" height="500" /></p>
+<p><img src="contents\blazor-server\dotnet6\generic-projection-351543\data-flow.png" alt="data-flow.png" width="1026" height="500" /></p>
 <hr class="my-4" />
 <h1>Implementing the Generic Projection technique</h1>
 <p>To implement of the Generic Projection, you will need to:</p>
@@ -90,7 +90,7 @@
     };
 }</pre>
 <p>Will give the following result:</p>
-<p><img src="contents\blazor-server\dotnet6\gemeric-projection-351543\the-result.png" alt="the-result.png" width="381" height="479" /></p>
+<p><img src="contents\blazor-server\dotnet6\generic-projection-351543\the-result.png" alt="the-result.png" width="381" height="479" /></p>
 <hr class="my-4" />
 <h1>The advantages of Generic Projection</h1>
 <p>As we mentioned at the beginning of this tutorial, the Generic Projection technique help you hide the logic in the high level and also defer the UI to the component user. In this section, we will compare the code without Generic Projection and the code with Generic Projection so you can have a closer look at its advantages.</p>
