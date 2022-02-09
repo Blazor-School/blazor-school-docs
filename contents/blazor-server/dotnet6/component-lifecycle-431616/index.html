@@ -12,7 +12,7 @@
 <h1>Phases and lifecycle hook methods</h1>
 <p>A component in Blazor Server has 4 main phases: <strong>Initialize</strong>, <strong>ParametersSet</strong>, <strong>AfterRender</strong> and <strong>Dispose</strong>. Each phase will have 2 hook methods for synchronous and asynchronous operations, except <strong>Dispose</strong> phase which only has 1 hook method. The following image demonstrates the order of those lifecycle method hooks:</p>
 <p><img src="contents\blazor-server\dotnet6\component-lifecycle-431616\blazor-server-component-lifecycle-methods.png" alt="blazor-server-component-lifecycle-methods.png" width="2380" height="2364" /></p>
-<blockquote><code>Dispose</code> is a not a default hook method. To enable this hook method, your component needs to implement the <code>IDisposable</code> interface.</blockquote>
+<blockquote><code>Dispose</code> is not a default hook method. To enable this hook method, your component needs to implement the <code>IDisposable</code> interface.</blockquote>
 <p>The following table illustrates the purpose and execute order of each hook method:</p>
 <div class="table-responsive">
     <table class="table table-hover table-bordered" style="width: 875px;">
