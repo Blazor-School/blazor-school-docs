@@ -1,0 +1,125 @@
+<h1>Add JavaScript to Blazor</h1>
+<p>Before you can interact with a JavaScript library, you need to add it to Blazor first. In this tutorial, you will discover:</p>
+<ul>
+    <li>JavaScript module and standard JavaScript.</li>
+    <li>Global standard JavaScript.</li>
+    <li>Load JavaScript module on demand.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/javascript-interaction-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>JavaScript module and standard JavaScript</h1>
+<p>There are 2 types of JavaScript: module and standard. You will need to determine what is your JavaScript library type before using it. We assume that you understand what is JavaScript module and standard JavaScript, we will give you a quick catch-up to distinguish between the two. A JavaScript module is a file of classes/functions declared with <code>export</code> keyword. A standard JavaScript is a file of classes/functions declared without the <code>export</code> keyword. For example:</p>
+<p>A JavaScript module:</p>
+<pre class="code" language="js">export function exampleFunction()
+{
+    alert("Hello Blazor School")
+}</pre>
+<p>A standard JavaScript:</p>
+<pre class="code" language="js">function exampleFunction()
+{
+    alert("Hello Blazor School")
+}</pre>
+<p>A JavaScript module can contain one or more <code>export</code> declaration. The following code is also a JavaScript module:</p>
+<pre class="code" language="js">export function exampleFunction1()
+{
+    alert("Hello Blazor School")
+}
+
+export function exampleFunction2()
+{
+    alert("Hello Blazor School")
+}</pre>
+<hr class="my-4" />
+<h1>Global standard JavaScript</h1>
+<p>This technique will let you use a standard JavaScript function everywhere in your website. To implement this technique, you need to load your standard JavaScript with <code>&lt;script&gt;</code> tag. There are 2 places that you can put your <code>&lt;script&gt;</code> tag: inside <code>&lt;head&gt;</code> tag and inside <code>&lt;body&gt;</code> tag.</p>
+<h3>Advantages</h3>
+<ul>
+    <li>Easy to implement.</li>
+    <li>Can apply to some specific libraries.</li>
+</ul>
+<h3>Disadvantages</h3>
+<ul>
+    <li>Pollute the naming pool.</li>
+    <li>Make first render slower.</li>
+</ul>
+<h3>Import in <code>&lt;head&gt;</code></h3>
+<p>Import in <code>&lt;head&gt;</code> tag will block the render thread until every script in the <code>&lt;head&gt;</code> are fetched. It will make your website slow down on the first render. Most of the time, you don't need to put scripts in the <code>&lt;head&gt;</code> tag.</p>
+<h3>Import in <code>&lt;body&gt;</code></h3>
+<p>Import in <code>&lt;body&gt;</code> tag is a good way. By doing this, you will not block the render thread and allow the <code>&lt;script&gt;</code> tags to be fetched asynchronously.</p>
+<h3>Implementation</h3>
+<ol>
+    <li>Put your standard JavaScript file in <strong>wwwroot</strong>.</li>
+    <li>In your <strong>Pages/_Host.cshtml</strong>, add the <code>&lt;script&gt;</code> tag to import the standard JavaScript.</li>
+</ol>
+<p>For example: assuming you have the <code>wwwroot/js/global.js</code>. Your <strong>_Host.cshtml</strong> will look like:</p>
+<pre class="code" language="html">...
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+...
+&lt;/head&gt;
+&lt;body&gt;
+...
+    &lt;script src="_framework/blazor.server.js"&gt;&lt;/script&gt;
+    &lt;script src="~/js/global.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+<blockquote>You cannot make a JavaScript module as global.</blockquote>
+<blockquote>You must put your script under <strong>wwwroot</strong> folder.</blockquote>
+<hr class="my-4" />
+<h1>Load JavaScript module on demand</h1>
+<p>This technique will let you load a JavaScript module only when you need it. Each JavaScript module has it own scope. This means you can have 2 functions with the same name in different modules. There are 2 places to put your JavaScript module: <strong>wwwroot</strong> and collocate with a component.</p>
+<h3>Advantages</h3>
+<ul>
+    <li>Don't pollute the naming pool.</li>
+    <li>Make first render faster.</li>
+    <li>Can apply to some specific libraries.</li>
+</ul>
+<h3>Disadvantage</h3>
+<ul>
+    <li>Have to write more code.</li>
+</ul>
+<h3>Module in <strong>wwwroot</strong></h3>
+<p>You will need to put your module file under the <strong>wwwroot</strong> folder. There is no side effect for this approach.</p>
+<h3>Collocate with a component</h3>
+<p>You will need to name your module as <strong>&lt;ComponentName&gt;.razor.js</strong>. When done correctly, you will see your JavaScript module and Razor component nested like this (File nesting must be turned on):</p>
+<p><img src="contents\blazor-server\dotnet6\add-javascript-to-blazor-570942\collocate-js-module.png" alt="collocate-js-module.png" width="400" height="90" /></p>
+<h3>Implementation</h3>
+<ol>
+    <li>In your component, inject the <code>IJSRuntime</code> and implement the <code>IAsyncDisposable</code> interface in the directive section.</li>
+</ol>
+<pre class="code" language="razor">@inject IJSRuntime JS
+@implements IAsyncDisposable</pre>
+<ol start="2">
+    <li>Declare a <code>Lazy&lt;IJSObjectReference&gt;</code> or each of your module in the code section. For example:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    private Lazy&lt;IJSObjectReference&gt; ExampleModule = new();
+}</pre>
+<ol start="3">
+    <li>In the code section, initialize the <code>Lazy&lt;IJSObjectReference&gt;</code> and dispose it after use. For example:</li>
+</ol>
+<p><img src="contents\blazor-server\dotnet6\add-javascript-to-blazor-570942\external-module-folder-tree.png" alt="external-module-folder-tree.png" width="400" height="307" /></p>
+<pre class="code" language="razor">@code {
+    ...
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ExampleModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./js/exampleModule.js"));
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if(ExampleModule.IsValueCreated)
+        {
+            await ExampleModule.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<p>You can initialize it in another life cycle method hook. However, <code>OnAfterRenderAsync</code> method is preferred because you don't need the JavaScript when render your component in server.</p>
+<p>For collocated JavaScript module, you need to change the path to JavaScript module. For example, you have the following folder tree:</p>
+<p><img src="contents\blazor-server\dotnet6\add-javascript-to-blazor-570942\collocate-js-module-folder-tree.png" alt="collocate-js-module-folder-tree.png" width="400" height="188" /></p>
+<p>Then you need to change the path to JavaScript module as follows:</p>
+<pre class="code" language="csharp">CollocateJsModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./Pages/LoadOnDemand/CollocateJS.razor.js"));</pre>
