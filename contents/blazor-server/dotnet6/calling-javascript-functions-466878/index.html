@@ -106,7 +106,7 @@ export function CollocatedJsInstance()
 <pre class="code" language="csharp">string result = await ExampleModule.Value.InvokeAsync&lt;string&gt;("predictableResult");</pre>
 <h3>Function with unpredictable return value</h3>
 <p>An unpredictable function is a function that has a possibility to return different types of data, or even doesn't return anything at all. For example:</p>
-<pre class="code" language="">export function unpredictableResult()
+<pre class="code" language="javascript">export function unpredictableResult()
 {
     let randomNum = Math.random() * 10;
 
