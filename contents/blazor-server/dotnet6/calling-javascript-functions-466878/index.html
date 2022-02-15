@@ -82,6 +82,7 @@ export function CollocatedJsInstance()
 }</pre>
 <p>Dispose the module and the class after use:</p>
 <pre class="code" language="razor">@code {
+    ...
     public async ValueTask DisposeAsync()
     {
         if (CollocateJsModule.IsValueCreated)
@@ -127,9 +128,9 @@ export function CollocatedJsInstance()
 {
     dynamic unpredictableResult = await ExampleModule.Value.InvokeAsync&lt;dynamic&gt;("unpredictableResult");
 }
-catch (Exception ex)
+catch
 {
-    UnpredictableResult = ex.Message;
+
 }</pre>
 <hr class="my-4" />
 <h1>Pass data to a function</h1>
