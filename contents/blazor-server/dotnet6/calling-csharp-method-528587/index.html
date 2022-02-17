@@ -27,7 +27,7 @@ public static void LocalStaticMethod()
 </ol>
 <pre class="code" language="javascript">function callStaticLocalComponentMethod()
 {
-    await DotNet.invokeMethodAsync("JavaScriptInteraction", "LocalStaticMethod");
+    DotNet.invokeMethodAsync("JavaScriptInteraction", "LocalStaticMethod");
 }</pre>
 <p>The first parameter is your Assembly Name, the second parameter is your method name. You can right-click your project, select <strong>Properties</strong> and look for <strong>Packages</strong> &rArr; <strong>General</strong> to see your assembly name as the following image:</p>
 <p><img src="contents\blazor-server\dotnet6\calling-csharp-method-528587\how-to-see-assembly-name.png" alt="how-to-see-assembly-name.png" width="884" height="732" /></p>
