@@ -59,7 +59,7 @@
 <ol start="2">
     <li>Add a submit method to the code section.</li>
 </ol>
-<pre class="code" language="razor">private async Task SubmitAsync()
+<pre class="code" language="csharp">private async Task SubmitAsync()
 {
     await JSRuntime.InvokeVoidAsync("alert", $"Thank you {CheckoutForm.Name}, we will deliver to {CheckoutForm.Address}.");
 }</pre>
