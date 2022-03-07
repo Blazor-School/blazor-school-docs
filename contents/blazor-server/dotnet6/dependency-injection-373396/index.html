@@ -71,7 +71,7 @@
 }</pre>
 <p>In this case, you must register the dependency service must. In this case, the <code>DependentService</code> service depends on the <code>ServiceWithCustomData</code> service so the <code>ServiceWithCustomData</code> must be registered first. Once the <code>ServiceWithCustomData</code> is register, you can proceed to register the <code>DependentService</code> as follows:</p>
 <pre class="code" language="csharp">builder.Services.AddTransient&lt;DependentService&gt;(serviceProvider =&gt; new(serviceProvider.GetRequiredService&lt;ServiceWithCustomData&gt;()));</pre>
-<blockquote>You can also register the <code>DependentService</code> with its interface name. It is irrelevent to the service is parameterized or not.</blockquote>
+<blockquote>You can also register the <code>DependentService</code> with its interface name. It is irrelevant to the service is parameterized or not.</blockquote>
 <hr class="my-4" />
 <h1>How to inject a service?</h1>
 <p>Once you have your service registered to the Service Provider, you can inject your service to a component or another service. If you registered your service with the class name, then you can inject the service to your component as follows:</p>
