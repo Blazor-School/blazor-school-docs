@@ -56,7 +56,7 @@
 <p>Blazor Server is an SPA framework, which means the browser will not reload the page when the users navigate through pages. However, you can force the browser to reload when the users navigate to a specific page by passing <code>forceReload</code> parameter to the method <code>NavigateTo</code>. For example:</p>
 <pre class="code" language="csharp">NavigationManager.NavigateTo("/", forceLoad: true);</pre>
 <h3>Navigating without storing history</h3>
-<p>Each time the browser changes its URL, the browser will automatically store the previous page to the history stack. When the user press the back/forward button of the browser, the browser will go back/forward based on this history stack. The following image is an example of the browser history stack:</p>
+<p>Each time the browser changes its URL, the browser will automatically store the previous page to the history stack. When the user presses the back/forward button of the browser, the browser will go back/forward based on this history stack. The following image is an example of the browser history stack:</p>
 <p><img src="contents\blazor-server\dotnet6\navigation-471116\history-stack-example.png" alt="history-stack-example.png" width="209" height="173" /></p>
 <p>To navigate without storing the history stack, you can pass <code>replace</code> parameter to the method <code>NavigateTo</code>. For example:</p>
 <pre class="code" language="csharp">NavigationManager.NavigateTo("/", replace: false);</pre>
