@@ -39,7 +39,7 @@ builder.Services.AddScoped&lt;ExampleTransferService&gt;();</pre>
 <h1>Consume a transfer service</h1>
 <p>You can consume a transfer service in a component or a class. To consume a transfer service in a class, you need to inject the service into the constructor of your class and register it as the same as the transfer service class. In this tutorial, we will focus on consuming a transfer service in a component.</p>
 <ol>
-    <li>Inject the transfer service class and implement the <code>IDisposable</code> interface at the directive section of your component. For example</li>
+    <li>Inject the transfer service class and implement the <code>IDisposable</code> interface at the directive section of your component. For example:</li>
 </ol>
 <pre class="code" language="razor">@inject ExampleTransferService ExampleTransferService
 @implements IDisposable</pre>
