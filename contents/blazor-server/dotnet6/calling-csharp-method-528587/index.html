@@ -29,9 +29,9 @@ public static void LocalStaticMethod()
 {
     DotNet.invokeMethodAsync("JavaScriptInteraction", "LocalStaticMethod");
 }</pre>
-<p>The first parameter is your Assembly Name, the second parameter is your method name. You can right-click your project, select <strong>Properties</strong> and look for <strong>Packages</strong> &rArr; <strong>General</strong> to see your assembly name as the following image:</p>
+<p>The first parameter is your Assembly Name, the second parameter is your method name. You can right-click your project, select <strong>Properties</strong> and look for <strong>Packages</strong> &rArr; <strong>General</strong> to see your assembly's name as the following image:</p>
 <p><img src="contents\blazor-server\dotnet6\calling-csharp-method-528587\how-to-see-assembly-name.png" alt="how-to-see-assembly-name.png" width="884" height="732" /></p>
-<blockquote>You can put your static method in any class. In the end, Blazor uses the assembly name to find the method. Your method should have a unique name. If not, you can pass a parameter to <code>[JSInvokable]</code> attribute to specify a different name for your method.</blockquote>
+<blockquote>You can put your static method in any class. In the end, Blazor uses the assembly's name to find the method. Your method should have a unique name. If not, you can pass a parameter to <code>[JSInvokable]</code> attribute to specify a different name for your method.</blockquote>
 <p><img src="contents\blazor-server\dotnet6\calling-csharp-method-528587\proxy-calling.png" alt="proxy-calling.png" width="1005" height="617" /></p>
 <p><strong>Proxy calling</strong>: only apply for any C# method with the attribute <code>[JSInvokable]</code>. The call will be initiated by C# to call and pass a reference to the JavaScript function, the JavaScript function takes that reference, make a call back to C#.</p>
 <ol>
@@ -100,7 +100,7 @@ await ExampleModule.Value.InvokeVoidAsync("callLocalComponentMethod", wrappedIns
 <h1>Handle methods with return value</h1>
 <p>Some C# methods will have return value. The return value can be a primitive data type or a reference to an object.</p>
 <h3>Methods with primitive data return type</h3>
-<p>Assuming you have the following method which return a primitive data as follows:</p>
+<p>Assuming you have the following method, which return a primitive data as follows:</p>
 <pre class="code" language="csharp">[JSInvokable]
 public string ExamplePrimitiveReturnMethod() =&gt; "Blazor School";</pre>
 <p>Assuming you have your JavaScript module stored in <code>ExampleModule</code>. You will need to await the C# call in the JavaScript function as follows:</p>
