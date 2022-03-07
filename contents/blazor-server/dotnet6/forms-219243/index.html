@@ -238,7 +238,7 @@
 <p>Then you need to add <code>disabled="true"</code> to the form control. For example:</p>
 <pre class="code" language="razor">&lt;InputText class="form-control" @bind-Value="FormModel.ExampleString" disabled="true" /&gt;</pre>
 <h3>Using Blazor directive to disable a form control</h3>
-<p>By applying this method, your form control can be switched form enabled to disabled. Assuming you have the following form control:</p>
+<p>By applying this method, your form control can be switched from enabled to disabled. Assuming you have the following form control:</p>
 <pre class="code" language="razor">&lt;InputText class="form-control" @bind-Value="FormModel.ExampleString" /&gt;</pre>
 <p>Then you need to declare a <code>bool</code> property in the component and bind it to the form control using the <code>@bind-disabled</code> directive. For example:</p>
 <pre class="code" language="razor">&lt;InputText class="form-control" @bind-Value="FormModel.ExampleString" @bind-disabled="DisableFormControl2"/&gt;
