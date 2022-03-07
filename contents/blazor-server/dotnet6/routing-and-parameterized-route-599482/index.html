@@ -1,5 +1,5 @@
 <h1>Routing and parameterized route</h1>
-<p>The browser access your website through URL. Blazor Server serves the destination page based on the requested URL. Sometimes, the users want more, like they can share a URL with pre-filled information. In that case, routing and parameterized route will help you. This tutorial includes:</p>
+<p>The browser accesses your website through URL. Blazor Server serves the destination page based on the requested URL. Sometimes, the users want more, like they can share a URL with pre-filled information. In that case, routing and parameterized route will help you. This tutorial includes:</p>
 <ul>
     <li>What is routing and parameterized route?</li>
     <li>Routing.</li>
@@ -11,7 +11,7 @@
 <hr class="my-4" />
 <h1>What is routing and parameterized route?</h1>
 <p>Routing will make your website available to the users. Routing is the process of specify a component to serve when a specific URL is requested.</p>
-<p>Parameterized route is the process of setting and getting parameters on a route to allow the users to share the URL with pre-filled information. There are 2 types of parameter:</p>
+<p>Parameterized route is the process of setting and getting parameters on a route to allow the users to share the URL with pre-filled information. There are 2 types of parameters:</p>
 <ol>
     <li>Path parameter.</li>
     <li>Query parameter.</li>
@@ -47,7 +47,7 @@
 <blockquote><code>short</code> and <code>System.Int16</code> are not supported.</blockquote>
 <hr class="my-4" />
 <h1>Path parameters</h1>
-<p>Path parameters is the technique that takes parameters as a part of route path. Each parameter separated by a forward splash (/) and wrapped inside a pair of bracket ({}). For example, the route <strong>/member/{id:guid}</strong> has <strong>id</strong> as a parameter.</p>
+<p>Path parameters is the technique that takes parameters as a part of route path. Each parameter separated by a forward splash (/) and wrapped inside a pair of brackets ({}). For example, the route <strong>/member/{id:guid}</strong> has <strong>id</strong> as a parameter.</p>
 <h3>Characteristics</h3>
 <div>Path parameters technique has the following characteristic:</div>
 <ul>
@@ -116,7 +116,7 @@
         </tbody>
     </table>
 </div>
-<blockquote>The <code>float</code> and <code>double</code> data cannot contains the <strong>e</strong> symbol. For example: <strong>-1,001.01e8</strong> is not valid.</blockquote>
+<blockquote>The <code>float</code> and <code>double</code> data cannot contain the <strong>e</strong> symbol. For example: <strong>-1,001.01e8</strong> is not valid.</blockquote>
 <h3>Access the path parameters</h3>
 <p>To access a route parameter, you need to declare a component property in the code section with getter, setter and has a <code>[Parameter]</code> attribute. For example:</p>
 <pre class="code" language="razor">@page "/path-parameters-overloading/{Param1}"
