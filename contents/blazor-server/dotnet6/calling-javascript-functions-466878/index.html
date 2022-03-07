@@ -96,7 +96,7 @@ export function CollocatedJsInstance()
 <pre class="code" language="csharp">await CollocateJsModuleInstance.Value.InvokeVoidAsync("collocateFunction");</pre>
 <hr class="my-4" />
 <h1>Handle function return value</h1>
-<p>Some functions don't return a significant value, but others do. It's important to understand what their values are, how to use them in your code. Both <code>IJSRuntime</code> and <code>IJSObjectReference</code> have <code>InvokeAsync</code> and <code>InvokeVoidAsync</code>, both method have the same way of use. The <code>T</code> in <code>InvokeAsync&lt;T&gt;</code> is the expected result type of the called function, and the <code>InvokeVoidAsync</code> is to call a void function.</p>
+<p>Some functions don't return a significant value, but others do. It's important to understand what their values are, how to use them in your code. Both <code>IJSRuntime</code> and <code>IJSObjectReference</code> have <code>InvokeAsync</code> and <code>InvokeVoidAsync</code>, both methods have the same way of use. The <code>T</code> in <code>InvokeAsync&lt;T&gt;</code> is the expected result type of the called function, and the <code>InvokeVoidAsync</code> is to call a void function.</p>
 <h3>Function with predictable return value</h3>
 <p>A predictable function is a function that always return only one specific type of data. For example:</p>
 <pre class="code" language="javascript">export function predictableResult()
