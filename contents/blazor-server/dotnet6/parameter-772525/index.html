@@ -53,7 +53,7 @@
     }
 }</pre>
 <h3>What will happen if you change the reference of a passed parameter?</h3>
-<p>The changed value only affect in the child component and not in the parent component, as the following video illustrates:</p>
+<p>The changed value only affects in the child component and not in the parent component, as the following video illustrates:</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
         <source src="contents\blazor-server\dotnet6\parameter-772525\mistake.mp4" />
@@ -69,7 +69,7 @@
 <h3>Detect changes from the parent component</h3>
 <p>Anytime the parent component changes the value of a passed parameter, the child components will be re-rendered. You don't need to detect the changes from the parent component most of the time. In case you want to detect those changes, you can override the <code>OnParametersSet()</code> method of your child component. See <a href="https://blazorschool.com/tutorial/blazor-server/dotnet6/component-lifecycle-431616" title="Component Lifecycle">Component Lifecycle</a> tutorial.</p>
 <h3>Detect changes from the child component</h3>
-<p>Unlike the changes coming from the parent component, anytime a child component update a value of a passed parameter, the parent component will not be re-rendered. To make the parent component reacts to the changes, you need to pass a delegate to the child component as well. Whenever the child component update the parameter value, the child component will call the delegate to notify the parent component to update itself.</p>
+<p>Unlike the changes coming from the parent component, anytime a child component updates a value of a passed parameter, the parent component will not be re-rendered. To make the parent component reacts to the changes, you need to pass a delegate to the child component as well. Whenever the child component update the parameter value, the child component will call the delegate to notify the parent component to update itself.</p>
 <ol>
     <li><strong>In your child component</strong>, declare the parameter and a delegate for that parameter in the code section.</li>
 </ol>
