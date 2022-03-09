@@ -43,7 +43,7 @@
 <p><img src="contents\blazor-server\dotnet6\website-layout-455367\layout-for-folder-folder-structure.png" alt="layout-for-folder-folder-structure.png" width="350" height="157" /></p>
 <p>Create a new component with the name <code>_Imports.razor</code> in the folder you want to set default layout for all components inside. Add <code>@layout</code> directive at the directive section of the component. For example:</p>
 <pre class="code" language="razor">@layout FolderLayout</pre>
-<blockquote>You need to name your component extractly <code>_Imports.razor</code> because it is a special component.</blockquote>
+<blockquote>You need to name your component exactly <code>_Imports.razor</code> because it is a special component.</blockquote>
 <p><img src="contents\blazor-server\dotnet6\website-layout-455367\do-and-dont-folder-layout.png" alt="do-and-dont-folder-layout.png" width="950" height="439" /></p>
 <blockquote>There is a default <code>_Imports.razor</code> which located at the same level <code>App.razor</code>. Do not put <code>@layout</code> directive there. Otherwise, you will have infinity loop.</blockquote>
 <hr class="my-4" />
