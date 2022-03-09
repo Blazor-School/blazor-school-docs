@@ -118,7 +118,7 @@ public ExampleClass ExampleReferenceReturnMethod() =&gt; new ExampleClass()
     ExampleDate = DateTime.Now,
     ExampleInt = 999
 }</pre>
-<p>The reference will be serialized by the JSON serializer of Blazor. By default, it is <code>System.Text.Json.Json<wbr />Serializer</code> and the serilized data will have camelCase instead of PascalCase. In the example above, <code>ExampleString</code> will be passed to the JavaScript function as <code>exampleString</code>. You need to await the C# call in the JavaScript function as follows:</p>
+<p>The reference will be serialized by the JSON serializer of Blazor. By default, it is <code>System.Text.Json.Json<wbr />Serializer</code> and the serialized data will have camelCase instead of PascalCase. In the example above, <code>ExampleString</code> will be passed to the JavaScript function as <code>exampleString</code>. You need to await the C# call in the JavaScript function as follows:</p>
 <pre class="code" language="javascript">export async function callReferenceDataReturnMethod(csharpObject)
 {
     let result = await csharpObject.invokeMethodAsync("ExampleReferenceReturnMethod");
