@@ -1,0 +1,85 @@
+<h1>Manage shopping cart</h1>
+<p>This tutorial is a continuation of the previous tutorial. You are going to learn how to create a service using the Dependency Injection technique. In this tutorial:</p>
+<ul>
+    <li>Create a cart service with Dependency Injection.</li>
+    <li>Allow users to put items to the cart.</li>
+    <li>Allow users to review their carts.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/online-shop-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Create a cart service</h1>
+<p>This cart service will hold the information about the product which is selected by the user. This is also known as storing the website's state. There are many places to store that state. For the sake of simplicity, we are going to store the website's state in the memory.</p>
+<ol>
+    <li>Create a new class <code>CartState.cs</code> as follows:</li>
+</ol>
+<pre class="code" language="csharp">public class CartState
+{
+    private readonly HttpClient _httpClient;
+
+    public List&lt;Product&gt; SelectedItems { get; set; } = new();
+
+    public CartState(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+
+    public async Task AddProductToCartAsync(Guid productId)
+    {
+        if (SelectedItems.Any(p =&gt; p.Id == productId) is false)
+        {
+            var products = await _httpClient.GetFromJsonAsync&lt;List&lt;Product&gt;&gt;("sample-data/products.json") ?? new();
+            var product = products.First(p =&gt; p.Id == productId);
+            SelectedItems.Add(product);
+        }
+    }
+}</pre>
+<ol start="2">
+    <li>Register the <code>CartState</code> to the Dependency Injection. Open your <code>Program.cs</code> and add the following code:</li>
+</ol>
+<pre class="code" language="razor">builder.Services.AddScoped&lt;CartState&gt;();</pre>
+<hr class="my-4" />
+<h1>Allow users to put items to the cart</h1>
+<p>Once you have the cart service, the next step is to let the users store their cart information.</p>
+<ol>
+    <li>Inject the cart service into the <code>ProductDisplay.razor</code> we have created in the previous tutorial.</li>
+</ol>
+<pre class="code" language="razor">@inject CartState CartState</pre>
+<ol start="2">
+    <li>Add a parameter to indicate if the component should render the <strong>Buy</strong> button and define the <strong>Buy</strong> button UI.</li>
+</ol>
+<pre class="code" language="razor">...
+@if (DisplayBuyButton)
+{
+    &lt;button class="btn btn-primary" type="button" @onclick="_ =&gt; CartState.AddProductToCartAsync(Product.Id)"&gt;Buy&lt;/button&gt;
+}
+...
+@code {
+    ...
+    [Parameter]
+    public bool DisplayBuyButton { get; set; } = false;
+}</pre>
+<ol start="3">
+    <li>Enable the <strong>Buy</strong> button. Open the <code>ProductList.razor</code> and pass the <code>DisplayBuyButton="true"</code> to the <code>Product</code> component.</li>
+</ol>
+<pre class="code" language="razor">...
+&lt;ProductDisplay Product="product" DisplayBuyButton="true"/&gt;</pre>
+<p>You can see the following result:</p>
+<p><img src="contents\blazor-wasm\dotnet6\manage-shopping-cart-402075\product-list-result.png" alt="product-list-result.png" width="720" height="970" /></p>
+<hr class="my-4" />
+<h1>Allow users to review their carts</h1>
+<p>After the user is able to put product to the cart, we will let them review their cart.</p>
+<ol>
+    <li>Create a new Razor Component <code>Checkout.razor</code>.</li>
+    <li>Inject the cart service to the component.</li>
+</ol>
+<pre class="code" language="razor">@inject CartState CartState</pre>
+<ol start="3">
+    <li>Define the UI to show the cart.</li>
+</ol>
+<pre class="code" language="razor">&lt;span&gt;You have @CartState.SelectedItems.Count item(s) in your cart.&lt;/span&gt;
+@foreach (var selectedItem in CartState.SelectedItems)
+{
+    &lt;ProductDisplay Product="selectedItem" /&gt;
+}</pre>
+<p>You can see the following result when you put some products in the cart:</p>
+<p><img src="contents\blazor-wasm\dotnet6\manage-shopping-cart-402075\checkout-result.png" alt="checkout-result.png" width="700" height="475" /></p>
