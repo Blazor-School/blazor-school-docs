@@ -1,0 +1,78 @@
+<h1>Collect information</h1>
+<p>This tutorial is a continuation of the previous tutorial. You are going to learn how to collect the user's information using the <code>EditForm</code> component. In this tutorial:</p>
+<ul>
+    <li>Create the form model.</li>
+    <li>Create the form.</li>
+    <li>Handle form submission.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/online-shop-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Create the form model</h1>
+<p>We are going to collect the user's name and the address by 2 textboxes in the form. You need to create a form model with 2 properties for the name and the address. For example:</p>
+<pre class="code" language="csharp">public class CheckoutForm
+{
+    [Required(ErrorMessage = "Name is required.")]
+    public string Name { get; set; } = "";
+    [Required(ErrorMessage = "We need the address to deliver the product.")]
+    public string Address { get; set; } = "";
+}</pre>
+<p>When creating the form model, you can set the validation rules for each property. In the example, we are going to make both <code>Name</code> and <code>Address</code> and required. Otherwise, an error message will show up. Those validations are <strong>executed in the frontend side</strong>, you will learn more about form validation at the later tutorials.</p>
+<hr class="my-4" />
+<h1>Create the form</h1>
+<p>Once you have the form model, you can begin to create the form.</p>
+<ol>
+    <li>Open your <code>Checkout.razor</code> component.</li>
+    <li>Declare the form model at the code section as follows:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    public CheckoutForm CheckoutForm { get; set; } = new();
+}</pre>
+<ol start="3">
+    <li>Define the UI for the form.</li>
+</ol>
+<pre class="code" language="razor">...
+&lt;EditForm Model="CheckoutForm"&gt;
+    &lt;DataAnnotationsValidator&gt;&lt;/DataAnnotationsValidator&gt;
+    &lt;div&gt;
+        &lt;label&gt;Name:&lt;/label&gt;
+        &lt;InputText @bind-Value="CheckoutForm.Name"&gt;&lt;/InputText&gt;
+        &lt;ValidationMessage class="form-control" For="()=&gt;CheckoutForm.Name"&gt;&lt;/ValidationMessage&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;label for="address"&gt;Address:&lt;/label&gt;
+        &lt;InputText @bind-Value="CheckoutForm.Address"&gt;&lt;/InputText&gt;
+        &lt;ValidationMessage For="()=&gt;CheckoutForm.Address"&gt;&lt;/ValidationMessage&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;button type="submit"&gt;Submit&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/EditForm&gt;</pre>
+<hr class="my-4" />
+<h1>Handle form submission</h1>
+<p>Once the user has entered the valid information to the UI, you need to handle that information afterward. Handling information process such as maybe check for additional rules, modify form data, submit the data to the server, etc...</p>
+<ol>
+    <li>Declare a method to handle the data.</li>
+</ol>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+...
+@code {
+    ...
+    private async Task SubmitAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("alert", $"Thank you {CheckoutForm.Name}, we will deliver to {CheckoutForm.Address}.");
+    }
+}</pre>
+<ol start="2">
+    <li>Pass the handle method to the form.</li>
+</ol>
+<pre class="code" language="razor">&lt;EditForm Model="CheckoutForm" OnValidSubmit="SubmitAsync"&gt;
+    ...
+&lt;/EditForm&gt;</pre>
+<p>You will have the following result:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet6\collect-information-610306\result.mp4" />
+    </video>
+</div>
