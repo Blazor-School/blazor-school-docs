@@ -1,0 +1,44 @@
+<h1>Blazor WebAssembly Fundamentals</h1>
+<p>By having a strong fundamental, you can learn Blazor fast and effectiveness. Here is what you need to learn:</p>
+<ul>
+    <li>Debugging Blazor WebAssembly.</li>
+    <li>Component.</li>
+    <li>Directive.</li>
+    <li>Dependency Injection.</li>
+    <li>Form.</li>
+    <li>API interaction.</li>
+</ul>
+<p>In this tutorial, you will learn:</p>
+<ul>
+    <li>Blazor WebAssembly advantages.</li>
+    <li>How Blazor WebAssembly works?</li>
+    <li>Some misconceptions about Blazor WebAssembly.</li>
+</ul>
+<hr class="my-4" />
+<h1>Blazor WebAssembly advantages</h1>
+<p>Some advantages of Blazor WebAssembly are:</p>
+<ul>
+    <li>Make use of static website hosting (CDN, cache, ...).</li>
+    <li>Separation of concern: business logic, presentation, data access.</li>
+    <li>Make your website become an app which mobile users can install and launch your website within one touch.</li>
+    <li>Offline availability.</li>
+</ul>
+<hr class="my-4" />
+<h1>How Blazor WebAssembly works?</h1>
+<p>The following image illustrates how Blazor WebAssembly works:</p>
+<p><img src="contents\blazor-wasm\dotnet6\blazor-wasm-fundamentals-115764\how-blazor-wasm-work.png" alt="how-blazor-wasm-work.png" width="1095" height="1000" /></p>
+<p>Step 1: The browser sends an HTTP request to the file server.</p>
+<p>Step 2: The file server sends a bunch of files, including <code>blazor.webassembly.js</code>.</p>
+<p>Step 3: The browser receives the files, including <code>blazor.webassembly.js</code>.</p>
+<p>Step 3: <code>blazor.webassembly.js</code> will responsible for updating the HTML, sending requests to the compute server, processing response from the compute server.</p>
+<hr class="my-4" />
+<h1>Some misconceptions about Blazor WebAssembly</h1>
+<ul>
+    <li>Use JavaScript when not needed.</li>
+</ul>
+<p>Blazor WebAssembly can work with JavaScript. However, you should not use JavaScript when the operation can be done in Blazor. It will make your development process becomes complicated.</p>
+<ul>
+    <li>Serving file outside <code>wwwroot</code> folder without configuration.</li>
+    <li>Serving file in <code>wwwroot</code> folder but in the compute server.</li>
+</ul>
+<p>The <code>wwwroot</code> is an important folder of Blazor WebAssembly, if you want to serve some static files, make sure you put the files in the <code>wwwroot</code> folder of the Blazor WebAssembly project. Otherwise, your files will not be served by default.</p>
