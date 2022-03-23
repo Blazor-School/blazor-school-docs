@@ -11,7 +11,7 @@
 <hr class="my-4" />
 <h1>Phases and lifecycle hook methods</h1>
 <p>A component in Blazor WebAssembly has 4 main phases: <strong>Initialize</strong>, <strong>ParametersSet</strong>, <strong>AfterRender</strong> and <strong>Dispose</strong>. Each phase will have 2 hook methods for synchronous and asynchronous operations, except <strong>Dispose</strong> phase which only has 1 hook method. The following image demonstrates the order of those lifecycle method hooks:</p>
-<p><img src="contents\blazor-wasm\dotnet6\component-lifecycle-431616\blazor-wasm-component-lifecycle-methods.png" alt="blazor-wasm-component-lifecycle-methods.png" width="2380" height="2364" /></p>
+<p><img src="contents\blazor-wasm\dotnet6\component-lifecycle-527158\blazor-wasm-component-lifecycle-methods.png" alt="blazor-wasm-component-lifecycle-methods.png" width="2380" height="2364" /></p>
 <blockquote><code>Dispose</code> is not a default hook method. To enable this hook method, your component needs to implement the <code>IDisposable</code> interface.</blockquote>
 <p>The following table illustrates the purpose and execute order of each hook method:</p>
 <div class="table-responsive">
@@ -63,7 +63,7 @@
 <p>The following video illustrates a lifecycle of a component:</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
-        <source src="contents\blazor-wasm\dotnet6\component-lifecycle-431616\demonstrate-lifecycle.mp4" />
+        <source src="contents\blazor-wasm\dotnet6\component-lifecycle-527158\demonstrate-lifecycle.mp4" />
     </video>
 </div>
 <p>First, the component is not rendered, the lifecycle of the component does not start. Next, the component is rendered. As a result, the lifecycle starts and you can see the component lifecycle changing its state to <strong>Initialize</strong>, <strong>ParametersSet</strong> and then <strong>AfterRender</strong>. Finally, when the component is removed from the UI, the hook method <code>Dispose</code> is called as the component is being disposed.</p>
@@ -106,7 +106,7 @@
 <hr class="my-4" />
 <h1>ParametersSet phase</h1>
 <div>In this phase, you can react to the parameter changes. The parameters change can come from the parent component or the URL. The following image illustrate how <strong>ParametersSet </strong>phase is triggered.</div>
-<p><img src="contents\blazor-wasm\dotnet6\component-lifecycle-431616\paramters-set-phase.png" alt="paramters-set-phase.png" width="1335" height="672" /></p>
+<p><img src="contents\blazor-wasm\dotnet6\component-lifecycle-527158\paramters-set-phase.png" alt="paramters-set-phase.png" width="1335" height="672" /></p>
 <h3>React to parent component changes</h3>
 <p><strong>ParametersSet</strong> phase can be used to react to the changes that comes from the parent component. For example:</p>
 <pre class="code" language="razor">@inject IJSRuntime JSRuntime
@@ -147,7 +147,7 @@
 <p>The following video demonstrates the <strong>ParametersSet</strong> phase:</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
-        <source src="contents\blazor-wasm\dotnet6\component-lifecycle-431616\demonstrate-parametersset.mp4" />
+        <source src="contents\blazor-wasm\dotnet6\component-lifecycle-527158\demonstrate-parametersset.mp4" />
     </video>
 </div>
 <hr class="my-4" />
@@ -168,6 +168,6 @@
 <p>The following video demonstrates the <strong>AfterRender</strong> phase:</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
-        <source src="contents\blazor-wasm\dotnet6\component-lifecycle-431616\demonstrate-afterrender.mp4" />
+        <source src="contents\blazor-wasm\dotnet6\component-lifecycle-527158\demonstrate-afterrender.mp4" />
     </video>
 </div>
