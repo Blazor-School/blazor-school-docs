@@ -1,0 +1,97 @@
+<h1>Parameter</h1>
+<p>When a component needs data from outside to process, Parameter is a good technique for passing data from a parent component to its children. In this tutorial, you will discover:</p>
+<ul>
+    <li>How to use <code>Parameter</code>.</li>
+    <li>Common mistake.</li>
+    <li>Detect changes.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-interaction-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Passing a parameter using <code>Parameter</code></h1>
+<p>The following steps will help you to pass a parameter from the parent component to the child components.</p>
+<ol>
+    <li><strong>In your child component</strong>, declare public properties which you are receiving from the parent component in the code section. You can mark a parameter as required by using the <code>EditorRequired</code> attribute. You can also set the default value of the parameter after getter and setter.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public string InputParameter { get; set; } = "Default Value";
+
+    [EditorRequired]
+    [Parameter]
+    public string RequiredInputParameter { get; set; } = "";
+}</pre>
+<ol start="2">
+    <li>In your parent component, declare public properties which you are going to pass to the child components in the code section.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    public string FirstData { get; set; } = "First data";
+    public string SecondData { get; set; } = "Second data";
+}</pre>
+<ol start="3">
+    <li>Pass the parameter in the component tag.</li>
+</ol>
+<pre class="code" language="razor">&lt;Child InputParameter="FirstData" RequiredInputParameter="SecondData" /&gt;</pre>
+<p>For the parameter with the <code>EditorRequired</code> attribute, you will need to pass it, or else you won't be able to build the project.</p>
+<hr class="my-4" />
+<h1>Common mistake</h1>
+<p>When using the Parameter technique, don't change the reference of a passed parameter in any child component. The following code in the child component illustrates this mistake:</p>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public ExampleClass ExampleInstance { get; set; } = new();
+
+    public void Correct()
+    {
+        ExampleInstance.Data = "Value changed";
+    }
+
+    public void Mistake()
+    {
+        ExampleInstance = new()
+        {
+            Data = "Reference changed"
+        };
+    }
+}</pre>
+<h3>What will happen if you change the reference of a passed parameter?</h3>
+<p>The changed value only affects in the child component and not in the parent component, as the following video illustrates:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet6\parameter-472949\mistake.mp4" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Detect changes</h1>
+<p>You can change the value of a parameter in the parent component and in any of your child components. In this section, you will learn:</p>
+<ul>
+    <li>Detect changes from the parent component.</li>
+    <li>Detect changes from the child component.</li>
+</ul>
+<h3>Detect changes from the parent component</h3>
+<p>Anytime the parent component changes the value of a passed parameter, the child components will be re-rendered. You don't need to detect the changes from the parent component most of the time. In case you want to detect those changes, you can override the <code>OnParametersSet()</code> method of your child component. See <a href="/tutorial/blazor-wasm/dotnet6/component-lifecycle-527158" title="Component Lifecycle">Component Lifecycle</a> tutorial.</p>
+<h3>Detect changes from the child component</h3>
+<p>Unlike the changes coming from the parent component, anytime a child component updates a value of a passed parameter, the parent component will not be re-rendered. To make the parent component reacts to the changes, you need to pass a delegate to the child component as well. Whenever the child component update the parameter value, the child component will call the delegate to notify the parent component to update itself.</p>
+<ol>
+    <li><strong>In your child component</strong>, declare the parameter and a delegate for that parameter in the code section.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public ExampleClass ExampleInstance { get; set; } = new();
+
+    [Parameter]
+    public EventCallback ExampleInstanceChanged { get; set; }
+}</pre>
+<ol start="2">
+    <li>Whenever you update the parameter, remember to call the delegate of that parameter.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    public void UpdateValue()
+    {
+        ExampleInstance.Data = "Value changed at child";
+        ExampleInstanceChanged.InvokeAsync();
+    }
+}</pre>
+<ol start="3">
+    <li><strong>In your parent component</strong>, pass the method <code>StateHasChanged</code> along with the parameter to the child component.</li>
+</ol>
+<pre class="code" language="razor">&lt;Child ExampleInstance="ExampleInstance" ExampleInstanceChanged="StateHasChanged" /&gt;</pre>
