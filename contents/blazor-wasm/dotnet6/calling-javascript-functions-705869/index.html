@@ -1,0 +1,181 @@
+<h1>Calling JavaScript functions</h1>
+<p>Once you have <a href="/tutorial/blazor-wasm/dotnet6/add-javascript-to-blazor-412635" title="Add JavaScript to Blazor">added JavaScript to Blazor</a>, the next step is calling its functions. While calling the JavaScript function, you can also pass data along with the call. In this tutorial, you will discover:</p>
+<ul>
+    <li>Call a JavaScript function.</li>
+    <li>Handle function return value.</li>
+    <li>Pass data to a function.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/javascript-interaction-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisite</h1>
+<p>Before going further in this tutorial, you need to learn <a href="https://blazorschool.com/tutorial/blazor-wasm/dotnet6/add-javascript-to-blazor-570942" title="Add JavaScript to Blazor">how to add JavaScript to Blazor</a> first.</p>
+<hr class="my-4" />
+<h1>Call a JavaScript function</h1>
+<p>A JavaScript function can be a global JavaScript, a function in a module or a function in a class.</p>
+<h3>Call a global function</h3>
+<p>A global function is a function that attached to the <code>window</code> object. You can access the function with the DevTools. The call is initiated by the injected <code>IJSRuntime</code> object. For example, you have the following JavaScript function:</p>
+<pre class="code" language="javascript">function exampleFunction()
+{
+    alert("Hello Blazor School")
+}</pre>
+<p>Then you will call the function <code>exampleFunction</code> as follows:</p>
+<pre class="code" language="razor">@inject IJSRuntime JS
+...
+@code {
+    ...
+    public async Task CallFromGlobalAsync()
+    {
+        await JS.InvokeVoidAsync("exampleFunction");
+    }
+}</pre>
+<h3>Call a function of a module</h3>
+<p>A JavaScript module is defined with the <code>export</code> keyword. You won't able to access the module by the <code>window</code> object, even if you have imported it. Because of that, you need to import the JavaScript module and store it as an <code>IJSObjectReference</code> instance. The call is initiated by the <code>IJSObjectReference</code> instance. For example, you have the following JavaScript module:</p>
+<pre class="code" language="javascript">export function exampleFunction()
+{
+    alert("exampleFunction from isolated.js called");
+}</pre>
+<p>Then you will call the function <code>exampleFunction</code> as follows:</p>
+<pre class="code" language="razor">@inject IJSRuntime JS
+@implements IAsyncDisposable
+...
+@code {
+    private Lazy&lt;IJSObjectReference&gt; IsolatedModule = new();
+    ...
+    public async Task CallFromIsolatedAsync()
+    {
+        await IsolatedModule.Value.InvokeVoidAsync("exampleFunction");
+    }
+}</pre>
+<blockquote>Always remember to dispose a module with <code>IAsyncDisposable</code>.</blockquote>
+<h3>Call a class function of a module</h3>
+<p>Sometimes, you want to make use of class declaration of JavaScript. You will need to export a function to create a new instance of that class because Blazor can only call a JavaScript function. For example, you have the following module:</p>
+<pre class="code" language="javascript">class CollocatedJs
+{
+    collocateFunction = function ()
+    {
+        alert("CollocatedJs module loaded.");
+    }
+}
+
+let instance = new CollocatedJs();
+
+export function CollocatedJsInstance()
+{
+    return instance;
+}</pre>
+<p>Then you need to declare 2 public fields, one for the module and one for the instance, as follows:</p>
+<pre class="code" language="razor">@inject IJSRuntime JS
+@implements IAsyncDisposable
+...
+@code {
+    private Lazy&lt;IJSObjectReference&gt; CollocateJsModule = new();
+    private Lazy&lt;IJSObjectReference&gt; CollocateJsModuleInstance = new();
+}</pre>
+<p>Load the module along with the instance of the class:</p>
+<pre class="code" language="razor">@code {
+    ...
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        CollocateJsModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./Pages/LoadOnDemand/CollocateJS.razor.js"));
+        CollocateJsModuleInstance = new(await CollocateJsModule.Value.InvokeAsync&lt;IJSObjectReference&gt;("CollocatedJsInstance"));
+    }
+}</pre>
+<p>Dispose the module and the class after use:</p>
+<pre class="code" language="razor">@code {
+    ...
+    public async ValueTask DisposeAsync()
+    {
+        if (CollocateJsModule.IsValueCreated)
+        {
+            await CollocateJsModule.Value.DisposeAsync();
+            await CollocateJsModuleInstance.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<p>Then you can use the instance of the class to invoke its functions:</p>
+<pre class="code" language="csharp">await CollocateJsModuleInstance.Value.InvokeVoidAsync("collocateFunction");</pre>
+<hr class="my-4" />
+<h1>Handle function return value</h1>
+<p>Some functions don't return a significant value, but others do. It's important to understand what their values are, how to use them in your code. Both <code>IJSRuntime</code> and <code>IJSObjectReference</code> have <code>InvokeAsync</code> and <code>InvokeVoidAsync</code>, both methods have the same way of use. The <code>T</code> in <code>InvokeAsync&lt;T&gt;</code> is the expected result type of the called function, and the <code>InvokeVoidAsync</code> is to call a void function.</p>
+<h3>Function with predictable return value</h3>
+<p>A predictable function is a function that always return only one specific type of data. For example:</p>
+<pre class="code" language="javascript">export function predictableResult()
+{
+    return "Ok";
+}</pre>
+<p>The above function <code>predictableResult</code> returns a string under any circumstances. Assuming the above module was store in <code>ExampleModule</code> field. You can get the returned string from the function as follows:</p>
+<pre class="code" language="csharp">string result = await ExampleModule.Value.InvokeAsync&lt;string&gt;("predictableResult");</pre>
+<h3>Function with unpredictable return value</h3>
+<p>An unpredictable function is a function that has a possibility to return different types of data, or even doesn't return anything at all. For example:</p>
+<pre class="code" language="javascript">export function unpredictableResult()
+{
+    let randomNum = Math.random() * 10;
+
+    if (randomNum &lt; 3)
+    {
+        return "Blazor School";
+    }
+
+    if (3 &lt; randomNum &amp;&amp; randomNum &lt; 6)
+    {
+        return 10;
+    }
+
+    return;
+}</pre>
+<p>To handle such case, you need a try-catch block to catch the JavaScript exception and also expect the result as <code>dynamic</code> as follows:</p>
+<pre class="code" language="csharp">try
+{
+    dynamic unpredictableResult = await ExampleModule.Value.InvokeAsync&lt;dynamic&gt;("unpredictableResult");
+}
+catch
+{
+
+}</pre>
+<hr class="my-4" />
+<h1>Pass data to a function</h1>
+<p>You can use both <code>InvokeAsync</code> and <code>InvokeVoidAsync</code> to call and also pass parameters to a JavaScript function. In this section, you will learn how to use both methods to pass data from C# code to the JavaScript function.</p>
+<h3>Pass primitive data to function</h3>
+<p>Assuming you have the following function and is stored to the <code>ExampleModule</code> field:</p>
+<pre class="code" language="javascript">export function methodWithPrimitiveParameters(stringData, numberData, dateTimeData)
+{
+    alert(`Received: string ${stringData}, number ${numberData}, dateTime ${dateTimeData}`);
+}</pre>
+<p>Then you can pass the primitive data as follows:</p>
+<pre class="code" language="csharp">await ExampleModule.Value.InvokeVoidAsync("methodWithPrimitiveParameters", "Blazor School", 5, DateTime.Now);</pre>
+<h3>Pass an object reference to function</h3>
+<p>When you pass a C# object reference, you will allow the JavaScript function to access all of its public methods, but not fields or properties. The following image illustrates the JavaScript accessibility to a C# object.</p>
+<p><img src="contents\blazor-wasm\dotnet6\calling-javascript-functions-705869\pass-csharp-object-reference-to-js.png" alt="pass-csharp-object-reference-to-js.png" width="1739" height="865" /></p>
+<p>To pass a C# object reference to a JavaScript function, you need to wrap it first. For example, you have the following JavaScript module, and it is stored in the <code>ExampleModule</code> field:</p>
+<pre class="code" language="javascript">export function methodWithReferenceParameter(csharpObjectReference)
+{
+    alert(`Received object not null? - ${csharpObjectReference != null}`);
+}</pre>
+<p>You can pass a C# object reference to this function as follows:</p>
+<pre class="code" language="csharp">var instanceToPass = new ExampleClass()
+    {
+        ExampleString = "Blazor School",
+        ExampleInt = 100,
+        ExampleDate = DateTime.Now
+    };
+
+var wrappedInstance = DotNetObjectReference.Create&lt;ExampleClass&gt;(instanceToPass);
+await ExampleModule.Value.InvokeVoidAsync("methodWithReferenceParameter", wrappedInstance);</pre>
+<h3>Pass an object data to function</h3>
+<p>When you pass a C# object data, you will allow the JavaScript to read all the fields and properties (<strong>read only</strong>), but JavaScript can't access to the object's methods. The following image illustrates the JavaScript accessibility to a C# object.</p>
+<p><img src="contents\blazor-wasm\dotnet6\calling-javascript-functions-705869\pass-csharp-object-data-to-js.png" alt="pass-csharp-object-data-to-js.png" width="1739" height="865" /></p>
+<p>For example, you have the following JavaScript module, and it is stored in the <code>ExampleModule</code> field:</p>
+<pre class="code" language="javascript">export function methodWithObjectParameter(csharpObject)
+{
+    alert(`Received object data: string ${csharpObject.exampleString}, number ${csharpObject.exampleInt}, date time ${csharpObject.exampleDate}`);
+}</pre>
+<p>You can pass a C# object data to this function as follows:</p>
+<pre class="code" language="csharp">var instanceToPass = new ExampleClass()
+    {
+        ExampleString = "Blazor School",
+        ExampleInt = 100,
+        ExampleDate = DateTime.Now
+    };
+
+await ExampleModule.Value.InvokeVoidAsync("methodWithObjectParameter", instanceToPass);</pre>
+<blockquote>The C# object will be serialized to json and pass to the JavaScript function. By default, the JavaScript object will have the camelCase and the C# object will have PascalCase. For example, in C#, the property is named <code>ExampleString</code> whereas in JavaScript it is named <code>exampleString</code>.</blockquote>
