@@ -296,9 +296,9 @@
 <h1>Blazor WebAssembly form events</h1>
 <p>A Blazor WebAssembly form has 3 events: <code>OnSubmit</code>, <code>OnValidSubmit</code> and <code>OnInvalidSubmit</code>.</p>
 <ul>
-    <li><code>OnSubmit</code>: Fired when the user press submit button, Blazor WebAssembly form will leave you do the validation.</li>
-    <li><code>OnValidSubmit</code>: Fired when the user press the submit button and the form is passed the validation against static data. You can validate your form again and change the validation result here.</li>
-    <li><code>OnInvalidSubmit</code>: Fired when the user press the submit button and the form is failed the validation against static data. You can validate your form again and change the validation result here.</li>
+    <li><code>OnSubmit</code>: Fired when the users press submit button, Blazor WebAssembly form will leave you do the validation.</li>
+    <li><code>OnValidSubmit</code>: Fired when the users press the submit button and the form is passed the validation against static data. You can validate your form again and change the validation result here.</li>
+    <li><code>OnInvalidSubmit</code>: Fired when the users press the submit button and the form is failed the validation against static data. You can validate your form again and change the validation result here.</li>
 </ul>
 <p>Handling the Blazor WebAssembly form events is similar. Here is an example of handling <code>OnValidSubmit</code> events.</p>
 <pre class="code" language="razor">&lt;EditForm Model="FormModel" OnValidSubmit="ValidSubmit"&gt;
@@ -357,7 +357,7 @@
     FormModel.RequiredString = "";
     FormContext.NotifyFieldChanged(FormContext.Field(nameof(FormModel.RequiredString)));
 }</pre>
-<p>Whenever you modify a form control value, the validations should run again. When you update the form control value and not notifying field change, the validations are not run, giving you a posibility to accept wrong information. The following video demonstrate this mistake:</p>
+<p>Whenever you modify a form control value, the validations should run again. When you update the form control value and not notifying field change, the validations are not run, giving you a possibility to accept wrong information. The following video demonstrate this mistake:</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
         <source src="contents\blazor-wasm\dotnet6\forms-680671\mistake-forget-to-notify.mp4" />
