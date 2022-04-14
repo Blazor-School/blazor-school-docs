@@ -22,10 +22,13 @@
 <h3>How many parts involved in authentication?</h3>
 <p>To implement authentication in Blazor WebAssembly, you are going to need:</p>
 <ol>
-    <li>A browser data storage. Can be memory, local storage or session storage.</li>
-    <li><code>AuthenticationStateProvider</code>: this is a built-in component.</li>
-    <li><code>CascadingAuthenticationState</code>: this also is a built-in component.</li>
+    <li>A browser data storage.</li>
+    <li><code>AuthenticationStateProvider</code>.</li>
+    <li><code>CascadingAuthenticationState</code>.</li>
 </ol>
+<p>You can use memory, local storage or session storage as the browser data storage. Once the user has been authenticated, the user's data will persist in the memory, so this browser data storage is responsible for extending the lifetime of user's data. When the user open a new tab or refresh the page, the user's data will be restored from the browser data storage.</p>
+<p><code>AuthenticationStateProvider</code> is responsible for answering the questions "How do you recognize the user? What is the user's information?". This class is where you put your authenticate business logic to determine if a user is authenticated or not.</p>
+<p><code>CascadingAuthenticationState</code> is responsible for passing the authentication state across the website. This is why the component has to be the root component. <code>CascadingAuthenticationState</code> does the work in the background, and you don't need to modify or config anything in this component.</p>
 <h3>Website initial loading phase</h3>
 <p>When the user initial first load by refreshing the website or navigate to your website, the <code>AuthenticationStateProvider</code> will look for stored credentials in the browser data storage. If found and valid, <code>AuthenticationStateProvider</code> will use that credentials to create a <code>ClaimsPrincipal</code> to mark the user as authenticated. Otherwise, the user stays unauthenticated. The following image illustrates this phase:</p>
 <p><img src="contents\blazor-wasm\dotnet6\authentication-and-authorization-724479\initial-flow.png" alt="initial-flow.png" width="700" height="728" /></p>
