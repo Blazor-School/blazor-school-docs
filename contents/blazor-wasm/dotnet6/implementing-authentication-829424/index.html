@@ -187,5 +187,5 @@ var identity = new ClaimsIdentity(claims, "Blazor School");</pre>
         <source src="contents\blazor-wasm\dotnet6\implementing-authentication-829424\mistake-3.mp4" />
     </video>
 </div>
-<h3 class="ratio ratio-21x9">Mistake #4: Use <code>HttpContextAccessor</code> to get the user information</h3>
+<h3>Mistake #4: Use <code>HttpContextAccessor</code> to get the user information</h3>
 <p>The MVC and the Web API use <code>HttpContextAccessor</code> to get the user information. This creates a confusion in Blazor if you don't know how Blazor works. Blazor is an SPA framework, there will be only 1 request and that request cannot contain the user information. To get the information, follow the <strong>Access the user information</strong> in this tutorial.</p>
