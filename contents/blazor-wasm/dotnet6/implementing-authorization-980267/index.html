@@ -97,7 +97,7 @@
 <ol start="2">
     <li>Set the required role for the resource.</li>
 </ol>
-<p>Sample code for authorize by individual component approach:</p>
+<p>Sample code for authorize on individual component approach:</p>
 <pre class="code" language="razor">&lt;AuthorizeView Roles="User"&gt;
     &lt;Authorized&gt;
         &lt;div&gt;You are a user&lt;/div&gt;
@@ -110,7 +110,7 @@
 <pre class="code" language="razor">&lt;AuthorizeView Roles="BlazorSchoolSupporter,Admin"&gt;
     ...
 &lt;/AuthorizeView&gt;</pre>
-<p>Sample code for authorize by route approach:</p>
+<p>Sample code for authorize on route approach:</p>
 <pre class="code" language="razor">@attribute [Authorize(Roles="BlazorSchoolSupporter")]</pre>
 <p>You can also pass a list of roles to the <code>Authorize</code> attribute as follows:</p>
 <pre class="code" language="razor">@attribute [Authorize(Roles="BlazorSchoolSupporter,Admin")]</pre>
@@ -121,7 +121,7 @@
     <li>The requirement.</li>
     <li>The requirement handler.</li>
 </ul>
-<p><strong>The requirement</strong> will yield the static data to authorize the user. For example, to consider a user is an adult, the user must be <strong>18</strong> or older. <strong>18</strong> in this case is the static data to authorize, and you can declare a property in the requirement to yield value 18. If you don't have any static data to authorize, you still need to create a requirement.</p>
+<p><strong>The requirement</strong> will yield the static data to authorize the user. For example, to consider a user is an adult, the user must be <strong>18</strong> or older. <strong>18</strong> in this case is the static data to authorize, and you can declare a property in the requirement to yield value <strong>18</strong>. If you don't have any static data to authorize, you still need to create a requirement.</p>
 <p><strong>The requirement handler</strong> is bound to a requirement, and responsible to check if the user satisfies the rule or not. For example, you have the number <strong>18</strong> in the requirement, the requirement handler will read the user's age and compare the user's age to <strong>18</strong>.</p>
 <p>The following steps will help you to use the policy based rule.</p>
 <ol>
@@ -132,8 +132,6 @@
     var claims = new List&lt;Claim&gt;
     {
         new (ClaimTypes.NameIdentifier,"Blazor School"),
-        new (ClaimTypes.Role,"User"),
-        new (ClaimTypes.Role,"PremiumUser"),
         new ("Age", 17.ToString())
     };
     ...
