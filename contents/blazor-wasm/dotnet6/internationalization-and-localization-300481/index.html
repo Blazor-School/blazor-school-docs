@@ -1,0 +1,52 @@
+<h1>Internalization and localization</h1>
+<p>Internationalization, usually referred to by the word i18n, is the process of enabling your website to display in different languages and different formats, like date format and number format. L10n is the process of translating from one language to another with its national formats like date format and number format. In this tutorial, you will discover:</p>
+<ul>
+    <li>How Blazor WebAssembly identifies a region?</li>
+    <li>Required NuGet libraries.</li>
+    <li>Translation approaches.</li>
+    <li>Language selection strategies.</li>
+    <li>Resource loading strategies.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/internationalization-and-localization-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>How Blazor WebAssembly identifies a region?</h1>
+<p>Blazor WebAssembly identifies a region by <code>CultureInfo.DefaultThreadCurrentCulture</code> and <code>CultureInfo.DefaultThreadCurrentUICulture</code>. When you set a <code>CultureInfo</code> to both properties, the formats of dates, times, numbers and currencies will be changed accordingly.</p>
+<hr class="my-4" />
+<h1>Required NuGet libraries</h1>
+<p>Before you begin, you need to install <code>Microsoft.Extensions.Localization</code>. You will need more packages based on your approach.</p>
+<hr class="my-4" />
+<h1>Translation approaches</h1>
+<p>There are 2 approaches for internationalization of your website:</p>
+<ul>
+    <li><strong>Defer Translation</strong>: This approach is not SPA friendly because whenever the user select a language, the entire website needs to be reloaded to take effect. All the resources to translate the website will be loaded at the first load. The following video illustrates this approach:</li>
+</ul>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet6\internationalization-and-localization-300481\defer-translation-demonstration.mp4" />
+    </video>
+</div>
+<ul>
+    <li><strong>Instant Translation</strong>: This approach is SPA friendly because whenever the user select a language, the entire website will take effect immediately. You can also choose to load all the resources at the first load or lazy load with memory cache. The following video illustrates this approach:</li>
+</ul>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet6\internationalization-and-localization-300481\instant-translation-demonstration.mp4" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Language selection strategies</h1>
+<p>A user can provide their preferred language in many ways:</p>
+<ul>
+    <li>Browser settings.</li>
+    <li>Stored language in local storage.</li>
+    <li>Stored language in cookie.</li>
+    <li>Embedded the language in the URL.</li>
+</ul>
+<p>There maybe a confliction between those ways. For example, a user may have entered your website with the language "en-US" in their URL, but their browser is set to French. Another example would be a user visits your website and select "en-US", then you store the language in their local storage; Later on, they revisit your website with the "fr" language in their URL. In those cases, you need to select one language to display your website. It's your job to priority those language selection strategies.</p>
+<hr class="my-4" />
+<h1>Resource loading strategies</h1>
+<p>A resource is a file with the content is a collection of keys and values for translation for a specific language. For example, your website has 3 languages and 2 components, then each component needs 4 resource files: A fallback resource and 3 resource files for 3 languages. In total, you will have 8 resource files (because you have 2 components and each component has 4 resource files). The resource files need to be loaded before you can display the translated text to the UI. There are 2 loading strategies for Blazor WebAssembly:</p>
+<ul>
+    <li><strong>Eager loading</strong>: All the resource files will be loaded at the first load of the website, the resource file will have <code>.resx</code> file extension. When building the website, .NET CLI will compile <code>.resx</code> to <code>.dll</code> file and embedded to the source code. For example, your website has 10 components in 3 languages and the user requested 1 component, you will have to load all 40 resource files. This strategy can be used with any translation approach.</li>
+    <li><strong>Lazy loading</strong>: Only the requested resource files will be loaded. Once loaded, the resource file will be cached at the browser memory so that when the user changes the language, you don't need to load the resource again. The resource file can have different extension like <code>.json</code> and <code>.yml</code>. For example, your website has 10 components in 3 languages and the user requested 1 component, you will have to load 1 resource files. This strategy can only be used with the <strong>Instant Translation</strong> approach.</li>
+</ul>
