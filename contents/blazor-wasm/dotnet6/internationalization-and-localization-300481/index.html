@@ -6,6 +6,7 @@
     <li>Translation approaches.</li>
     <li>Language selection strategies.</li>
     <li>Resource loading strategies.</li>
+    <li>Enable multiple languages in your website.</li>
 </ul>
 <blockquote>You can <a href="https://github.com/Blazor-School/internationalization-and-localization-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
 <hr class="my-4" />
@@ -50,3 +51,27 @@
     <li><strong>Eager loading</strong>: All the resource files will be loaded at the first load of the website, the resource file will have <code>.resx</code> file extension. When building the website, .NET CLI will compile <code>.resx</code> to <code>.dll</code> file and embedded to the source code. For example, your website has 10 components in 3 languages and the user requested 1 component, you will have to load all 40 resource files. This strategy can be used with any translation approach.</li>
     <li><strong>Lazy loading</strong>: Only the requested resource files will be loaded. Once loaded, the resource file will be cached at the browser memory so that when the user changes the language, you don't need to load the resource again. The resource file can have different extension like <code>.json</code> and <code>.yml</code>. For example, your website has 10 components in 3 languages and the user requested 1 component, you will have to load 1 resource files. This strategy can only be used with the <strong>Instant Translation</strong> approach.</li>
 </ul>
+<hr class="my-4" />
+<h1>Enable multiple languages in your website</h1>
+<ol>
+    <li>Install the required NuGet library <code>Microsoft.Extensions.Localization</code>.</li>
+    <li>Edit the <code>csproj.cs</code> file. Add the following code to the <code>csproj.cs</code>:</li>
+</ol>
+<pre class="code" language="razor">&lt;PropertyGroup&gt;
+    ...
+    &lt;BlazorWebAssemblyLoadAllGlobalizationData&gt;true&lt;/BlazorWebAssemblyLoadAllGlobalizationData&gt;
+&lt;/PropertyGroup&gt;</pre>
+<p>Here is how to edit your <code>csproj.cs</code> file: Right click your project and <strong>Edit Project File</strong>.</p>
+<p><img src="contents\blazor-wasm\dotnet6\internationalization-and-localization-300481\edit-csproj-file.png" alt="edit-csproj-file.png" width="429" height="567" /></p>
+<ol start="3">
+    <li>In your component, inject <code>IStringLocalizer&lt;T&gt;</code> with <code>T</code> is your component type. For example, in your <code>ChangeLanguageDemonstrate.razor</code>:</li>
+</ol>
+<pre class="code" language="razor">@inject IStringLocalizer&lt;ChangeLanguageDemonstrate&gt; Localizer</pre>
+<ol start="4">
+    <li>Use the <code>IStringLocalizer</code> to serve the text in multiple language. For example:</li>
+</ol>
+<pre class="code" language="razor">@Localizer["String1"]</pre>
+<p>The <code>String1</code> in the above example is your resource key.</p>
+<ol start="5">
+    <li>Implement a translation approach. This step will be in the next tutorial.</li>
+</ol>
