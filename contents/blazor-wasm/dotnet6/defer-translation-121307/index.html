@@ -1,0 +1,84 @@
+<h1>Defer translation</h1>
+<p>Defer translation is a translation approach which is not SPA friendly because the website needs to be reloaded to take effect and all the resource will be loaded in the first load whether the user need it or not. However, this technique is easy to implement. In this tutorial, you will discover:</p>
+<ul>
+    <li>Current language and next load language concept.</li>
+    <li>Create a resource file.</li>
+    <li>Isolating resource files from component.</li>
+    <li>Eager loading resource files.</li>
+    <li>Determine selected language.</li>
+    <li>Build a switch language component.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/internationalization-and-localization-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Current language and next load language concept</h1>
+<p>In defer translation approach, you will have current language which is the language currently rendered in Blazor WebAssembly. The current language cannot be changed, even when you change the current language, the resource file will not be loaded. Therefore, the user cannot see the updated language until the website reloads. The current language is stored at the browser memory. In detail, the current language is stored at <code>CultureInfo.DefaultThreadCurrentCulture</code> and <code>CultureInfo.DefaultThreadCurrentUICulture</code>. The next language can be changed as long as the user wants, the next language will become the current language when the website reloads. There are many places for you to store the next load language, you can store the next load language in cookie, local storage. However, the next load language need to be stored in a persistent storage and cannot be stored in the browser memory. In this tutorial, we will use local storage as the storage for the next load language.</p>
+<hr class="my-4" />
+<h1>Create a resource file</h1>
+<p>From this section is the continuation of the <strong>Enable multiple languages in your website</strong> section of the previous tutorial <a href="https://blazorschool.com/tutorial/blazor-wasm/dotnet6/internationalization-and-localization-300481">Internalization and localization</a>. To create a resource file, you need to have the component which is using that resource file first. Assuming you already have <code>ChangeLanguageDemonstrate.razor</code> component. You will need to create <code>ChangeLanguageDemonstrate.resx</code> as the fallback resource. The for each language, you create a respective resource file. All resource files must remain in the same folder as the component. A correct resource file collection is similar to the following image:</p>
+<p><img src="contents\blazor-wasm\dotnet6\defer-translation-121307\centralized-resource.png" alt="centralized-resource.png" width="299" height="363" /></p>
+<hr class="my-4" />
+<h1>Isolating resource files from component</h1>
+<p>You can isolate the resource files from its component.</p>
+<ol>
+    <li>Create a folder to put the resource files.</li>
+    <li>Re-construct the folder tree of the component. For example, if your component in the folder <strong>Pages</strong>, then you need to create a folder <strong>Pages</strong>. The following image illustrates the folder tree:</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet6\defer-translation-121307\isolated-resource.png" alt="isolated-resource.png" width="600" height="561" /></p>
+<hr class="my-4" />
+<h1>Eager loading resource files</h1>
+<p>Once you have the resource files, you need to tell Blazor to eager loading them. If you don't isolate the resource files from the components, add the following code to your <code>Program.cs</code>:</p>
+<pre class="code" language="razor">builder.Services.AddLocalization();</pre>
+<p>If you isolate the resource files from the components, add the following code to your <code>Program.cs</code>:</p>
+<pre class="code" language="razor">builder.Services.AddLocalization(options =&gt; options.ResourcesPath = "BlazorSchoolResources");</pre>
+<p>In the code sample, <strong>BlazorSchoolResources</strong> is the root resource folder.</p>
+<hr class="my-4" />
+<h1>Determine selected language</h1>
+<p>The purpose of this step is to set the language when the user first load the website.</p>
+<p>If you let the browser decide the website language, then you can skip this step.</p>
+<p>If you want to set the priority between the language selection strategies, you can implement it on <code>Program.cs</code>. The following steps are an example for storing the language in the local storage strategy:</p>
+<ol>
+    <li>Create JavaScript functions to access the local storage. For example, you can put the following code in the <code>wwwroot/index.html</code>.</li>
+</ol>
+<pre class="code" language="html">&lt;script&gt;
+    window.blazorCulture = {
+        get: () =&gt; window.localStorage['BlazorCulture'],
+        set: (value) =&gt; window.localStorage['BlazorCulture'] = value
+    };
+&lt;/script&gt;</pre>
+<ol start="2">
+    <li>Set the default language in your <code>Program.cs</code>. For example:</li>
+</ol>
+<pre class="code" language="csharp">var host = builder.Build();
+
+await SetWebsiteLanguage(host);
+await host.RunAsync();
+
+static async Task SetWebsiteLanguage(WebAssemblyHost host)
+{
+    var js = host.Services.GetRequiredService&lt;IJSRuntime&gt;();
+    string userPreferenceLanguage = await js.InvokeAsync&lt;string&gt;("blazorCulture.get");
+    string chosenLanguage = string.IsNullOrEmpty(userPreferenceLanguage) ? "en-US" : userPreferenceLanguage;
+    CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(chosenLanguage);
+    CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(chosenLanguage);
+}</pre>
+<blockquote>To use the above example, remove your <code>await builder.Build().RunAsync()</code> first.</blockquote>
+<hr class="my-4" />
+<h1>Build a switch language component</h1>
+<p>The purpose of this step is to allow the user to switch the language in the UI. Once the user has selected the language, you will need to store it in the local storage/cookie or update the language parameter in the URL and force reload the website.</p>
+<p>If you let the browser decide the website language, then you can skip this step.</p>
+<p>If you let the user decide the website language, then you need to set the next load language based on your language selection strategy. The following code is an example for storing the language in the local storage strategy:</p>
+<pre class="code" langauge="razor">@inject IJSRuntime JSRuntime
+
+&lt;select @onchange="OnChangeLanguage"&gt;
+    &lt;option value=""&gt;Select&lt;/option&gt;
+    &lt;option value="en"&gt;English&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+&lt;/select&gt;
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        string selectedLanguage = e.Value?.ToString() ?? "en-US";
+        InvokeAsync(() =&gt; JSRuntime.InvokeVoidAsync("blazorCulture.set", selectedLanguage));
+    }
+}</pre>
