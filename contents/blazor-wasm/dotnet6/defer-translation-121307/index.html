@@ -67,7 +67,7 @@ static async Task SetWebsiteLanguage(WebAssemblyHost host)
 <p>The purpose of this step is to allow the user to switch the language in the UI. Once the user has selected the language, you will need to store it in the local storage/cookie or update the language parameter in the URL and force reload the website.</p>
 <p>If you let the browser decide the website language, then you can skip this step.</p>
 <p>If you let the user decide the website language, then you need to set the next load language based on your language selection strategy. The following code is an example for storing the language in the local storage strategy:</p>
-<pre class="code" langauge="razor">@inject IJSRuntime JSRuntime
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
 
 &lt;select @onchange="OnChangeLanguage"&gt;
     &lt;option value=""&gt;Select&lt;/option&gt;
