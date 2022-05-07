@@ -452,7 +452,8 @@ await wasmHost.RunAsync();</pre>
             string selectedLanguage = e.Value.ToString()!;
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(selectedLanguage);
             CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(selectedLanguage);
-            InvokeAsync(() =&gt; JSRuntime.InvokeVoidAsync("BlazorSchoolUtil.updateCookies", CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(new(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture))));
+            InvokeAsync(() =&gt; JSRuntime.InvokeVoidAsync("BlazorSchoolUtil.updateCookies", 
+                CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(new(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture))));
             BlazorSchoolCultureProvider.NotifyLanguageChange();
         }
     }
