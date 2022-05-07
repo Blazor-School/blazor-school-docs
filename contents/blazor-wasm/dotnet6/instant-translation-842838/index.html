@@ -111,7 +111,8 @@
         {
             if (component is not null)
             {
-                var stateHasChangedMethod = component.GetType()?.GetMethod("StateHasChanged", BindingFlags.Instance | BindingFlags.NonPublic);
+                var stateHasChangedMethod = component.GetType()?.GetMethod("StateHasChanged", 
+                    BindingFlags.Instance | BindingFlags.NonPublic);
                 stateHasChangedMethod?.Invoke(component, null);
             }
         }
@@ -171,7 +172,8 @@ await wasmHost.RunAsync();</pre>
     private readonly IOptions&lt;LocalizationOptions&gt; _localizationOptions;
     private readonly BlazorSchoolResourceMemoryStorage _blazorSchoolResourceMemoryStorage;
 
-    public BlazorSchoolCultureProvider(IHttpClientFactory httpClientFactory, IOptions&lt;LocalizationOptions&gt; localizationOptions, BlazorSchoolResourceMemoryStorage blazorSchoolResourceMemoryStorage)
+    public BlazorSchoolCultureProvider(IHttpClientFactory httpClientFactory, 
+        IOptions&lt;LocalizationOptions&gt; localizationOptions, BlazorSchoolResourceMemoryStorage blazorSchoolResourceMemoryStorage)
     {
         _httpClient = httpClientFactory.CreateClient("InternalHttpClient");
         _localizationOptions = localizationOptions;
@@ -190,12 +192,14 @@ await wasmHost.RunAsync();</pre>
 
     string componentName = component.GetType().FullName!;
 
-    if (_blazorSchoolResourceMemoryStorage.JsonComponentResources.TryGetValue(new(componentName, CultureInfo.DefaultThreadCurrentCulture!.Name), out string? resultFromMemory))
+    if (_blazorSchoolResourceMemoryStorage.JsonComponentResources.TryGetValue(new(componentName, 
+        CultureInfo.DefaultThreadCurrentCulture!.Name), out string? resultFromMemory))
     {
         return resultFromMemory;
     }
 
-    var message = await _httpClient.GetAsync(ComposeComponentPath(componentName, CultureInfo.DefaultThreadCurrentCulture!.Name));
+    var message = await _httpClient.GetAsync(ComposeComponentPath(componentName, 
+        CultureInfo.DefaultThreadCurrentCulture!.Name));
     string result;
 
     if (message.IsSuccessStatusCode is false)
@@ -216,7 +220,8 @@ await wasmHost.RunAsync();</pre>
         result = await message.Content.ReadAsStringAsync();
     }
 
-    _blazorSchoolResourceMemoryStorage.JsonComponentResources[new(componentName, CultureInfo.DefaultThreadCurrentCulture!.Name)] = result;
+    _blazorSchoolResourceMemoryStorage.JsonComponentResources[new(componentName, 
+        CultureInfo.DefaultThreadCurrentCulture!.Name)] = result;
 
     return result;
 }
@@ -261,7 +266,8 @@ public async Task NotifyLanguageChangeAsync()
         if (component is not null)
         {
             await LoadCultureAsync(component);
-            var stateHasChangedMethod = component.GetType()?.GetMethod("StateHasChanged", BindingFlags.Instance | BindingFlags.NonPublic);
+            var stateHasChangedMethod = component.GetType()?.GetMethod("StateHasChanged", 
+                BindingFlags.Instance | BindingFlags.NonPublic);
             stateHasChangedMethod?.Invoke(component, null);
         }
     }
@@ -270,7 +276,8 @@ public async Task NotifyLanguageChangeAsync()
 <ul>
     <li>Create a string localizer that implements the interface <code>IStringLocalizer&lt;TComponent&gt;</code>. For example:</li>
 </ul>
-<pre class="code" language="csharp">public class BlazorSchoolStringLocalizer&lt;TComponent&gt; : IStringLocalizer&lt;TComponent&gt; where TComponent : ComponentBase
+<pre class="code" language="csharp">public class BlazorSchoolStringLocalizer&lt;TComponent&gt; : IStringLocalizer&lt;TComponent&gt;
+     where TComponent : ComponentBase
 {
     private readonly BlazorSchoolResourceMemoryStorage _blazorSchoolResourceMemoryStorage;
     public BlazorSchoolStringLocalizer(BlazorSchoolResourceMemoryStorage blazorSchoolResourceMemoryStorage)
@@ -278,12 +285,14 @@ public async Task NotifyLanguageChangeAsync()
         _blazorSchoolResourceMemoryStorage = blazorSchoolResourceMemoryStorage;
     }
 
-    public IEnumerable&lt;LocalizedString&gt; GetAllStrings(bool includeParentCultures) =&gt; throw new NotImplementedException("We do not need to implement this method. This method is not support asynchronous anyway.");
+    public IEnumerable&lt;LocalizedString&gt; GetAllStrings(bool includeParentCultures) =&gt; 
+        throw new NotImplementedException("We do not need to implement this method. This method is not support asynchronous anyway.");
 }</pre>
 <ul>
     <li>Add method and index to localize string. For example:</li>
 </ul>
-<pre class="code" language="csharp">public class BlazorSchoolStringLocalizer&lt;TComponent&gt; : IStringLocalizer&lt;TComponent&gt; where TComponent : ComponentBase
+<pre class="code" language="csharp">public class BlazorSchoolStringLocalizer&lt;TComponent&gt; : IStringLocalizer&lt;TComponent&gt; 
+    where TComponent : ComponentBase
 {
     ...
     public LocalizedString this[string name] =&gt; FindLocalziedString(name);
@@ -292,7 +301,8 @@ public async Task NotifyLanguageChangeAsync()
     private LocalizedString FindLocalziedString(string name, object[]? arguments = null)
     {
         LocalizedString result = new(name, "", true, "External resource");
-        _blazorSchoolResourceMemoryStorage.JsonComponentResources.TryGetValue(new(typeof(TComponent).FullName!, CultureInfo.DefaultThreadCurrentCulture!.Name), out string? jsonResource);
+        _blazorSchoolResourceMemoryStorage.JsonComponentResources.TryGetValue(new(typeof(TComponent).FullName!, 
+            CultureInfo.DefaultThreadCurrentCulture!.Name), out string? jsonResource);
 
         if (string.IsNullOrEmpty(jsonResource))
         {
@@ -319,7 +329,8 @@ public async Task NotifyLanguageChangeAsync()
 }</pre>
 <h3>Register and config</h3>
 <p>You need to register <code>BlazorSchoolStringLocalizer&lt;&gt;</code>, <code>BlazorSchoolCultureProvider</code>, <code>BlazorSchoolResourceMemoryStorage</code>, add internal <code>HttpClient</code>, set the localization path, load the language resource files and set the startup language in the <code>Program.cs</code>. For example:</p>
-<pre class="code" language="csharp">builder.Services.AddHttpClient("InternalHttpClient", httpClient =&gt; httpClient.BaseAddress = new(builder.HostEnvironment.BaseAddress));
+<pre class="code" language="csharp">builder.Services.AddHttpClient("InternalHttpClient", 
+    httpClient =&gt; httpClient.BaseAddress = new(builder.HostEnvironment.BaseAddress));
 builder.Services.AddScoped(typeof(IStringLocalizer&lt;&gt;), typeof(BlazorSchoolStringLocalizer&lt;&gt;));
 builder.Services.AddScoped&lt;BlazorSchoolCultureProvider&gt;();
 builder.Services.AddScoped&lt;BlazorSchoolResourceMemoryStorage&gt;();
@@ -407,7 +418,8 @@ await wasmHost.RunAsync();</pre>
 <pre class="code" language="html">&lt;script&gt;
     window.BlazorSchoolUtil = {
         updateCookies: (key, value) =&gt; document.cookie = `${key}=${value}`,
-        getCookieValue: (key) =&gt; document.cookie.match('(^|;)\\s*' + key + '\\s*=\\s*([^;]+)')?.pop() || '';
+        getCookieValue: (key) =&gt; document.cookie.match('(^|;)\\s*' + 
+            key + '\\s*=\\s*([^;]+)')?.pop() || '';
     }
 &lt;/script&gt;</pre>
 <ol start="2">
@@ -415,7 +427,8 @@ await wasmHost.RunAsync();</pre>
 </ol>
 <pre class="code" language="csharp">public async Task SetStartupLanguageAsync(string fallbackLanguage)
 {
-    string cookie = await _jsRuntime.InvokeAsync&lt;string&gt;("BlazorSchoolUtil.getCookieValue", CookieRequestCultureProvider.DefaultCookieName);
+    string cookie = await _jsRuntime.InvokeAsync&lt;string&gt;("BlazorSchoolUtil.getCookieValue", 
+        CookieRequestCultureProvider.DefaultCookieName);
     var result = CookieRequestCultureProvider.ParseCookieValue(cookie);
 
     if (result is null)
@@ -453,7 +466,8 @@ await wasmHost.RunAsync();</pre>
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(selectedLanguage);
             CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(selectedLanguage);
             InvokeAsync(() =&gt; JSRuntime.InvokeVoidAsync("BlazorSchoolUtil.updateCookies", 
-                CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(new(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture))));
+                CookieRequestCultureProvider.DefaultCookieName, 
+                CookieRequestCultureProvider.MakeCookieValue(new(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture))));
             BlazorSchoolCultureProvider.NotifyLanguageChange();
         }
     }
