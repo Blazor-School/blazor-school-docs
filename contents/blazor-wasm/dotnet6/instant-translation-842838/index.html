@@ -6,6 +6,7 @@
     <li>Instant translation with eager loading resource.</li>
     <li>Instant translation with lazy loading resource.</li>
     <li>Implement language selection strategies.</li>
+    <li>Use the instant translation.</li>
 </ul>
 <blockquote>You can <a href="https://github.com/Blazor-School/internationalization-and-localization-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
 <hr class="my-4" />
@@ -509,3 +510,19 @@ public string GetLanguageFromUrl()
 <p>For this strategy, there is not language selector component. You change the language by update the <strong>language</strong> parameter in the URL.</p>
 <h3>Multiple strategies with priority</h3>
 <p>You can combine multiple strategies together, you will need to set the priority of each strategy in the code. In the end of the day, the method <code>SetStartupLanguageAsync</code> will select the highest priority strategy and use that language.</p>
+<hr class="my-4" />
+<h1>Use the instant translation</h1>
+<p>Once you have set up all the steps, you can use translation in a component as follows:</p>
+<pre class="code" language="razor">@inject BlazorSchoolStringLocalizer&lt;ChangeLanguageDemonstrate&gt; Localizer
+@inject BlazorSchoolCultureProvider BlazorSchoolCultureProvider
+@implements IDisposable
+
+&lt;PageTitle&gt;@Localizer["String1"]&lt;/PageTitle&gt;
+&lt;h3&gt;ChangeLanguageDemonstrate&lt;/h3&gt;
+@Localizer["String1"]
+&lt;LanguageSelector /&gt;
+
+@code {
+    protected override async Task OnInitializedAsync() =&gt; await BlazorSchoolCultureProvider.SubscribeLanguageChangeAsync(this);
+    public void Dispose() =&gt; BlazorSchoolCultureProvider.UnsubscribeLanguageChange(this);
+}</pre>
