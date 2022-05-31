@@ -1,0 +1,75 @@
+<h1>Browser storage</h1>
+<p>Modern browsers offer different options for storing website data, allowing this data to be retrieved when needed. In this tutorial, you will discover:</p>
+<ul>
+    <li>Why do you need to use the browser storage?</li>
+    <li>Types of browser storage.</li>
+    <li>Compare between browser storage types.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/browser-storage-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Why do you need to use the browser storage?</h1>
+<p>The browser storage will help you to have some useful functionalities or act as a cache to reduce the load to the server. Some uses cases for the browser storage:</p>
+<ul>
+    <li>Load the previous selected theme.</li>
+    <li>Persisting typing data.</li>
+    <li>Storing the login state.</li>
+    <li>Filter data at the frontend.</li>
+    <li>Improving website performance.</li>
+    <li>Reducing requests to back-end server.</li>
+</ul>
+<hr class="my-4" />
+<h1>Types of browser storage</h1>
+<p>There are 6 types of browser storage:</p>
+<ul>
+    <li>Cache.</li>
+    <li>Cookie.</li>
+    <li>IndexedDB.</li>
+    <li>Local storage.</li>
+    <li>Memory.</li>
+    <li>Session storage.</li>
+</ul>
+<hr class="my-4" />
+<h1>Compare between browser storage types</h1>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td></td>
+                <td>Cache</td>
+                <td>Cookie</td>
+                <td>IndexedDB</td>
+                <td>Local Storage</td>
+                <td>Memory</td>
+                <td>Session Storage</td>
+            </tr>
+            <tr>
+                <td>Lifetime</td>
+                <td>Until deleted</td>
+                <td>Expired time/Until deleted</td>
+                <td>Until deleted</td>
+                <td>Until deleted</td>
+                <td>When the user exits the tab</td>
+                <td>When the user exits the tab</td>
+            </tr>
+            <tr>
+                <td>Allowed Data Type</td>
+                <td><code>Request</code>, <code>Response</code></td>
+                <td>Key value</td>
+                <td>Various types</td>
+                <td>Key value</td>
+                <td>Various types</td>
+                <td>Key value</td>
+            </tr>
+            <tr>
+                <td>Shared between tabs</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+    <p></p>
+</div>
