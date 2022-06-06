@@ -2,9 +2,9 @@
 <p>To speed up the loading process, the browser stores the responses in cache. The most common scenario is caching JavaScript files. You, as a developer, the requests made by the browser and has no control over this process. However, with the Cache storage, you can store any request and response that you initiated and use them to reduce the call to the server or to provide offline support. This tutorial will give you a basic setup to interact with the Cache storage, you may need to add more features. In this tutorial, you will learn:</p>
 <ul>
     <li>What is Cache storage?</li>
-    <li>Use the Cache storage in Blazor.</li>
     <li>Set up the base code.</li>
     <li>Add common operations.</li>
+    <li>Use the Cache storage.</li>
 </ul>
 <blockquote>You can <a href="https://github.com/Blazor-School/browser-storage-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
 <hr class="my-4" />
@@ -77,6 +77,10 @@ function createRequest(url, method, body = "")
     }
 }</pre>
 <blockquote>Always remember to dispose the JavaScript module.</blockquote>
+<ol start="3">
+    <li>Register the C# class at <code>Program.cs</code></li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;CacheStorageAccessor&gt;();</pre>
 <hr class="my-4" />
 <h1>Add common operations</h1>
 <p>In this section, we will demonstrate how to add some basic operations with the Cache storage. You can also add your own operations with this method too.</p>
@@ -176,3 +180,43 @@ export async function removeAll()
         return requestBody;
     }
 }</pre>
+<hr class="my-4" />
+<h1>Use the Cache storage</h1>
+<p>Once you have the complete all the previous steps, you can use it as follows:</p>
+<pre class="code" language="razor">@inject CacheStorageAccessor CacheStorageAccessor
+@inject HttpClient HttpClient
+
+&lt;button class="btn btn-primary" type="button" @onclick="SetValueAsync"&gt;Set Value&lt;/button&gt;
+&lt;div&gt;Stored Value: @StoredValue&lt;/div&gt;
+&lt;button class="btn btn-primary" type="button" @onclick="GetValueAsync"&gt;Get Value&lt;/button&gt;
+&lt;button class="btn btn-primary" type="button" @onclick="RemoveAsync"&gt;Remove Value&lt;/button&gt;
+&lt;button class="btn btn-primary" type="button" @onclick="ClearAllAsync"&gt;Clear All&lt;/button&gt;
+
+@code {
+    public string StoredValue { get; set; } = "";
+
+    public async Task SetValueAsync()
+    {
+        var message = CreateMessage();
+        var response = await HttpClient.SendAsync(message);
+        await CacheStorageAccessor.StoreAsync(message, response);
+    }
+
+    public async Task GetValueAsync()
+    {
+        StoredValue = await CacheStorageAccessor.GetAsync(CreateMessage());
+    }
+
+    public async Task RemoveAsync()
+    {
+        await CacheStorageAccessor.RemoveAsync(CreateMessage());
+    }
+
+    public async Task ClearAllAsync()
+    {
+        await CacheStorageAccessor.RemoveAllAsync();
+    }
+
+    public HttpRequestMessage CreateMessage() =&gt; new HttpRequestMessage(HttpMethod.Get, "/sample-data/books.json");
+}</pre>
+<blockquote>You need to create a new <code>HttpRequestMessage</code> everytime to store the request.</blockquote>
