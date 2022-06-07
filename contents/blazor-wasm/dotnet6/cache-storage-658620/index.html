@@ -16,14 +16,14 @@
 <p>You can access the Cache storage in the browser by open the Developer Tools (F12 for most browsers).</p>
 <p>For Firefox, the Cache storage is located at the <strong>Storage</strong> tab as the following image:</p>
 <p><img src="contents\blazor-wasm\dotnet6\cache-storage-658620\firefox-cache-storage.png" alt="firefox-cache-storage.png" width="933" height="352" /></p>
-<p>For Chrome and Edge, the Cache storage is located at the <strong>Application</strong> tab as the following image:</p>
+<p>For Chrome and Edge, the Cache storage is located at the <strong>Application</strong> tab as the following images:</p>
 <p><img src="contents\blazor-wasm\dotnet6\cache-storage-658620\chrome-cache-storage.png" alt="chrome-cache-storage.png" width="588" height="686" /></p>
 <p><img src="contents\blazor-wasm\dotnet6\cache-storage-658620\edge-cache-storage.png" alt="edge-cache-storage.png" width="587" height="682" /></p>
 <hr class="my-4" />
 <h1>Set up the base code</h1>
 <p>To use the Cache storage, you first need to create a JavaScript module, then you will use C# code to call the exported functions of this module.</p>
 <ol>
-    <li>Create a new JavaScript file under the <strong>wwwroot</strong> folder.</li>
+    <li>Create a new JavaScript file under the <strong>wwwroot</strong> folder. In this example, we will create a <strong>/js/CacheStorageAccessor.js</strong> file.</li>
     <li>Add some base methods:</li>
 </ol>
 <pre class="code" language="javascript">async function openCacheStorage()
@@ -77,7 +77,7 @@ function createRequest(url, method, body = "")
     }
 }</pre>
 <blockquote>Always remember to dispose the JavaScript module.</blockquote>
-<ol start="3">
+<ol start="4">
     <li>Register the C# class at <code>Program.cs</code></li>
 </ol>
 <pre class="code" language="csharp">builder.Services.AddScoped&lt;CacheStorageAccessor&gt;();</pre>
