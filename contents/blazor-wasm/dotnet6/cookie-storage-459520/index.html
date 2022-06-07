@@ -1,5 +1,5 @@
 <h1>Cookie storage</h1>
-<p>Cookie is a great way to keep track of your users activities and store the users information. In this tutorial, you will learn:</p>
+<p>Cookie is a great way to keep track of your user activities and store the user information. In this tutorial, you will learn:</p>
 <ul>
     <li>What is Cookie storage?</li>
     <li>Set up the base code.</li>
@@ -12,20 +12,16 @@
 <p>The Cookie storage allows you to store information under key value type. Cookie, or cookies used to be a cross domain resource. However, in 2023, Cookies will be bound to a domain. Each key and value stored in cookies will have an expire date, it might be forever, depends on your desire. Keep in mind that the user may also delete the cookies as well. You can also make your cookie not accessible from JavaScript code. We do not encourage you to use the Cookie storage because:</p>
 <ol>
     <li>Cookies are always sent with every request, they can worsen performance (especially for mobile data connections).</li>
-    <li>Cookies is a legacy technique.</li>
+    <li>Cookie storage is a legacy technique.</li>
 </ol>
-<blockquote>
-    MDN also not encourage you to use the Cookie storage as <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies" target="_blank">in this tutorial</a>. We encourage you to use other mordern browser storage types like the Local storage, Session storage or IndexedDb storage.
-</blockquote>
+<blockquote>MDN also not encourage you to use the Cookie storage as <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies" target="_blank" rel="noopener">in this tutorial</a>. We encourage you to use other mordern browser storage types like the Local storage, Session storage or IndexedDb storage.</blockquote>
 <h3>How to access the Cookie storage in the browser?</h3>
 <p>You can access the Cookie storage in the browser by open the Developer Tools (F12 for most browsers).</p>
-<p>For Firefox, the Cookie storage is localted at the <strong>Storage</strong> tab as the following image:</p>
-<p>
-    <img src="contents\blazor-wasm\dotnet6\cookie-storage-459520\firefox-cookie-storage.png" alt="firefox-cookie-storage.png" width="861" height="238" />
-</p>
-<p>For Chorme and Edge, the Cookie storage is located at the <strong>Application</strong> tab as the following images:</p>
-<p><img src="contents\blazor-wasm\dotnet6\cookie-storage-459520\edge-cookie-storage.png" alt="edge-cookie-storage.png" width="867" height="716"/></p>
-<p><img src="contents\blazor-wasm\dotnet6\cookie-storage-459520\chrome-cookie-storage.png" alt="chrome-cookie-storage.png" width="588" height="686"/></p>
+<p>For Firefox, the Cookie storage is located at the <strong>Storage</strong> tab as the following image:</p>
+<p><img src="contents\blazor-wasm\dotnet6\cookie-storage-459520\firefox-cookie-storage.png" alt="firefox-cookie-storage.png" width="861" height="238" /></p>
+<p>For Chrome and Edge, the Cookie storage is located at the <strong>Application</strong> tab as the following images:</p>
+<p><img src="contents\blazor-wasm\dotnet6\cookie-storage-459520\edge-cookie-storage.png" alt="edge-cookie-storage.png" width="867" height="716" /></p>
+<p><img src="contents\blazor-wasm\dotnet6\cookie-storage-459520\chrome-cookie-storage.png" alt="chrome-cookie-storage.png" width="588" height="686" /></p>
 <hr class="my-4" />
 <h1>Set up the base code</h1>
 <p>To use the Cookie storage, you first need to create a JavaScript module, then you will use C# code to call the exported functions of this module.</p>
@@ -47,7 +43,7 @@
     {
         if (_accessorJsRef.IsValueCreated is false)
         {
-            _accessorJsRef = new(await _jsRuntime.InvokeAsync&lt;IJSObjectReference&gt;(&quot;import&quot;, &quot;/js/CookieStorageAccessor.js&quot;));
+            _accessorJsRef = new(await _jsRuntime.InvokeAsync&lt;IJSObjectReference&gt;("import", "/js/CookieStorageAccessor.js"));
         }
     }
 
@@ -88,7 +84,7 @@ export function set(key, value)
     public async Task&lt;T&gt; GetValueAsync&lt;T&gt;(string key)
     {
         await WaitForReference();
-        var result = await _accessorJsRef.Value.InvokeAsync&lt;T&gt;(&quot;get&quot;, key);
+        var result = await _accessorJsRef.Value.InvokeAsync&lt;T&gt;("get", key);
 
         return result;
     }
@@ -96,7 +92,7 @@ export function set(key, value)
     public async Task SetValueAsync&lt;T&gt;(string key, T value)
     {
         await WaitForReference();
-        await _accessorJsRef.Value.InvokeVoidAsync(&quot;set&quot;, key, value);
+        await _accessorJsRef.Value.InvokeVoidAsync("set", key, value);
     }
 }</pre>
 <hr class="my-4" />
