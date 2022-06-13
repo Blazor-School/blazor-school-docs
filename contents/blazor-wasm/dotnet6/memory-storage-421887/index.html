@@ -1,0 +1,84 @@
+<h1>Memory storage</h1>
+<p>When you need a temporary storage, the Memory storage is a perfect choice. In this tutorial, you will discover:</p>
+<ul>
+    <li>What is Memory storage?</li>
+    <li>Set up the base code.</li>
+    <li>Add common operations.</li>
+    <li>Use the Memory storage.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/browser-storage-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is Memory storage?</h1>
+<p>Memory storage is a quick way to store a small amount of data. The Memory storage isolates data by browser tab.</p>
+<h3>How to access the Memory storage in the browser?</h3>
+<p>Unlike other browser storage, the Memory storage is easy to access. You need to spend a lot of time to dig through memory to find the value.</p>
+<hr class="my-4" />
+<h1>Set up the base code</h1>
+<p>To use the Memory storage, you first need to create a singleton/scoped service, then you will inject this service to components to use.</p>
+<ol>
+    <li>Create a new folder. In this example, we will create a <strong>/Utils/MemoryStorageUtility.cs</strong> file.</li>
+    <li>Create a C# class with the following base implementation:</li>
+</ol>
+<pre class="code" language="csharp">public class MemoryStorageUtility
+{
+    public Dictionary&lt;string, object&gt; Storage { get; set; } = new();
+}</pre>
+<blockquote>You can use other data type than <code>Dictionary&lt;string,object&gt;</code> as in the example to store the data.</blockquote>
+<ol start="3">
+    <li>Register the C# class at <code>Program.cs</code></li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;MemoryStorageUtility&gt;();</pre>
+<hr class="my-4" />
+<h1>Use the Memory storage</h1>
+<p>You can use the built-in methods of your data type to manipulate the data in the memory. For example:</p>
+<pre class="code" language="razor">@inject MemoryStorageUtility MemoryStorageUtility
+
+&lt;h3&gt;BrowserStorageDemonstrate&lt;/h3&gt;
+&lt;form&gt;
+    &lt;label class="form-label"&gt;
+        Key
+        &lt;input class="form-control" type="text" @bind-value="Key" /&gt;
+    &lt;/label&gt;
+    &lt;label class="form-label"&gt;
+        Value
+        &lt;input class="form-control" type="text" @bind-value="Value" /&gt;
+    &lt;/label&gt;
+    &lt;button class="btn btn-primary" type="button" @onclick="SetValue"&gt;Set Value&lt;/button&gt;
+&lt;/form&gt;
+&lt;div&gt;Stored Value: @StoredValue&lt;/div&gt;
+&lt;button class="btn btn-primary" type="button" @onclick="GetValue"&gt;Get Value&lt;/button&gt;
+&lt;button class="btn btn-primary" type="button" @onclick="Remove"&gt;Remove Value&lt;/button&gt;
+&lt;button class="btn btn-primary" type="button" @onclick="ClearAll"&gt;Clear All&lt;/button&gt;
+
+@code {
+    public string Key { get; set; } = "";
+    public string Value { get; set; } = "";
+    public string StoredValue { get; set; } = "";
+
+    public void SetValue()
+    {
+        MemoryStorageUtility.Storage[Key] = Value;
+    }
+
+    public void GetValue()
+    {
+        if (MemoryStorageUtility.Storage.TryGetValue(Key, out var value))
+        {
+            StoredValue = value.ToString()!;
+        }
+        else
+        {
+            StoredValue = "";
+        }
+    }
+
+    public void Remove()
+    {
+        MemoryStorageUtility.Storage.Remove(Key);
+    }
+
+    public void ClearAll()
+    {
+        MemoryStorageUtility.Storage.Clear();
+    }
+}</pre>
