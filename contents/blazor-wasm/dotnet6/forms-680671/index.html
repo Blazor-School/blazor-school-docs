@@ -359,7 +359,7 @@
 }</pre>
 <p>Whenever you modify a form control value, the validations should run again. When you update the form control value and not notifying field change, the validations are not run, giving you a possibility to accept wrong information. The following video demonstrate this mistake:</p>
 <div class="ratio ratio-21x9">
-    <video width="300" height="150" controls="controls">
+    <video controls="controls">
         <source src="contents\blazor-wasm\dotnet6\forms-680671\mistake-forget-to-notify.mp4" />
     </video>
 </div>
@@ -375,14 +375,14 @@
 &lt;input type="submit" @onclick="Method1" value="(Not Intended) Call Method &amp; Submit (input tag)" /&gt;</pre>
 <p>The following video demonstrates this mistake:</p>
 <div class="ratio ratio-21x9">
-    <video width="300" height="150" controls="controls">
+    <video controls="controls">
         <source src="contents\blazor-wasm\dotnet6\forms-680671\function-button-mistake.mp4" />
     </video>
 </div>
 <h3>Forget <code>DataAnnotationsValidator</code> tag</h3>
 <p>The <code>DataAnnotationsValidator</code> is an important component when you are using <code>EditForm</code> component. Without this tag, you cannot validate the form. The following video demonstrates this situation:</p>
 <div class="ratio ratio-21x9">
-    <video width="300" height="150" controls="controls">
+    <video controls="controls">
         <source src="contents\blazor-wasm\dotnet6\forms-680671\forget-validation-tag.mp4" />
     </video>
 </div>
