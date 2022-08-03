@@ -26,6 +26,10 @@
         SelectedItems.Add(product);
     }
 }</pre>
+<ol start="4">
+    <li>Register the <code>CartService</code> in the <code>Program.cs</code>.</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;CartService&gt;();</pre>
 <hr class="my-4" />
 <h1>Allow user to put product to the cart</h1>
 <p>Next step, we are going to use the <code>CartService</code> we just created to store the cart information.</p>
