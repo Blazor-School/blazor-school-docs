@@ -36,7 +36,7 @@
 <h3>Users revisit website flow</h3>
 <p>When the users revisit your website, either by refreshing the website or navigate to your website, the <code>AuthenticationStateProvider</code> will look for stored credentials in the browser data storage which is stored in the login flow. If found and valid, <code>AuthenticationStateProvider</code> will use that credentials to create a <code>ClaimsPrincipal</code> to mark the user as authenticated. Otherwise, the user stays unauthenticated. The following image illustrates this phase:</p>
 <p><img src="contents\blazor-server\dotnet6\authentication-and-authorization-981067\revisit-website-flow.png" alt="revisit-website-flow.png" width="700" height="728" /></p>
-<h3>Logoutflow</h3>
+<h3>Logout flow</h3>
 <p>When a user logged out your website, the <code>AuthenticationStateProvider</code> will clear the browser data storage and call <code>NotifyAuthenticationStateChanged</code> to notify all the components to update their UI. The following image illustrates this flow:</p>
 <p><img src="contents\blazor-server\dotnet6\authentication-and-authorization-981067\logout-flow.png" alt="logout-flow.png" width="700" height="79" /></p>
 <hr class="my-4" />
