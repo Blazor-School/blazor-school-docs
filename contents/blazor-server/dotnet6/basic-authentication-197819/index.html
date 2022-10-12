@@ -378,7 +378,7 @@ builder.Services.AddScoped&lt;AuthenticationStateProvider&gt;(sp =&gt; sp.GetReq
 <p>The <code>ClaimsIdentity</code> will mark the user as unauthenticated, the property <code>ClaimsIdentity.IsAuthenticated</code> will be <code>false</code>.</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
-        <source src="contents\blazor-server\dotnet6\basic-authentication-197819\mistake-1.mp4" />
+        <source src="contents\blazor-server\dotnet6\basic-authentication-197819\mistake-1.webm" />
     </video>
 </div>
 <h3>Mistake #2: Call the <code>GetAuthenticationStateAsync</code> from <code>AuthenticationStateProvider</code> to get the user information</h3>
@@ -405,7 +405,7 @@ builder.Services.AddScoped&lt;AuthenticationStateProvider&gt;(sp =&gt; sp.GetReq
 <p>The <code>GetAuthenticationStateAsync</code> will be executed whenever a component is rendered. The following video demonstrates this mistake:</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
-        <source src="contents\blazor-server\dotnet6\basic-authentication-197819\mistake-2.mp4" />
+        <source src="contents\blazor-server\dotnet6\basic-authentication-197819\mistake-2.webm" />
     </video>
 </div>
 <h3>Mistake #3: Use <code>HttpContextAccessor</code> to get the user information</h3>
