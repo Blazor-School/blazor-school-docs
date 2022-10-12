@@ -295,7 +295,7 @@ builder.Services.AddScoped&lt;AuthenticationStateProvider&gt;(sp =&gt; sp.GetReq
 <ol start="2">
     <li>Declare a property for the current user at the custom <code>AuthenticationStateProvider</code>. For example:</li>
 </ol>
-<pre class="code" language="">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider
 {
     ...
     public User CurrentUser { get; private set; } = new();
