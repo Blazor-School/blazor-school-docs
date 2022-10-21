@@ -136,7 +136,7 @@ gzip_types
 <p>The <code>gzip_comp_level</code> is the level of compressing, ranging from 1 to 9 which 1 is least compressed and 9 is the most compressed. Higher compressing level compensate your CPU usage, and sometimes it becomes bigger than the original.</p>
 <p>Some files, as mentioned above, after being compressed it becomes bigger. You need to add <code>gzip_min_length X</code> to tell NGINX not to compress if the size is less than <code>X</code>. There is no ideal number for this setting, you must monitor your website and give the decision.</p>
 <p>To see the effectiveness and ineffectiveness of the gzip, open your website, turn on the <strong>Web Developer Tools</strong> by pressing <strong>F12</strong>. Open the <strong>Network</strong> tab, check the <strong>Disable Cache</strong> option and reload the website:</p>
-<p><img src="contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\speed-up-blazor-webassembly-1.png" alt="speed-up-blazor-webassembly-1.png" width="880" height="475" /></p>
+<p><img src="contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\speed-up-blazor-webassembly-1.png" alt="speed-up-blazor-webassembly-1.png" width="953" height="499" /></p>
 <p>If the size before compressing is larger than the size after compressed, then you should compress the file. Otherwise, don't compress (either remove the <code>gzip_types</code> or increase the <code>gzip_min_length X</code>).</p>
 <hr class="my-4" />
 <h1>Setup GitHub action</h1>
