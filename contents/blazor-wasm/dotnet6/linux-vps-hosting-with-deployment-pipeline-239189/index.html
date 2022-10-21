@@ -179,8 +179,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Setup building environment
-      run: dotnet workload install wasm-tools
     - name: Restore web
       run: dotnet restore
     - name: Build web
