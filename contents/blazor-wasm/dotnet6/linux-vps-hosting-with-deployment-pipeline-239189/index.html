@@ -66,7 +66,7 @@
 <ol start="8">
     <li>Back to the SFTP window. Rename the <strong>/etc/nginx/sites-enabled/default</strong> file. Update the file content:</li>
 </ol>
-<pre class="code" language="nginx">server {
+<pre class="code" language="yml">server {
 	listen 443 ssl http2;
 	listen [::]:443 ssl http2;
 	server_name &lt;your_domain&gt;;
@@ -92,7 +92,7 @@ server {
 <ol start="9">
     <li>If your website has dynamic file data. For example, user avatar, user uploaded files, etc. You should not put the dynamic file data into the folder of the website. Instead, put the dynamic file data into another location and then redirect them in the config file as follows:</li>
 </ol>
-<pre class="code" language="nginx">location /images/ 
+<pre class="code" language="yml">location /images/ 
 {
     root "&lt;path_to_images_folder&gt;"; 
 }</pre>
@@ -117,7 +117,7 @@ server {
 <h3>Enable gzip</h3>
 <p>Enabling gzip will help your website loads faster. Your website loads faster when it is lighter. When you are enabling gzip, NGINX will use some CPU to compress your website, then send it over to the browser. The browser then uncompress your website and display it accordingly. Because the process of compressing and uncompressing are cheaper than the transportation cost, so it will increase the website loading speed.</p>
 <p>Gzip is also a razor blade, you can hurt yourself if you don't know what you are doing. To effectively gzip your website, you need to monitor and determine when to compress and when is not to. Gzip is enabled by default NGINX settings, you can find the setting in <strong>/etc/nginxnginx.conf</strong>. Look for the <code># Gzip Settings</code>. To turn on advanced settings, you need to uncomment all other settings. Your Gzip settings should look like:</p>
-<pre class="code" language="nginx">gzip on;
+<pre class="code" language="yml">gzip on;
 gzip_vary on;
 gzip_proxied any;
 gzip_comp_level 6;
@@ -204,14 +204,14 @@ jobs:
 <p>In this section, we have collected some common mistakes from the Blazor School Discord Community.</p>
 <h3>Mistake #1: Let NGINX handles errors like 404, etc.</h3>
 <p>You should let Blazor handles all the errors. Otherwise, you will have an unprofessional error page, not to mention that your code to handle errors will never show up. This is an example of letting NGINX handles errors:</p>
-<pre class="code" language="nginx">// DON'T DO THIS
+<pre class="code" language="yml">// DON'T DO THIS
 location / 
 { 
     try_files $uri $uri/ /index.html =404; 
 }</pre>
 <h3>Mistake #2: Not serving <code>index.html</code> as backup</h3>
 <p>If you make this mistake, your website is not accessible through sub URL and can only access by homepage. For example, when you access your website via <strong>https://208.115.245.90/product-list</strong> you will get an 404 error. This is an example of not serving <code>index.html</code> as backup.</p>
-<pre class="code" language="nginx">// DON'T DO THIS
+<pre class="code" language="yml">// DON'T DO THIS
 location / 
 { 
     try_files /index.html; 
