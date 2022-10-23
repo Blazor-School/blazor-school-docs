@@ -76,9 +76,7 @@
     NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
 }</pre>
 <ol start="7">
-    <ol start="7">
-        <li>Add a method for the user to logout. The following image illustrates the logout flow:</li>
-    </ol>
+    <li>Add a method for the user to logout. The following image illustrates the logout flow:</li>
 </ol>
 <p><img src="contents\blazor-wasm\dotnet6\implementing-authentication-829424\logout-flow.png" alt="logout-flow.png" width="1000" height="160" /></p>
 <p>For example:</p>
@@ -87,7 +85,7 @@
     _authenticationDataMemoryStorage.Token = "";
     NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
 }</pre>
-<ol start="7">
+<ol start="8">
     <li>Register the browser storage accessor, the custom <code>AuthenticationStateProvider</code> at <code>Program.cs</code>. For example:</li>
 </ol>
 <pre class="code" langugae="csharp">builder.Services.AddScoped&lt;AuthenticationDataMemoryStorage&gt;();
