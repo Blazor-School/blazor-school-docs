@@ -495,7 +495,7 @@ public string GetLanguageFromUrl()
     return string.IsNullOrEmpty(urlParameters["language"]) ? _fallbackLanguage : urlParameters["language"]!;
 }</pre>
 <ol start="3">
-    <li>Subscribe/unsubscribe to the LocationChanged event. For example:</li>
+    <li>Subscribe/unsubscribe to the <code>LocationChanged</code> event. For example:</li>
 </ol>
 <pre class="code" language="csharp">public class BlazorSchoolCultureProvider : IDisposable
 {
