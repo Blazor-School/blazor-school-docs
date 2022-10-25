@@ -60,7 +60,7 @@
     &lt;a href="" class="reload"&gt;Reload&lt;/a&gt;
     &lt;a class="dismiss"&gt;🗙&lt;/a&gt;
 &lt;/div&gt;</pre>
-<p>You can update the content of this element to show a message whenever an error occur in your website.</p>
+<p>You can update the content of this element to show a message whenever an error occurs in your website.</p>
 <h3>Catching errors from layout</h3>
 <p>A layout is a component with <code>@inherits LayoutComponentBase</code>. A layout usually put in the <strong>Shared</strong> folder. You can learn more about layout at <a href="/tutorial/blazor-wasm/dotnet6/website-layout-426744" title="Website Layout">Website Layout</a>. In Blazor WebAssembly, the default layout is located at <strong>Shared/MainLayout.razor</strong>, you will see the following tag in this component:</p>
 <pre class="code" language="html">&lt;article class="content px-4"&gt;
@@ -171,7 +171,7 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;((sp, httpCli
     <li>Resume the operation.</li>
 </ol>
 <h3>Display the error message to the user</h3>
-<p>When an error occur, the users might not need what is the error, but they certainly need a friendly message to soothe the experience with your website. You can display a friendly message when an error occurs by using the <code>ErrorContent</code> component as follows:</p>
+<p>When an error occurs, the users might not need what is the error, but they certainly need a friendly message to soothe the experience with your website. You can display a friendly message when an error occurs by using the <code>ErrorContent</code> component as follows:</p>
 <pre class="code" language="razor">&lt;ErrorBoundary&gt;
     &lt;ChildContent&gt;
         &lt;TriggerError/&gt;
@@ -199,7 +199,7 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;((sp, httpCli
 <p>An error handler is a component that extends the <code>ErrorBoundary</code> or <code>ErrorBoundaryBase</code> component and be handle any error in a scope. For example, if an error handler is put at the component scope, it will handle any error from within the scope. <code>ErrorBoundary</code> is the built-in error handler component, you can create your own error handler component as well.</p>
 <hr class="my-4" />
 <h1>Why do you need a custom error handler?</h1>
-<p>Sometimes, you need to have more control over the handling process. By default, if your website throws more than 100 exceptions, it will be considered as critical and fallback to the global error handler. By default, you don't have access to the current exception (you can show the detail but that it's) and therefore you cannot send the exception back to your logging API. Build a custom error handler provide you the access to the current exception and you can send the exception back to the loggin API for example or take other actions.</p>
+<p>Sometimes, you need to have more control over the handling process. By default, if your website throws more than 100 exceptions, it will be considered as critical and fallback to the global error handler. By default, you don't have access to the current exception (you can show the detail but that it's) and therefore you cannot send the exception back to your logging API. Build a custom error handler provide you the access to the current exception and you can send the exception back to the logging API for example or take other actions.</p>
 <hr class="my-4" />
 <h1>Build a custom error handler</h1>
 <p>You can create a custom error handler by creating a component that extends the <code>ErrorBoundary</code> or <code>ErrorBoundaryBase</code> component. Extending the <code>ErrorBoundaryBase</code> gives you more control when handling an error. Here is our example custom error handler:</p>
@@ -259,9 +259,9 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;((sp, httpCli
 }</pre>
 <p>When implementing a custom error handler, you need to pay attention to:</p>
 <ul>
-    <li><code>MaximumErrorCount</code>: If there is <strong>x</strong> number of exceptions in the error handler, then it will fallback to the global exception handler. In the example, we set it to 2 in the constructor.</li>
-    <li><code>OnErrorAsync</code>: What to do when an error occur. In the example, we record exception with the <code>ExceptionRecorderService</code> service in the <code>OnErrorAsync</code> method.</li>
-    <li><code>BuildRenderTree</code>: Render the UI when an error occur. In the example, we print out the text <strong>"Blazor School Custom Error Boundary" </strong>and a button to continue the operation.</li>
+    <li><code>MaximumErrorCount</code>: If there is <strong>x</strong> number of exceptions in the error handler, then it will fall back to the global exception handler. In the example, we set it to 2 in the constructor.</li>
+    <li><code>OnErrorAsync</code>: What to do when an error occurs. In the example, we record exception with the <code>ExceptionRecorderService</code> service in the <code>OnErrorAsync</code> method.</li>
+    <li><code>BuildRenderTree</code>: Render the UI when an error occurs. In the example, we print out the text <strong>"Blazor School Custom Error Boundary" </strong>and a button to continue the operation.</li>
 </ul>
 <p>Once you have your custom error handler component, you can use it as the <code>ErrorBoundary</code> component. For example:</p>
 <pre class="code" language="razor">&lt;BlazorSchoolErrorBoundary&gt;
@@ -297,7 +297,7 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;((sp, httpCli
     public async Task TriggerHttpClientErrorAsync() =&gt; await HttpClient.GetAsync("https://blazorschool.com");
     public void TriggerClientSideError() =&gt; throw new Exception("Blazor School");
 }</pre>
-<p>In the example, there are 2 buttons to trigger an HTTP error and the client side error. Both won't be catched by the <code>ErrorBoundary</code> component although they appear to be inside the <code>ErrorBoundary</code> component. That is, because the <code>TriggerHttpClientErrorAsync</code> and <code>TriggerClientSideError</code> is being executed by the component <code>TriggerErrorOutsideScope</code> component rather than executed inside the <code>ErrorBoundary</code> component.</p>
+<p>In the example, there are 2 buttons to trigger an HTTP error and the client side error. Both won't be caught by the <code>ErrorBoundary</code> component although they appear to be inside the <code>ErrorBoundary</code> component. That is, because the <code>TriggerHttpClientErrorAsync</code> and <code>TriggerClientSideError</code> is being executed by the component <code>TriggerErrorOutsideScope</code> component rather than executed inside the <code>ErrorBoundary</code> component.</p>
 <hr class="my-4" />
 <h1>Best practice</h1>
 <p>You have learnt how to handle errors, here are a few things you should keep in mind while developing website:</p>

@@ -186,7 +186,7 @@ jobs:
     - name: Test web
       run: dotnet test --no-build
     - name: Publish web
-      run: dotnet publish --configuration ${{ env.CONFIGURATION }} --output &amp;quot;${{ env.GITHUB_OUTPUT_DIRECTORY }}&amp;quot;
+      run: dotnet publish --configuration ${{ env.CONFIGURATION }} --output &amp;&quot;${{ env.GITHUB_OUTPUT_DIRECTORY }}&amp;&quot;
 
     - name: Copy web via ssh
       uses: garygrossgarten/github-action-scp@master
