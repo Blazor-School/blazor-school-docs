@@ -1,0 +1,79 @@
+<h1>Multilingual website</h1>
+<p>We live in a multilingual world, so offering your website in multiple languages is a great way to make it more user-friendly and connect with new audiences. To help you be successful, we&rsquo;re going to share a detailed guide on how to create a multi language website. In this tutorial, we will cover:</p>
+<ul>
+    <li>How Blazor Server identifies the display language?</li>
+    <li>What do you need to pay attention when making a multi language website?</li>
+    <li>Translation approaches.</li>
+    <li>Language selection strategies.</li>
+    <li>Create resources for web pages.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/internationalization-and-localization-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>How Blazor Server identifies the display language?</h1>
+<p>Blazor Server identifies the display language based on the value of <code>CultureInfo.CurrentCulture</code> and <code>CultureInfo.CurrentUICulture</code>. The value set to those properties are strings. This string is a language tag which includes 2 information:</p>
+<ul>
+    <li>What language is it?</li>
+    <li>What location is it?</li>
+</ul>
+<p>This is an example language tag: "en-US": the "<strong>en</strong>" indicates that the language is <strong>English</strong>, the&nbsp;"<strong>US</strong>" indicates that the language is used in "<strong>America</strong>". You can see the list of language tags in <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c" target="_blank" rel="noopener" title="Microsoft Learn">Microsoft Learn</a> There is a rare case that you need to create your own language and the location, but that part does not include in this tutorial.</p>
+<hr class="my-4" />
+<h1>What do you need to pay attention when making a multi language website?</h1>
+<p>When creating a multi language website, you need to pay attention to:</p>
+<ul>
+    <li><strong>Language selection strategy</strong>: How can Blazor Server select the language to display to the end user?</li>
+    <li><strong>Translation approach</strong>: When a language is selected, how can Blazor Server fetch the resource files and render the web page?</li>
+</ul>
+<hr class="my-4" />
+<h1>Translation approaches</h1>
+<p>There are 2 approaches when implement a multilingual website with Blazor Server, and it affects directly to the user experience.</p>
+<ul>
+    <li><strong>Defer translation</strong>: When a user selects a language, the website acknowledges and set it as the language when the user revisits the website; Meaning that when a user selects a language, the user must refresh the website for it to takes effect. The following video demonstrates this approach:</li>
+</ul>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-server\dotnet6\multilingual-website-472759\defer-translation-demonstrate.mp4" />
+    </video>
+</div>
+<ul>
+    <li class="ratio ratio-21x9"><strong>Instant translation</strong>: When a user selects a language, Blazor Server acknowledges and re-renders the web page immediately. The following video demonstrates this approach:</li>
+</ul>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-server\dotnet6\multilingual-website-472759\instant-translation-demonstrate.mp4" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Language selection strategies</h1>
+<p>A user can provide their preferred language in many ways:</p>
+<ul>
+    <li>Browser settings.</li>
+    <li>Stored language in local storage.</li>
+    <li>Stored language in cookie.</li>
+    <li>Embedded the language in the URL.</li>
+</ul>
+<p>There maybe a conflict between those ways. For example, a user may have entered your website with the language "en-US" in their URL, but their browser is set to French. Another example would be a user visits your website and select "en-US", then you store the language in their local storage; Later on, they revisit your website with the "fr" language in their URL. There is no standard strategy, every website resolves the conflict and select a language to display differently, and you need to do the same.</p>
+<hr class="my-4" />
+<h1>Create resources for web pages</h1>
+<p>Each language tag is pair with a resource file. A resource file is an XML formatted file with the <code>.resx</code> extension.</p>
+<ol>
+    <li>Create a new folder with the same level as the <strong>Page</strong> folder. For example, the <strong>BlazorSchoolResources</strong> folder:</li>
+</ol>
+<p><img src="contents\blazor-server\dotnet6\multilingual-website-472759\folder-tree.png" alt="folder-tree.png" width="300" height="69" /></p>
+<ol start="2">
+    <li>Create a folder structure the same as the components you want to translate. For example, if the path to your component is in the <strong>Pages</strong> folder then you need to put all the resources file under <strong>BlazorSchoolResources/Pages</strong>; If the path to your component is in the <strong>Shared/MyComponent</strong> folder then you need to put all the resources file under <strong>BlazorSchoolResources/Shared/MyComponent</strong>.</li>
+</ol>
+<p><img src="contents\blazor-server\dotnet6\multilingual-website-472759\resource-file-placement.png" alt="resource-file-placement.png" width="716" height="318" /></p>
+<ol start="3">
+    <li>Create resource files. The resource file must follow the pattern: <code>&lt;ComponentName&gt;.&lt;LanguageTag&gt;.resx</code>. For example, if your component is <strong>MyComponent.razor</strong> and you support French (fr) and English (en-US) then create 2 resource files with the name <strong>MyComponent.fr.resx</strong> and <strong>MyComponent.en-US.resx</strong>.</li>
+    <li>Add keys and values to all the resource files.</li>
+</ol>
+<p><img src="contents\blazor-server\dotnet6\multilingual-website-472759\resource-file-content.png" alt="resource-file-content.png" width="442" height="336" /></p>
+<ol start="5">
+    <li>In the component you want to translate, inject the <code>IStringLocalizer&lt;Your_Component&gt;</code>. For example, in the <strong>MyComponent</strong>:</li>
+</ol>
+<pre class="code" language="razor">@using Microsoft.Extensions.Localization
+@inject IStringLocalizer&lt;MyComponent&gt; Localizer
+
+@Localizer["String1"]</pre>
+<p>The <strong>String1</strong> in the example is the key you defined in the resource file.</p>
+<p><img src="contents\blazor-server\dotnet6\multilingual-website-472759\use-istringlocalizer.png" alt="use-istringlocalizer.png" width="600" height="321" /></p>
