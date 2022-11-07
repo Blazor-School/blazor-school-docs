@@ -27,7 +27,7 @@
 <h1>Translation approaches</h1>
 <p>There are 2 approaches when implement a multilingual website with Blazor Server, and it affects directly to the user experience.</p>
 <ul>
-    <li><strong>Defer translation</strong>: When a user selects a language, the website acknowledges and set it as the language when the user revisits the website; Meaning that when a user selects a language, the user must refresh the website for it to takes effect. The following video demonstrates this approach:</li>
+    <li><strong>Deferred translation</strong>: When a user selects a language, the website acknowledges and set it as the language when the user revisits the website; Meaning that when a user selects a language, the user must refresh the website for it to takes effect. The following video demonstrates this approach:</li>
 </ul>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
@@ -69,6 +69,12 @@
 </ol>
 <p><img src="contents\blazor-server\dotnet6\multilingual-website-472759\resource-file-content.png" alt="resource-file-content.png" width="442" height="336" /></p>
 <ol start="5">
+    <li>Register at <code>Program.cs</code>. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddLocalization(options =&gt; options.ResourcesPath = "BlazorSchoolResources");
+...
+app.UseRequestLocalization();</pre>
+<ol start="6">
     <li>In the component you want to translate, inject the <code>IStringLocalizer&lt;Your_Component&gt;</code>. For example, in the <strong>MyComponent</strong>:</li>
 </ol>
 <pre class="code" language="razor">@using Microsoft.Extensions.Localization
