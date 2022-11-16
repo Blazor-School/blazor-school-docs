@@ -247,7 +247,8 @@
     {
         CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo((string)e.Value);
         CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo((string)e.Value);
-        LanguageSelectorModule.Value.InvokeVoidAsync("addCookies", CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(new(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture)));
+        LanguageSelectorModule.Value.InvokeVoidAsync("addCookies", CookieRequestCultureProvider.DefaultCookieName,
+CookieRequestCultureProvider.MakeCookieValue(new(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture)));
         BlazorSchoolLanguageNotifier.NotifyLanguageChange();
     }
 
