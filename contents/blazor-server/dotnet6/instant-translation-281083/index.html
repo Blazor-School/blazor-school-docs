@@ -1,0 +1,376 @@
+﻿<h1>Instant translation</h1>
+<p>Instant translation is an approach to translate a website that doesn't require a refresh to see the translated content. Not only that, but you can break free from RESX file, this technique can read from multiple data source like database, YML, JSON files. You can decide the priority of each language selection strategies. In this tutorial, we will walk you through this amazing technique step by step with the following content:</p>
+<ul>
+    <li>What is instant translation?</li>
+    <li>Comparing instant translation with deferred translation.</li>
+    <li>Involved building blocks and their roles.</li>
+    <li>Building the language notifier.</li>
+    <li>Fetching translated content.</li>
+    <li>Implement language selection strategies.</li>
+    <li>Using the instant translation.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/internationalization-and-localization-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is instant translation?</h1>
+<p>There are 2 approaches when making a multilingual website, instant translation is one of the approaches. When a user selects a language, the translation will process immediately, which means the user doesn't need to refresh the web page to see the new language. Furthermore, you can choose where to store the language, whether it is in the database, whether it is in the YML/JSON file. You can also have the control over the priority of language selection strategy.+</p>
+<hr class="my-4" />
+<h1>Comparing instant translation with deferred translation</h1>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td></td>
+                <td>Deferred Translation</td>
+                <td>Instant Translation</td>
+            </tr>
+            <tr>
+                <td>User experience</td>
+                <td class="bg-danger text-white">Bad</td>
+                <td class="bg-success text-white">Good</td>
+            </tr>
+            <tr>
+                <td>Language selection strategy</td>
+                <td class="bg-danger text-white">Not customizable: only supports cookies, browser settings, and URL. Cannot change the priority of the strategies.</td>
+                <td class="bg-success text-white">Customizable: support cookies, browser settings, URL, and custom strategies. Can change the priority of the strategies.</td>
+            </tr>
+            <tr>
+                <td>Resource type</td>
+                <td class="bg-danger text-white"><code>.resx</code> files only.</td>
+                <td class="bg-success text-white">Support any file extensions and database.</td>
+            </tr>
+            <tr>
+                <td>Implement effort</td>
+                <td class="bg-success text-white">Low</td>
+                <td class="bg-danger text-white">High</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<hr class="my-4" />
+<h1>Involved building blocks and their roles</h1>
+<p>In instant translation approach, there are 3 main building blocks:</p>
+<p><strong>String localizer</strong>: Fetch the translated text by the provided key.</p>
+<p><strong>Request culture provider</strong>: Determine the fallback language when no language is specified (the most common case is the user visits your website for the first time). Decide which language selection strategy wins, either cookies or URL.</p>
+<p><strong>Language notifier</strong>: When the language changes, the language notifier will notify all the components to update themselves.</p>
+<hr class="my-4" />
+<h1>Building the language notifier</h1>
+<p>This is a continuation of the previous tutorial, begins at step 7.</p>
+<ol start="7">
+    <li>Create a language notifier class as follows:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolLanguageNotifier
+{
+    private readonly List&lt;ComponentBase&gt; _subscribedComponents = new();
+
+    public void SubscribeLanguageChange(ComponentBase component) =&gt; _subscribedComponents.Add(component);
+
+    public void UnsubscribeLanguageChange(ComponentBase component) =&gt; _subscribedComponents.Remove(component);
+
+    public void NotifyLanguageChange()
+    {
+        foreach (var component in _subscribedComponents)
+        {
+            if (component is not null)
+            {
+                var stateHasChangedMethod = component.GetType()?.GetMethod("StateHasChanged", BindingFlags.Instance | BindingFlags.NonPublic);
+                _ = (stateHasChangedMethod?.Invoke(component, null));
+            }
+        }
+    }
+}</pre>
+<ol start="8">
+    <li>Register at <code>Program.cs</code> as follows:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;BlazorSchoolLanguageNotifier&gt;();</pre>
+<hr class="my-4" />
+<h1>Fetching translated content</h1>
+<p>By implementing the <code>IStringLocalizer</code> interface, you can fetch the translated content from many data sources (database, YML/JSON/RESX files). In this example, we will fetch resource from the RESX files. The interface <code>IStringLocalizer</code> has 2 important indexes, that are: <code>LocalizedString this[string name]</code> and <code>LocalizedString this[string name, params object[] arguments]</code>. The former index allows you to find the translated content by its name, the latter has the same functionality, but you can have some arguments act as placeholders in the translated content. For example in English, we say "31st" (no space) in English but in Chinese, it is "31 日" (has a space between the number and text); The number <strong>31</strong> is the parameter to the translated content.</p>
+<ol start="9">
+    <li>Create a string localizer class. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolStringLocalizer&lt;TComponent&gt; : IStringLocalizer&lt;TComponent&gt;
+{
+    public LocalizedString this[string name] =&gt; FindLocalziedString(name);
+    public LocalizedString this[string name, params object[] arguments] =&gt; FindLocalziedString(name, arguments);
+    
+    public IEnumerable&lt;LocalizedString&gt; GetAllStrings(bool includeParentCultures)
+    {
+        throw new NotImplementedException();
+    }
+}</pre>
+<ol start="10">
+    <li>Inject <code>IOptions&lt;LocalizationOptions&gt;</code> so we can access the resource location. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolStringLocalizer&lt;TComponent&gt; : IStringLocalizer&lt;TComponent&gt;
+{
+    ...
+    private readonly IOptions&lt;LocalizationOptions&gt; _localizationOptions;
+    
+    public BlazorSchoolStringLocalizer(IOptions&lt;LocalizationOptions&gt; localizationOptions)
+    {
+        _localizationOptions = localizationOptions;
+    }
+}</pre>
+<ol start="11">
+    <li>Create methods to fetch the translated content. The following example method is to fetch translated text from RESX files:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolStringLocalizer&lt;TComponent&gt; : IStringLocalizer&lt;TComponent&gt;
+{
+    ...
+    private LocalizedString FindLocalziedString(string key, object[]? arguments = default)
+    {
+        var resourceManager = CreateResourceManager();
+        LocalizedString result;
+
+        try
+        {
+            string value = resourceManager.GetString(key);
+
+            if (arguments is not null)
+            {
+                value = string.Format(value, arguments);
+            }
+
+            result = new(key, value, false, GetResourceLocaltion());
+        }
+        catch
+        {
+            result = new(key, "", true, GetResourceLocaltion());
+        }
+
+        return result;
+    }
+
+    private ResourceManager CreateResourceManager()
+    {
+        string resourceLocaltion = GetResourceLocaltion();
+        var resourceManager = new ResourceManager(resourceLocaltion, Assembly.GetExecutingAssembly());
+
+        return resourceManager;
+    }
+
+    private string GetResourceLocaltion()
+    {
+        var componentType = typeof(TComponent);
+        var nameParts = componentType.FullName.Split('.').ToList();
+        nameParts.Insert(1, _localizationOptions.Value.ResourcesPath);
+        string resourceLocaltion = string.Join(".", nameParts);
+
+        return resourceLocaltion;
+    }
+}</pre>
+<p>The method <code>FindLocalziedString</code> will be called by the indexes of the string localizer class.</p>
+<ol start="12">
+    <li>Register at <code>Program.cs</code>. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped(typeof(IStringLocalizer&lt;&gt;), typeof(BlazorSchoolStringLocalizer&lt;&gt;));</pre>
+<hr class="my-4" />
+<h1>Implement language selection strategies</h1>
+<p>There are 2 suitable language selection strategies for the instant translation approach: cookies and URL.</p>
+<h3>Cookie strategy</h3>
+<p>In this strategy, you will store the user preferred language in the cookie. You will check if the cookie has value, then use the language in the cookie. Otherwise, use the fallback language.</p>
+<ol start="13">
+    <li>Create a new JavaScript module. For example:</li>
+</ol>
+<pre class="code" language="javascript">export function addCookies(key, value)
+{
+    document.cookie = `${key}=${value}`;
+}</pre>
+<ol start="14">
+    <li>Create a culture provider class. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolRequestCultureProvider : RequestCultureProvider
+{
+    public string DefaultCulture { get; set; }
+
+    public BlazorSchoolRequestCultureProvider(string defaultCulture)
+    {
+        DefaultCulture = defaultCulture;
+    }
+
+    public override Task&lt;ProviderCultureResult?&gt; DetermineProviderCultureResult(HttpContext httpContext)
+    {
+        string inputCulture = httpContext.Request.Cookies[CookieRequestCultureProvider.DefaultCookieName] ?? "";
+        var result = CookieRequestCultureProvider.ParseCookieValue(inputCulture);
+
+        if (result is null)
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(DefaultCulture);
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(DefaultCulture);
+            result = new(DefaultCulture);
+        }
+        else
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(result.Cultures.First().Value);
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(result.UICultures.First().Value);
+        }
+
+        return Task.FromResult&lt;ProviderCultureResult?&gt;(result);
+    }
+}</pre>
+<ol start="15">
+    <li>Register at <code>Program.cs</code>. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+{
+    options.AddSupportedCultures(new[] { "en", "fr" });
+    options.AddSupportedUICultures(new[] { "en", "fr" });
+    options.RequestCultureProviders = new List&lt;IRequestCultureProvider&gt;()
+        {
+            new BlazorSchoolRequestCultureProvider("en")
+        };
+});</pre>
+<p>In this code sample, we select English as the default language.</p>
+<ol start="16">
+    <li>Build the language selector component. For example:</li>
+</ol>
+<pre class="code" language="razor">@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject BlazorSchoolLanguageNotifier BlazorSchoolLanguageNotifier
+@implements IAsyncDisposable
+
+&lt;select @onchange="OnChangeLanguage"&gt;
+    &lt;option value=""&gt;Select&lt;/option&gt;
+    &lt;option value="en"&gt;English&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+&lt;/select&gt;
+
+@code {
+    private Lazy&lt;IJSObjectReference&gt; LanguageSelectorModule = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        LanguageSelectorModule = new(await JSRuntime.InvokeAsync&lt;IJSObjectReference&gt;("import", "./js/BlazorSchoolLanguageSelector.js"));
+    }
+
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo((string)e.Value);
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo((string)e.Value);
+        LanguageSelectorModule.Value.InvokeVoidAsync("addCookies", CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(new(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture)));
+        BlazorSchoolLanguageNotifier.NotifyLanguageChange();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (LanguageSelectorModule.IsValueCreated)
+        {
+            await LanguageSelectorModule.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<h3>URL strategy</h3>
+<p>In this strategy, you will determine the user preferred language by the URL. When the user send the first request, you will check if the URL contains the language parameter, then use the language in the URL. Otherwise, use the fallback language.</p>
+<p>Because this is a different strategy so we will start at step 13:</p>
+<ol start="13">
+    <li>Create a culture provider class. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolRequestCultureProvider : RequestCultureProvider
+{
+    private readonly string _defaultLanguage;
+
+    public BlazorSchoolRequestCultureProvider(string defaultLanguage)
+    {
+        _defaultLanguage = defaultLanguage;
+    }
+}</pre>
+<ol start="14">
+    <li>Add a method to determine the language by the URL. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolRequestCultureProvider : RequestCultureProvider
+{
+    ...
+    private string? GetLanguageFromUrl(string url)
+    {
+        var uri = new Uri(url);
+        var urlParameters = HttpUtility.ParseQueryString(uri.Query);
+
+        return urlParameters["language"];
+    }
+}</pre>
+<ol start="15">
+    <li>Override the <code>DetermineProviderCultureResult</code> method to change the culture. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolRequestCultureProvider : RequestCultureProvider
+{
+    ...
+    public override Task&lt;ProviderCultureResult?&gt; DetermineProviderCultureResult(HttpContext httpContext)
+    {
+        if (httpContext.Request.Headers["Sec-Fetch-Dest"] == "document")
+        {
+            string url = httpContext.Request.GetDisplayUrl();
+            _selectedLanguage = GetLanguageFromUrl(url);
+
+            if (string.IsNullOrEmpty(_selectedLanguage))
+            {
+                _selectedLanguage = _defaultLanguage;
+            }
+
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(_selectedLanguage);
+            CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(_selectedLanguage);
+            var result = new ProviderCultureResult(_selectedLanguage);
+
+            return Task.FromResult&lt;ProviderCultureResult?&gt;(result);
+        }
+        else
+        {
+            return Task.FromResult&lt;ProviderCultureResult?&gt;(new ProviderCultureResult(_selectedLanguage));
+        }
+    }
+}</pre>
+<blockquote>The browser sends many requests of different types like images, JavaScript, stylesheet so the filter <code>httpContext.Request.Headers["Sec-Fetch-Dest"] == "document"</code> is needed to only change the language for the HTML document.</blockquote>
+<ol start="16">
+    <li>Register at <code>Program.cs</code>. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+{
+    options.AddSupportedCultures(new[] { "en", "fr" });
+    options.AddSupportedUICultures(new[] { "en", "fr" });
+    options.RequestCultureProviders = new List&lt;IRequestCultureProvider&gt;()
+        {
+            new BlazorSchoolRequestCultureProvider("en")
+        };
+});</pre>
+<ol start="17">
+    <li>Build the language selector component. For example:</li>
+</ol>
+<pre class="code" language="razor">@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject BlazorSchoolLanguageNotifier BlazorSchoolLanguageNotifier
+
+&lt;select @onchange="OnChangeLanguage"&gt;
+    &lt;option value=""&gt;Select&lt;/option&gt;
+    &lt;option value="en"&gt;English&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+&lt;/select&gt;
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var culture = CultureInfo.GetCultureInfo(e.Value as string);
+        var cultureEscaped = Uri.EscapeDataString(culture.Name);
+        var urlParameters = HttpUtility.ParseQueryString(uri.Query);
+        urlParameters["language"] = cultureEscaped;
+        string urlWithoutQuery = uri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+        NavigationManager.NavigateTo($"{urlWithoutQuery}?{urlParameters.ToString()}");
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureEscaped);
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(cultureEscaped);
+        BlazorSchoolLanguageNotifier.NotifyLanguageChange();
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Using the instant translation</h1>
+<p>When create a new Razor component, subcribe the language change from the language notifier. For example:</p>
+<pre class="code" language="razor">@inject IStringLocalizer&lt;ChangeLanguageDemonstrate&gt; Localizer
+@inject BlazorSchoolLanguageNotifier BlazorSchoolLanguageNotifier
+@implements IDisposable
+
+&lt;h3&gt;ChangeLanguageDemonstrate&lt;/h3&gt;
+@Localizer["String1"]
+&lt;LanguageSelector /&gt;
+
+@code {
+    protected override void OnInitialized() =&gt; BlazorSchoolLanguageNotifier.SubscribeLanguageChange(this);
+    public void Dispose() =&gt; BlazorSchoolLanguageNotifier.UnsubscribeLanguageChange(this);
+}</pre>
