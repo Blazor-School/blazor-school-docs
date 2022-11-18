@@ -4,6 +4,7 @@
     <li>Why do you need to use the browser storage?</li>
     <li>Types of browser storage.</li>
     <li>Compare between browser storage types.</li>
+    <li>Common mistake.</li>
 </ul>
 <blockquote>You can <a href="https://github.com/Blazor-School/browser-storage-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
 <hr class="my-4" />
@@ -72,3 +73,8 @@
         </tbody>
     </table>
 </div>
+<hr class="my-4" />
+<h1>Common mistake</h1>
+<p>Here are some common mistakes that we have collected from the <a href="https://discord.com/invite/HsTu2Emqsd" target="_blank" rel="noopener" title="Blazor School Discord Community">Blazor School Discord Community</a>.</p>
+<h3>Access the browser storage without try catch</h3>
+<p>Blazor Server will render a web page 2 times, first in server and the second time is in browser. Because the browser storage is not available in the server so when Blazor trying to render the page first time, you will need to wrap the browser storage access code in a try catch. If you don't, you will get an error.</p>
