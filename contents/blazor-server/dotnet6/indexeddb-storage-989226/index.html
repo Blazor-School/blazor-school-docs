@@ -94,17 +94,20 @@ let DATABASE_NAME = "Blazor School";</pre>
     <li>Register the C# class at <code>Program.cs</code></li>
 </ol>
 <pre class="code" language="csharp">builder.Services.AddScoped&lt;IndexedDbAccessor&gt;();
+</pre>
+<ol start="5">
+    <li>Initialize the IndexedDB at <code>App.razor</code></li>
+</ol>
+<pre class="code" language="razor">@inject IndexedDbAccessor IndexedDbAccessor
 
-var host = builder.Build();
-using var scope = host.Services.CreateScope();
-await using var indexedDB = scope.ServiceProvider.GetService&lt;IndexedDbAccessor&gt;();
+...
 
-if (indexedDB is not null)
-{
-    await indexedDB.InitializeAsync();
-}
-
-await host.RunAsync();</pre>
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await IndexedDbAccessor.InitializeAsync();
+    }
+}</pre>
 <hr class="my-4" />
 <h1>Add common operations</h1>
 <p>In this section, we will demonstrate how to add some basic operations with the IndexedDB storage. You can also add your own operations with this method too.</p>
