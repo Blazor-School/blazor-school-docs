@@ -264,7 +264,7 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;();</pre>
 
     public async Task TriggerHttpErrorAsync()
     {
-        await BlazorSchoolHttpClientWrapper.GetAsync("https://blazorschool.com");
+        await BlazorSchoolHttpClientWrapper.GetAsync("https://unknown-wesite-2234123.com");
     }
 
     public void RefreshUI(object? sender, NotifyCollectionChangedEventArgs eventArgs)
@@ -440,7 +440,7 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;();</pre>
 &lt;/ErrorBoundary&gt;
 
 @code {
-    public async Task TriggerHttpClientErrorAsync() =&gt; await HttpClient.GetAsync("https://blazorschool.com");
+    public async Task TriggerHttpClientErrorAsync() =&gt; await HttpClient.GetAsync("https://unknown-wesite-2234123.com");
     public void TriggerClientSideError() =&gt; throw new Exception("Blazor School");
 }</pre>
 <p>In the example, there are 2 buttons to trigger an HTTP error and the client side error. Both won't be caught by the <code>ErrorBoundary</code> component although they appear to be inside the <code>ErrorBoundary</code> component. That is, because the <code>TriggerHttpClientErrorAsync</code> and <code>TriggerClientSideError</code> is being executed by the component <code>TriggerErrorOutsideScope</code> component rather than executed inside the <code>ErrorBoundary</code> component.</p>
