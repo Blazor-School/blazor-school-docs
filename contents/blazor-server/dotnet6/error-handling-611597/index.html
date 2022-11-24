@@ -305,7 +305,8 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;();</pre>
         &lt;TriggerError/&gt;
     &lt;/ChildContent&gt;
     &lt;ErrorContent Context="ex"&gt;
-        Caught an exception from the TriggerError componennt. The exception message is &lt;span class="text-danger"&gt;@ex.Message&lt;/span&gt;. &lt;button class="btn btn-link" @onclick="_ =&gt; ComponentErrorBoundary?.Recover()"&gt;Continue&lt;/button&gt;
+        Caught an exception from the TriggerError componennt. The exception message is &lt;span &gt;@ex.Message&lt;/span&gt;. 
+&lt;button @onclick="_ =&gt; ComponentErrorBoundary?.Recover()"&gt;Continue&lt;/button&gt;
     &lt;/ErrorContent&gt;
 &lt;/ErrorBoundary&gt;
 
