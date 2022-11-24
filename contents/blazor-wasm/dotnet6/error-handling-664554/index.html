@@ -32,7 +32,7 @@
 <h1>What to do when handling an error?</h1>
 <p>Handling an error including 2 steps:</p>
 <ol>
-    <li><strong>Catching the error</strong>: In this step, you are able to detect when something when wrong in your website is the least you can do. You can also improve this step by able to answer the question <strong>&ldquo;What went wrong?&rdquo;</strong>.</li>
+    <li><strong>Catching the error</strong>: In this step, you are able to detect when something went wrong in your website is the least you can do. You can also improve this step by able to answer the question <strong>&ldquo;What went wrong?&rdquo;</strong>.</li>
     <li><strong>Act accordingly</strong>: In this step, you give the user a friendly message about the error is the least you can do. You can also improve this step by collect the error data or resume the operation and more.</li>
 </ol>
 <hr class="my-4" />
@@ -88,7 +88,7 @@
 <pre class="code" language="razor">&lt;ErrorBoundary&gt;
     &lt;TriggerError/&gt;
 &lt;/ErrorBoundary&gt;</pre>
-<h3>Caching HTTP errors by <code>HttpClient</code> wrapper technique</h3>
+<h3>Catching HTTP errors by <code>HttpClient</code> wrapper technique</h3>
 <p>You can use the <code>HttpClient</code> wrapper technique to catch any error that causes by the API. Assuming we have the following</p>
 <p><code>ExceptionRecorderService</code> and <code>BlazorSchoolHttpClientWrapper</code> class:</p>
 <pre class="code" language="csharp">public class ExceptionRecorderService
@@ -199,7 +199,7 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;((sp, httpCli
 <p>An error handler is a component that extends the <code>ErrorBoundary</code> or <code>ErrorBoundaryBase</code> component and be handle any error in a scope. For example, if an error handler is put at the component scope, it will handle any error from within the scope. <code>ErrorBoundary</code> is the built-in error handler component, you can create your own error handler component as well.</p>
 <hr class="my-4" />
 <h1>Why do you need a custom error handler?</h1>
-<p>Sometimes, you need to have more control over the handling process. By default, if your website throws more than 100 exceptions, it will be considered as critical and fallback to the global error handler. By default, you don't have access to the current exception (you can show the detail but that it's) and therefore you cannot send the exception back to your logging API. Build a custom error handler provide you the access to the current exception and you can send the exception back to the logging API for example or take other actions.</p>
+<p>Sometimes, you need to have more control over the handling process. By default, if your website throws more than 100 exceptions, it will be considered as critical and fallback to the global error handler. By default, you don't have access to the current exception (you can show the detail but that's it) and therefore you cannot send the exception back to your logging API. Build a custom error handler provide you the access to the current exception and you can send the exception back to the logging API for example or take other actions.</p>
 <hr class="my-4" />
 <h1>Build a custom error handler</h1>
 <p>You can create a custom error handler by creating a component that extends the <code>ErrorBoundary</code> or <code>ErrorBoundaryBase</code> component. Extending the <code>ErrorBoundaryBase</code> gives you more control when handling an error. Here is our example custom error handler:</p>
