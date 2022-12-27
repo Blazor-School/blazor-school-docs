@@ -190,7 +190,7 @@ WantedBy=multi-user.target</pre>
     <li>Remove <strong>/etc/nginx/sites-enabled/default</strong>.</li>
     <li>Create a new file in <strong>/etc/nginx/sites-enabled/</strong> with the following content:</li>
 </ol>
-<pre class="code" language="nginx">map $http_upgrade $connection_upgrade {
+<pre class="code" language="yml">map $http_upgrade $connection_upgrade {
         default upgrade;
         '' close;
 	}
@@ -241,7 +241,7 @@ server {
 <h3>Enable gzip</h3>
 <p>Enabling gzip will help your website loads faster. Your website loads faster when it is lighter. When you are enabling gzip, NGINX will use some CPU to compress your website, then send it over to the browser. The browser then uncompress your website and display it accordingly. Because the process of compressing and uncompressing are cheaper than the transportation cost, so it will increase the website loading speed.</p>
 <p>Gzip is also a razor blade, you can hurt yourself if you don't know what you are doing. To effectively gzip your website, you need to monitor and determine when to compress and when is not to. Gzip is enabled by default NGINX settings, you can find the setting in <strong>/etc/nginxnginx.conf</strong>. Look for the <code># Gzip Settings</code>. To turn on advanced settings, you need to uncomment all other settings. Your Gzip settings should look like:</p>
-<pre class="code" language="nginx">gzip on;
+<pre class="code" language="yml">gzip on;
 gzip_vary on;
 gzip_proxied any;
 gzip_comp_level 6;
