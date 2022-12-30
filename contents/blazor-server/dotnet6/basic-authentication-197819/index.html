@@ -363,8 +363,7 @@ builder.Services.AddScoped&lt;AuthenticationStateProvider&gt;(sp =&gt; sp.GetReq
 <h1>Common mistakes</h1>
 <p>These are some common mistakes that we have collected from the Blazor School Discord Community.</p>
 <h3>Mistake #1: Create <code>ClaimsIdentity</code> without the <code>authenticationType</code></h3>
-<p>In the <code>User</code> class, when converting the user object to a <code>ClaimsPrincipal</code>, but before you can convert to a <code>ClaimsPrincipal</code>, you need a</p>
-<p><code>ClaimsIdentity</code> first. However, most people created a <code>ClaimsIdentity</code> without the <code>authenticationType</code>. For example:</p>
+<p>In the <code>User</code> class, when converting the user object to a <code>ClaimsPrincipal</code>, but before you can convert to a <code>ClaimsPrincipal</code>, you need a <code>ClaimsIdentity</code> first. However, most people created a <code>ClaimsIdentity</code> without the <code>authenticationType</code>. For example:</p>
 <pre class="code" language="csharp">public class User
 {
     ...
