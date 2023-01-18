@@ -1,0 +1,60 @@
+<h1>Debugging a Blazor WebAssembly project</h1>
+<p>Debugging is an essential part of the software development process, and it's no different when it comes to Blazor WebAssembly. In this tutorial, we will be using Visual Studio, a popular development environment for .NET, to debug our Blazor WebAssembly project.</p>
+<ul>
+    <li>Checklist before debugging.</li>
+    <li>Debug with Google Chrome.</li>
+    <li>Debug with Microsoft Edge.</li>
+</ul>
+<p>Currently, Mozilla Firefox is unable to debug.</p>
+<hr class="my-4" />
+<h1>Checklist before debugging</h1>
+<ul>
+    <li>Debugging with Mozilla Firefox is not supported. To debug your project, you must use either Google Chrome or Microsoft Edge</li>
+    <li>Using a custom template when creating a new project may prevent you from being able to debug. It's recommended to always use the default template provided by Microsoft and add any third-party extensions afterwards.</li>
+    <li>When you run your project, make sure to check the <strong>Launch browser</strong> option in order to enable debugging.</li>
+</ul>
+<p><img src="contents\blazor-wasm\dotnet7\debug-a-project-130567\open-launch-profile.png" alt="open-launch-profile.png" width="1374" height="733" /></p>
+<ul>
+    <li>You can also add arguments to the browser when launching.</li>
+</ul>
+<p><img src="contents\blazor-wasm\dotnet7\debug-a-project-130567\add-arguments.png" alt="add-arguments.png" width="369" height="224" /></p>
+<p><img src="contents\blazor-wasm\dotnet7\debug-a-project-130567\add-arguments-2.png" alt="add-arguments-2.png" width="457" height="446" /></p>
+<p><img src="contents\blazor-wasm\dotnet7\debug-a-project-130567\add-arguments-3.png" alt="add-arguments-3.png" width="410" height="197" /></p>
+<p><img src="contents\blazor-wasm\dotnet7\debug-a-project-130567\add-arguments-4.png" alt="add-arguments-4.png" width="457" height="446" /></p>
+<p>For a comprehensive list of arguments for Google Chrome &amp; Microsoft Edge, refer to the following URL: <a href="https://chromium.googlesource.com/chromium/src/+/master/chrome/common/chrome_switches.cc">https://chromium.googlesource.com/chromium/src/+/master/chrome/common/chrome_switches.cc.</a></p>
+<hr class="my-4" />
+<h1>Debug with Google Chrome</h1>
+<ol>
+    <li>Put a breakpoint in your code.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\debug-a-project-130567\put-breakpoint.png" alt="put-breakpoint.png" width="606" height="161" /></p>
+<ol start="2">
+    <li>Select Google Chrome as your browser.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\debug-a-project-130567\select-browser-chrome.png" alt="select-browser-chrome.png" width="603" height="256" /></p>
+<ol start="3">
+    <li>Run your project, and a new window of Google Chrome will appear. Visual Studio will pause at the breakpoint you set in step 1, allowing you to debug your code.</li>
+</ol>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\debug-a-project-130567\debug-with-chrome-in-action.webm" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Debug with Google Chrome</h1>
+<ol>
+    <li>Put a breakpoint in your code.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\debug-a-project-130567\put-breakpoint.png" alt="put-breakpoint.png" width="606" height="161" /></p>
+<ol start="2">
+    <li>Select Microsoft Edge as your browser.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\debug-a-project-130567\select-browser-edge.png" alt="select-browser-edge.png" width="601" height="261" /></p>
+<ol start="3">
+    <li>Run your project, and a new window of Microsoft Edge will appear. Visual Studio will pause at the breakpoint you set in step 1, allowing you to debug your code.</li>
+</ol>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\debug-a-project-130567\debug-with-edge-in-action.webm" />
+    </video>
+</div>
