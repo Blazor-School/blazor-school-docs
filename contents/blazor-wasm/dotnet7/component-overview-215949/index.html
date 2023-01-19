@@ -1,0 +1,32 @@
+<h1>Component overview</h1>
+<p>In Blazor, a component is a reusable piece of user interface (UI) that plays a vital role in defining specific sections of a web page or application. These components are created once and can be utilized multiple times, significantly increasing the development speed. This tutorial will cover the following topics:</p>
+<ul>
+    <li>What is a component?</li>
+    <li>Structure of a component.</li>
+    <li>Component types.</li>
+</ul>
+<hr class="my-4" />
+<h1>What is a component?</h1>
+<p>A component in Blazor is a reusable piece of user interface that encapsulates logic and functionality. In other words, we can say that every application you will develop in Blazor will be made up of pieces called components. Components make the task of building UIs much easier and faster. You can see a UI broken down into multiple individual pieces call components and work on them independently and merge them all in a parent component which will be your final UI.</p>
+<p>You can see in the below image, we have broken down the UI of Blazor School's homepage into individual components.</p>
+<p><img src="contents\blazor-wasm\dotnet7\component-overview-215949\blazor-school-breakdown.png" alt="blazor-school-breakdown.png" width="1000" height="427" /></p>
+<p>Components in Blazor consist of two main parts: an HTML template that defines what is rendered on the screen, and a collection of C# methods that handle logic and user interactions. The HTML template provides the visual structure of the component, while the C# methods define the component's behaviour and functionality. Together, these elements work in tandem to create a cohesive, interactive user interface.</p>
+<blockquote>It is important to note that a Razor Component (.razor) is not the same as a Razor Page (.cshtml). While both use Razor syntax, they serve different purposes and are used in different contexts. A Razor Page is used in ASP.NET MVC, while a Razor Component is used for building reusable UI elements in Blazor. Additionally, Blazor WebAssembly does not utilize Razor Pages as components, therefore it is crucial to not confuse the two.</blockquote>
+<hr class="my-4" />
+<h1>Structure of a component</h1>
+<p>The structure of a component typically consists of three sections:</p>
+<ol>
+    <li>Directive section: This section is typically used for Dependency Injection, implementing interfaces, and using .NET libraries.</li>
+    <li>UI section: This section is used for defining the user interface for the component. It may contain both C# code and HTML.</li>
+    <li>Code section: This section is used for declaring methods, properties, and other logic for the component.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\component-overview-215949\blazor-school-breakdown.png" alt="blazor-school-breakdown.png" width="1000" height="427" /></p>
+<hr class="my-4" />
+<h1>Component types</h1>
+<p>There are four types of components:</p>
+<ol>
+    <li>Independent component: This type of component includes a <code>@page</code> directive and allows for URL parameters to be passed to it. It is intended to be used on its own and not within another component.</li>
+    <li>Dependent component: This type of component does not have a <code>@page</code> directive and is intended to be used within another component to solve specific problems.</li>
+    <li>Layout component: This type of component inherits from <code>LayoutComponentBase</code> and determines the layout of a page or website.</li>
+    <li>Hybrid component: This type of component does not fit into the above categories and is not recommended as it can make the code less maintainable.</li>
+</ol>
