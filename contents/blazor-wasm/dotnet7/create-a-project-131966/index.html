@@ -1,0 +1,67 @@
+<h1>Create a Blazor WebAssembly project</h1>
+<p>Welcome to our tutorial on creating a Blazor WebAssembly project! In this tutorial, we will walk you through the process of setting up and building a simple Blazor WebAssembly application from scratch. By the end of this tutorial, you will have a solid understanding of how to use Blazor WebAssembly and the tools necessary to start building your own applications. We will be using Visual Studio, a popular development environment for .NET, to create and build our project.</p>
+<ul>
+    <li>Set up the local machine.</li>
+    <li>Project templates and options.</li>
+</ul>
+<hr class="my-4" />
+<h1>Set up the local machine</h1>
+<p>To create a Blazor WebAssembly project, you need:</p>
+<ul>
+    <li>.NET 7 Runtime.</li>
+    <li><a href="https://visualstudio.microsoft.com/" title="https://visualstudio.microsoft.com/" target="_blank" rel="noopener"> Visual Studio 2022</a>.</li>
+    <li>ASP.NET and web development.</li>
+</ul>
+<p>Once you installed Visual Studio 2022, run <strong>Visual Studio Installer</strong> and click <strong>Modify</strong>.</p>
+<p><img src="contents\blazor-wasm\dotnet7\create-a-project-131966\vs-installer-1.png" alt="vs-installer-1.png" width="900" height="506" /></p>
+<p>Tick <strong>ASP.NET and web development</strong>.</p>
+<p><img src="contents\blazor-wasm\dotnet7\create-a-project-131966\vs-installer-2.png" alt="vs-installer-2.png" width="847" height="463" /></p>
+<p>Switch to tab <strong>Individual components</strong> and select <strong>.NET 7 Runtime</strong>.</p>
+<p><img src="contents\blazor-wasm\dotnet7\create-a-project-131966\vs-installer-3.png" alt="vs-installer-3.png" width="336" height="225" /></p>
+<hr class="my-4" />
+<h1>Project templates and options</h1>
+<p>When creating a new project in Visual Studio, you will be presented with a variety of templates to choose from, including official templates provided by Microsoft and third-party templates for Blazor WebAssembly.</p>
+<p>The two official templates provided by Microsoft for Blazor WebAssembly are:</p>
+<ul>
+    <li>
+        <p>Blazor WebAssembly App: This template provides a pre-built navigation bar and Bootstrap 5, which can be useful for quickly getting started with a new project.</p>
+    </li>
+    <li>
+        <p>Blazor WebAssembly App Empty: This template provides a blank slate, with no pre-built code or libraries. This can be useful if you prefer to build your own navigation bar or use a different CSS framework.</p>
+    </li>
+</ul>
+<p>When selecting a template, keep in mind that using a third-party template might prevent you from debugging the project. Follow the following steps to create a new project:</p>
+<ol>
+    <li>Start your Visual Studio, select <strong>Create a new project</strong>.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\create-a-project-131966\create-blazor-wasm-project.png" alt="create-blazor-wasm-project.png" width="1014" height="675" /></p>
+<ol start="2">
+    <li>A list of templates will appear, you need to select one of the template: <strong>Blazor WebAssembly App</strong> or <strong>Blazor WebAssembly App Empty</strong>.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\create-a-project-131966\create-blazor-wasm-project-2.png" alt="create-blazor-wasm-project-2.png" width="890" height="625" /></p>
+<ol start="3">
+    <li>Select the options for your project.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\create-a-project-131966\create-blazor-wasm-project-3.png" alt="create-blazor-wasm-project-3.png" width="890" height="625" /></p>
+<p>After selecting a template, you will have the option to configure your project with the following options:</p>
+<ul>
+    <li>
+        <p><strong>Framework</strong>: Allows you to choose the target framework of the project.</p>
+    </li>
+    <li>
+        <p><strong>Authentication type</strong> (only available for Blazor WebAssembly App template): Allows you to generate code for authentication. It is recommended to leave it as None and build the authentication functionality yourself as the generated code may not meet all your needs for a basic project.</p>
+    </li>
+    <li>
+        <p><strong>Configure for HTTPS</strong>: Allows you to add a profile named https. If the&nbsp;<strong>ASP.NET Core Hosted</strong> is also selected, it will redirect HTTP to HTTPS for server, which is recommended for security in production.</p>
+    </li>
+    <li>
+        <p><strong>ASP.NET Core Hosted</strong>: Allows you to create multiple projects (1 for the server, 1 for the client, and 1 for shared). If you have an existing API, it is recommended to not select this option.</p>
+    </li>
+    <li>
+        <p><strong>Progressive Web Application</strong>: Allows you to add a service worker to the project, which can improve the offline functionality of the app.</p>
+    </li>
+    <li>
+        <p><strong>Do not use top-level statements</strong> (only available for Blazor WebAssembly App template): Allows you to use the old syntax for the project, it is recommended to not use this option to adapt the latest syntax of C#.</p>
+    </li>
+</ul>
+<p>It is important to keep in mind that many options can be implemented manually at a later stage in a project, and it is not necessary to stress about selecting them at the beginning. It is often more effective to start with a minimal set of options and gradually add more as needed. This allows for flexibility and adaptability throughout the project.</p>
