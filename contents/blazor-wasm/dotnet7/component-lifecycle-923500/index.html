@@ -7,6 +7,7 @@
     <li>ParametersSet stage.</li>
     <li>AfterRender stage.</li>
 </ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-lifecycle-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
 <hr class="my-4" />
 <h1>Blazor component stages</h1>
 <p>A Blazor component can go through five stages:</p>
@@ -78,9 +79,7 @@
         <source src="contents\blazor-wasm\dotnet7\component-lifecycle-923500\lifecycle-demonstrate.webm" />
     </video>
 </div>
-<div class="ratio ratio-21x9">
-    <p>Initially, the component is not rendered and the lifecycle does not begin. Once the component is rendered, the lifecycle starts and progresses through the following stages: <strong>SetParameters</strong>, <strong>Initialized</strong>, <strong>ParametersSet</strong>, and <strong>AfterRender</strong>. Finally, when the component is removed from the user interface, the <code>Dispose</code> method is called, indicating that the component is being disposed.</p>
-</div>
+<p>Initially, the component is not rendered and the lifecycle does not begin. Once the component is rendered, the lifecycle starts and progresses through the following stages: <strong>SetParameters</strong>, <strong>Initialized</strong>, <strong>ParametersSet</strong>, and <strong>AfterRender</strong>. Finally, when the component is removed from the user interface, the <code>Dispose</code> method is called, indicating that the component is being disposed.</p>
 <hr class="my-4" />
 <h1>Initialized and Dispose stage</h1>
 <p>The component lifecycle starts with the Initialize phase and ends with the Dispose phase. During the Initialize phase, you can perform tasks such as:</p>
