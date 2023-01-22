@@ -1,0 +1,86 @@
+﻿<h1>Transfer Service</h1>
+<p>✅ Similar to Blazor Server</p>
+<p>Transfer service is a useful approach to share data between components in Blazor, especially when all of your components need to use the same data, also known as a "single source of truth". This approach allows you to centralize the data management and keep the state of your components consistent, making your application more maintainable and easier to test.</p>
+<ul>
+    <li>Declare a transfer service</li>
+    <li>Consume a transfer service</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-interaction-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Declare a transfer service</h1>
+<p>A transfer service acts as a model, containing properties and events for each property.</p>
+<p>To create a Transfer Service:</p>
+<ol>
+    <li>Create a class and declare properties with events. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class ExampleTransferService
+{
+    private string _data = "Blazor School";
+    public string Data
+    {
+        get =&gt; _data;
+        set
+        {
+            _data = value;
+            DataChanged?.Invoke(this, value);
+        }
+    }
+    public event EventHandler&lt;string&gt; DataChanged = (sender, value) =&gt; { };
+}</pre>
+<p>In the code sample, we have <code>Data</code> and <code>ExampleInstances</code> as an example of a property and a collection. For collections, you can use <code>ObservableCollection&lt;T&gt;</code> or create your own <code>Collection&lt;T&gt;</code> class:</p>
+<pre class="code" language="csharp">public class ExampleTransferService
+{
+    public ObservableCollection&lt;ExampleClass&gt; ExampleInstances { get; set; } = new();
+}</pre>
+<blockquote>It's important to note that <code>List&lt;T&gt;</code> does not support hooking events.</blockquote>
+<ol start="2">
+    <li>Register the transfer service in the <code>Program.cs</code> file. For example:</li>
+</ol>
+<pre class="code" language="razor">...
+builder.RootComponents.Add&lt;HeadOutlet&gt;("head::after");
+builder.Services.AddScoped&lt;ExampleTransferService&gt;();</pre>
+<p>By registering the Transfer Service class in the <code>Program.cs</code>, it can be injected into any component that needs it. This allows the components to share the same data and stay in sync with the state of the application.</p>
+<hr class="my-4" />
+<h1>Consume a transfer service</h1>
+<p>A transfer service can be consumed in both a component or a class. To consume a transfer service in a class, you need to inject the service into the constructor of your class and register it in the same way as the transfer service class. In this tutorial, we will focus on consuming a transfer service in a component.</p>
+<p>Here's how to consume a transfer service in a component:</p>
+<ol>
+    <li>Inject the transfer service and implement the <code>IDisposable</code> interface in the directive section of your component. For example:</li>
+</ol>
+<pre class="code" language="razor">@inject ExampleTransferService ExampleTransferService
+@implements IDisposable</pre>
+<ol start="2">
+    <li>Define methods to react to the change events in the code section of your component. The method signature must match the corresponding event. For example, if you want to react to the <code>DataChanged</code> event, which has <code>EventHandler&lt;string&gt;</code> as the event handler, you need to have a method with the signature <code>void MyMethod(object? sender, string value)</code>.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    public void OnDataClassChanged(object? sender, string value)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+}</pre>
+<p>Or with for collection changes:</p>
+<pre class="code" language="razor">@code {
+    ...
+    public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+}</pre>
+<ol start="3">
+    <li>Subscribe to the events in the Initialize phase and unsubscribe the subscribed events in the Dispose phase. See the Blazor <a href="/tutorial/blazor-wasm/dotnet7/component-lifecycle-923500" title="Component Lifecycle">Component Lifecycle</a> guide for more information.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    protected override void OnInitialized()
+    {
+        ExampleTransferService.ExampleInstances.CollectionChanged += OnCollectionChanged;
+        ExampleTransferService.DataChanged += OnDataClassChanged;
+    }
+
+    public void Dispose()
+    {
+        ExampleTransferService.ExampleInstances.CollectionChanged -= OnCollectionChanged;
+        ExampleTransferService.DataChanged -= OnDataClassChanged;
+    }
+}</pre>
