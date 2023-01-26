@@ -1,0 +1,66 @@
+﻿<h1>Website layout</h1>
+<p>✅ Similar to Blazor Server</p>
+<p>A layout in website design refers to the arrangement of elements on a webpage, including text, images, videos, and interactive features. A layout determines how the content is organized and presented to the user, and can have a significant impact on the user experience. In this tutorial, we will delve into the following topics:</p>
+<ul>
+    <li>What is a layout component?</li>
+    <li>How to create a layout component.</li>
+    <li>Setting a default layout for entire website.</li>
+    <li>Setting a layout for all components in a same folder.</li>
+    <li>Set layout for a specific component.</li>
+    <li>Using a component in multiple layouts.</li>
+    <li>Layout overriding priority.</li>
+    <li>Nested layout.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/website-layout-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is a layout component?</h1>
+<p>A layout component in Blazor is a component that defines the overall structure of a webpage. It serves as a wrapper for other components and provides a consistent look and feel across the entire application. The layout component has a <code>@Body</code> property, which serves as a placeholder for the content of the wrapped components.</p>
+<p><img src="contents\blazor-wasm\dotnet7\website-layout-124972\layout-blazor-explain.png" alt="layout-blazor-explain.png" width="1000" height="1081" /></p>
+<p>Layout templates can be applied not only to the entire website but also to individual components. This allows for different components to have different layouts, or for a single layout template to be used to structure the layout of multiple components. This feature provides flexibility and modularity in the design of the user interface, as well as the ability to make changes to the layout of specific components without affecting the rest of the application.</p>
+<hr class="my-4" />
+<h1>How to create a layout component</h1>
+<ol>
+    <li>Create a new component by inheriting from the <code>LayoutComponentBase</code> class. This will ensure that your component has access to the necessary properties and methods for functioning as a layout component.</li>
+</ol>
+<pre class="code" language="razor">@inherits LayoutComponentBase</pre>
+<ol start="2">
+    <li>Design the structure of your layout by adding various HTML elements and other components as desired. Be sure to include the <code>@Body</code> placeholder, which will be used to render the content of the wrapped components.</li>
+</ol>
+<pre class="code" language="razor">&lt;main&gt;
+    @Body
+&lt;/main&gt;</pre>
+<hr class="my-4" />
+<h1>Setting a default layout for entire website</h1>
+<p>In order to set the default layout for your website in Blazor, you can use the <code>RouteView</code> component. To do this, navigate to the <code>App.razor</code> file and update the <code>DefaultLayout</code> parameter of the <code>RouteView</code> component with the name of your desired layout component. For example:</p>
+<pre class="code" language="razor">&lt;RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" /&gt;</pre>
+<hr class="my-4" />
+<h1>Setting a layout for all components in a same folder</h1>
+<p>One way to organize similar dependent components is by grouping them into a folder. Additionally, instead of setting a layout for each individual component, you can set the default layout for all the components within a specific folder and its subfolders. Assuming you have the following folder structure:</p>
+<p><img src="contents\blazor-wasm\dotnet7\website-layout-124972\layout-for-folder-folder-structure.png" alt="layout-for-folder-folder-structure.png" width="350" height="157" /></p>
+<p>To set the default layout for all the components inside a specific folder, you can create a new component with the name <code>_Imports.razor</code> within the desired folder. In this component, add the <code>@layout</code> directive in the directive section. For example:</p>
+<pre class="code" language="razor">@layout MyLayout</pre>
+<p>This tells Blazor to use the <code>MyLayout</code> component as the default layout for all the components within this folder and its subfolders.</p>
+<blockquote>It's important to note that the component must be named <code>_Imports.razor</code>, as this is a special name that Blazor looks for when searching for default layout settings. Additionally, be aware that there is a default <code>_Imports.razor</code> located at the same level as <code>App.razor</code>, you should not put <code>@layout</code> directive there, otherwise you will have an infinite loop.</blockquote>
+<p><img src="contents\blazor-wasm\dotnet7\website-layout-124972\do-and-dont-folder-layout.png" alt="do-and-dont-folder-layout.png" width="950" height="439" /></p>
+<hr class="my-4" />
+<h1>Set layout for a specific component</h1>
+<p>The <code>@layout</code> directive allows you to specify the layout component that should be used to wrap the content of the current component.<br />For example, to use the <code>MainLayout</code> component as the layout for a specific component, you can add the following code in the directive section of that component:</p>
+<pre class="code" language="razor">@layout MyLayout</pre>
+<hr class="my-4" />
+<h1>Using a component in multiple layouts</h1>
+<p>The <code>LayoutView</code> component in Blazor allows you to render a component in multiple layouts. This means that you can use the same component in different layouts, or even multiple times within the same layout. For example:</p>
+<pre class="code" language="razor">&lt;LayoutView Layout="@typeof(MainLayout)"&gt;
+  &lt;MyComponent /&gt;
+&lt;/LayoutView&gt;
+&lt;LayoutView Layout="@typeof(SecondLayout)"&gt;
+  &lt;MyComponent /&gt;
+&lt;/LayoutView&gt;
+</pre>
+<hr class="my-4" />
+<h1>Layout overriding priority</h1>
+<p>When a component has multiple layouts set by different methods, Blazor will select only one layout to display based on the order in which they are set. This order of precedence is known as the layout overriding chain. The following image illustrates the layout overriding chain in Blazor:</p>
+<p><img src="contents\blazor-wasm\dotnet7\website-layout-124972\layout-overriding-chain.png" alt="layout-overriding-chain.png" width="900" height="165" /></p>
+<hr class="my-4" />
+<h1>Nested layout</h1>
+<p>Nested layout is a powerful feature that allows for the extension of layout templates in multiple levels, without the need to modify the original template. This is in alignment with the SOLID principle of Open-Closed, which states that a module or class should be open for extension but closed for modification.<br />When nesting layouts, a chain of layouts is created where each level builds upon the previous one. The first level layout does not use any layout and serves as the foundation, while the second level layout uses the first level layout, and the third level layout uses the second level layout, and so on. This allows for easy modification of the common layout elements in one place, without having to make changes to every individual page or component. This provides flexibility and modularity in the design of the user interface, and makes it easier to maintain and extend the application's codebase.</p>
+<p><img src="contents\blazor-wasm\dotnet7\website-layout-124972\nested-layout-explain.png" alt="nested-layout-explain.png" width="900" height="455" /></p>
