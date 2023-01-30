@@ -20,7 +20,7 @@
 </ul>
 <p>The stages will have the following order:</p>
 <p><img src="contents\blazor-wasm\dotnet7\component-lifecycle-923500\blazor-component-lifecycle-methods.png" alt="blazor-component-lifecycle-methods.png" width="1000" height="777" /></p>
-<blockquote>To properly dispose of a component, it should implement the <code>IDisposable</code> interface, as the <code>Dispose</code> method is not a default feature.</blockquote>
+<blockquote>To properly dispose of a component, it should implement the <code>IDisposable/IAsyncDisposable</code> interface, as the <code>Dispose/DisposeAsync</code> method is not a default feature.</blockquote>
 <p>You can customize each stage of the component lifecycle by overriding the corresponding method. Each stage has at least one method that can be overridden. In cases where a stage has two methods, one synchronous and one asynchronous, the synchronous method will execute first, followed by the asynchronous method. The table below shows the methods associated with each stage and their order of execution:</p>
 <div class="table-responsive">
     <table class="table table-hover table-bordered" style="width: 875px;">
@@ -70,6 +70,11 @@
                 <td><code>Dispose</code></td>
                 <td>8</td>
             </tr>
+            <tr>
+                <td>Dispose</td>
+                <td><code>DisposeAsync</code></td>
+                <td>9</td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -115,6 +120,16 @@
 
     public void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs) =&gt; JSRuntime.InvokeVoidAsync("alert", "Hello Navigator");
     public void Dispose() =&gt; NavigationManager.LocationChanged -= OnLocationChanged;
+}</pre>
+<p>When you are disposing a resource in asynchronous, you can implement the <code>IAsyncDisposable</code> as well. For example:</p>
+<pre class="code" language="razor">@implements IAsyncDisposable
+
+...
+
+@code {
+    public async ValueTask DisposeAsync()
+    {
+    }
 }</pre>
 <hr class="my-4" />
 <h1>ParametersSet stage</h1>
@@ -183,6 +198,6 @@
 <p>The following video demonstrates the <strong>AfterRender</strong> phase:</p>
 <div class="ratio ratio-21x9">
     <video controls="controls">
-        <source src="contents\blazor-wasm\dotnet7\component-lifecycle-923500\after-render-demonstrate.webm">
+        <source src="contents\blazor-wasm\dotnet7\component-lifecycle-923500\after-render-demonstrate.webm" />
     </video>
 </div>
