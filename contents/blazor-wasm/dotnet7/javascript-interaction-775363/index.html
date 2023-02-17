@@ -1,0 +1,36 @@
+﻿<h1>JavaScript interaction</h1>
+<p>🟨 Slightly different to Blazor Server</p>
+<p>Blazor allows for seamless integration of JavaScript into your applications, making it easy to leverage existing libraries. This tutorial will walk you through the basics of using JavaScript in Blazor, from standard JavaScript to modules, so that you can get started with minimal hassle.</p>
+<p>We'll explore the two primary interaction features available for JavaScript integration in Blazor: <code>IJSRuntime</code> and <code>JSImport/JSExport</code>. By weighing the pros and cons of each feature, you will be equipped to make an informed decision about which option is the best fit for your project. By the end of this tutorial, you will have a solid understanding of how to incorporate JavaScript into your Blazor applications with confidence.</p>
+<ul>
+    <li>Why do you need to use JavaScript in a Blazor project?</li>
+    <li>Standard JavaScript and JavaScript Module.</li>
+    <li>Communication between .NET and JavaScript environments.</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/javascript-interaction-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Why do you need to use JavaScript in a Blazor project?</h1>
+<p>Blazor is a .NET web framework that allows developers to build web applications using C# instead of JavaScript. Blazor applications run in the browser using WebAssembly, which is a binary instruction format for a stack-based virtual machine that allows code to be executed in the browser. However, there are some scenarios in which it may be necessary or beneficial to use JavaScript in a Blazor project. Here are a few reasons why you might need to use JavaScript in a Blazor project:</p>
+<ol>
+    <li>Interacting with the browser's DOM: Blazor provides a rich set of UI components that can be used to build web applications, but there may be cases where you need to interact directly with the browser's Document Object Model (DOM) to achieve a specific functionality. For example, create a custom HTML event, handle frequenly fired HTML event like <code>mousemove</code>. In these cases, you can use JavaScript to handle to increase performance or create a custom HTML event.</li>
+    <li>Accessing browser APIs: Blazor provides access to a wide range of .NET APIs that can be used to interact with the browser and other system resources. However, there may be cases where you need to access browser APIs that are not currently available in .NET. For example, access the browser's camera, use IndexedDb. In these cases, you can use JavaScript to access the browser API and call JavaScript functions from C# code.</li>
+    <li>Third-party libraries: There may be cases where you want to use a third-party JavaScript library that is not available in .NET (yet). In these cases, you can use JavaScript to include the library in your project and call its functions from C# code.</li>
+</ol>
+<hr class="my-4" />
+<h1>Standard JavaScript and JavaScript Module</h1>
+<p>There are 2 ways to implement JavaScript: standard JavaScript and JavaScript module.</p>
+<ul>
+    <li>Standard JavaScript refers to the core language features and functionality defined in the ECMAScript specification, which is the official standard for the JavaScript language. This includes features like variables, functions, control flow statements, and data types.</li>
+    <li>JavaScript modules, on the other hand, are a way of organizing and structuring JavaScript code into reusable components that can be imported and exported between files. Modules were introduced in ECMAScript 6 (ES6) as a way to provide better code organization and encapsulation, and they are now a widely used feature of modern JavaScript development.</li>
+</ul>
+<h3>How to differentiate between standard JavaScript and JavaScript modules?</h3>
+<p>The syntax for using standard JavaScript and JavaScript modules is different. For example, standard JavaScript uses global variables and functions, while JavaScript modules use the <code>import</code> and <code>export</code> statements to define dependencies and expose functionality between files. In addition, standard JavaScript code is executed in the global scope, while JavaScript modules have their own scope and can be imported and used in other modules.</p>
+<hr class="my-4" />
+<h1>Communication between .NET and JavaScript environments</h1>
+<p>Blazor offers two built-in features for integrating JavaScript code: <code>IJSRuntime</code> and <code>JSImport</code>/<code>JSExport</code>.</p>
+<p><code>IJSRuntime</code> is available for both Blazor Server and Blazor WebAssembly and is typically used inside a component. It can also be used to modularize JavaScript code. When using <code>IJSRuntime</code>, you must control the lifetime of the JavaScript module and its references.</p>
+<p><code>JSImport</code>/<code>JSExport</code> is exclusively available for Blazor WebAssembly and is used to modularize JavaScript code. This feature offers more strict control over the data marshalling process by defining the parameters and return types of JavaScript functions as their equivalent C# data types. This prevents unpredictable return data from JavaScript functions. Importantly, using <code>JSImport</code>/<code>JSExport</code> eliminates the need to manage the lifetime of the module and its references.</p>
+<hr class="my-4" />
+<h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
+<p>In Blazor Server, the <code>JSImport</code>/<code>JSExport</code> is not available.</p>
