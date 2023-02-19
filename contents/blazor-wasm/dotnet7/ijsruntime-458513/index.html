@@ -1,0 +1,104 @@
+﻿<h1><code>IJSRuntime</code></h1>
+<p>🟨 Slightly different to Blazor Server</p>
+<p><code>IJSRuntime</code> is a powerful API that allows developers to interact with the JavaScript runtime in a web browser, providing a bridge between the C# code and the browser's JavaScript engine. With <code>IJSRuntime</code>, developers can execute JavaScript code from C# code and vice versa, as well as access browser APIs such as DOM manipulation, browser storage, and other capabilities. This opens up a world of possibilities for developers looking to create rich, interactive web applications with Blazor.</p>
+<ol>
+    <li>Import JavaScript modules.</li>
+    <li>Import standard JavaScript.</li>
+    <li>Invoke JavaScript code from .NET.</li>
+    <li>Invoke .NET code from JavaScript.</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
+</ol>
+<blockquote>You can <a href="https://github.com/Blazor-School/javascript-interaction-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Import JavaScript modules</h1>
+<p>You have the option to place your JavaScript module in the <strong>wwwroot</strong> folder or to colocate it with a component.</p>
+<h3>Importing a JavaScript module from the wwwroot folder</h3>
+<p>Assuming your JavaScript module is located in the <strong>/wwwroot/js/JavaScriptModule.js</strong> path, you can import it into your Blazor component by following these steps:</p>
+<ol>
+    <li>Define a property for the JavaScript module in your component:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    private Lazy&lt;IJSObjectReference&gt; JSModule = new();
+}</pre>
+<ol start="2">
+    <li>Implement the <code>IAsyncDisposable</code> interface and dispose of the JavaScript module when the component is destroyed:</li>
+</ol>
+<pre class="code" language="razor">@implements IAsyncDisposable
+
+@code {
+    ...
+    public async ValueTask DisposeAsync()
+    {
+        if(JSModule.IsValueCreated)
+        {
+            await JSModule.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<ol start="3">
+    <li>Import the JavaScript module in either the Initialize phase or AfterRender phase of the component:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    protected override async Task OnInitializedAsync()
+    {
+        JSModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./js/JavaScriptModule.js"));
+    }
+}</pre>
+<pre class="code" language="razor">@code {
+    ...
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        JSModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./js/JavaScriptModule.js"));
+    }
+}</pre>
+<p>Should you check for the first render?</p>
+<p>No, it is not necessary because the module will only be loaded once. The browser will not send multiple requests for the same JavaScript module. Therefore, skipping the check for the first render will simplify the code and make it easier to understand.</p>
+<h3>Import a colocated JavaScript module</h3>
+<p>Assuming your module is colocated with <code>CallJavaScriptFunction</code> component. Then your JavaScript should be in the same folder with <code>CallJavaScriptFunction</code> component and must be named <code>CallJavaScriptFunction.razor.js</code>. The files should appearance like this:</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\colocate-javascript-module-appearance.png" alt="colocate-javascript-module-appearance.png" width="400" height="67" /></p>
+<p>Then you can import the JavaScript module into your Blazor component by following these steps:</p>
+<ol>
+    <li>Define a property for the JavaScript module in your component:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    private Lazy&lt;IJSObjectReference&gt; CollocatedModule = new();
+}</pre>
+<ol start="2">
+    <li>Implement the <code>IAsyncDisposable</code> interface and dispose of the JavaScript module when the component is destroyed:</li>
+</ol>
+<pre class="code" language="razor">@implements IAsyncDisposable
+
+@code {
+    ...
+    public async ValueTask DisposeAsync()
+    {
+        if(CollocatedModule.IsValueCreated)
+        {
+            await CollocatedModule.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<ol start="3">
+    <li>Import the JavaScript module in either the Initialize phase or AfterRender phase of the component:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    protected override async Task OnInitializedAsync()
+    {
+        CollocatedModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./Pages/JSInterop/CallJavaScriptFunction.razor.js"));
+    }
+}</pre>
+<pre class="code" language="razor">@code {
+    ...
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        CollocatedModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./Pages/JSInterop/CallJavaScriptFunction.razor.js"));
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Import standard JavaScript</h1>
+<p>In Blazor, you can import your standard JavaScript in <strong>wwwoort/index.html</strong>:</p>
+<pre class="code" language="razor">&lt;body&gt;
+    &lt;script src=&quot;js/GlobalClassicJavaScript.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;</pre>
