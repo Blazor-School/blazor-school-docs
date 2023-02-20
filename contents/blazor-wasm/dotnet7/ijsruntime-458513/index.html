@@ -100,5 +100,16 @@
 <h1>Import standard JavaScript</h1>
 <p>In Blazor, you can import your standard JavaScript in <strong>wwwoort/index.html</strong>:</p>
 <pre class="code" language="razor">&lt;body&gt;
-    &lt;script src=&quot;js/GlobalClassicJavaScript.js&quot;&gt;&lt;/script&gt;
+    &lt;script src="js/GlobalClassicJavaScript.js"&gt;&lt;/script&gt;
 &lt;/body&gt;</pre>
+<p>The <code>&lt;script&gt;</code> tag can be placed in the <code>&lt;head&gt;</code> tag in some rare case. However, we recommend you to place the <code>&lt;script&gt;</code> tag in the <code>&lt;body&gt;</code> tag.</p>
+<p>Placing a script tag in the head section means that the script will be loaded before the rest of the page is rendered. This can be useful if the script is required for the page to function properly or if it needs to be loaded before any other content on the page. However, this can also cause the page to load more slowly, as the script must be fully loaded before the page can be displayed.</p>
+<p>Placing a script tag in the body section means that the script will be loaded after the rest of the page is rendered. This can be useful if the script is not required for the page to function properly or if it is not critical to the user experience. By loading the script after the page content, the page can be displayed more quickly, which can improve the user experience.</p>
+<hr class="my-4" />
+<h1>Invoke JavaScript code from .NET</h1>
+<p>The <code>IJSRuntime</code> interface defines a set of methods that can be used to invoke JavaScript functions and access JavaScript objects from .NET code. These methods include:</p>
+<ul>
+    <li><code>InvokeAsync&lt;T&gt;</code>: Invokes a JavaScript function asynchronously and returns a value of the specified type <code>T</code>.</li>
+    <li><code>InvokeVoidAsync</code>: Invokes a JavaScript function asynchronously that returns no value.</li>
+</ul>
+<h3>Call a standard JavaScript global function</h3>
