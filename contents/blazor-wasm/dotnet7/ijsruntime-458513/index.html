@@ -6,6 +6,7 @@
     <li>Import standard JavaScript.</li>
     <li>Invoke JavaScript code from .NET.</li>
     <li>Invoke .NET code from JavaScript.</li>
+    <li>Common mistakes.</li>
     <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
 </ol>
 <blockquote>You can <a href="https://github.com/Blazor-School/javascript-interaction-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
@@ -234,3 +235,123 @@
 <h3>Pass an C# object data to a JavaScript function</h3>
 <p>When passing C# object data, JavaScript can read all of the object's fields and properties (read-only), but it cannot access the object's methods. The image below illustrates the accessibility of a C# object in JavaScript:</p>
 <p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\pass-csharp-object-data-to-js.png" alt="pass-csharp-object-data-to-js.png" width="900" height="448" /></p>
+<hr class="my-4" />
+<h1>Invoke .NET code from JavaScript</h1>
+<p>Blazor enables the calling of C# methods from JavaScript code in two ways: Direct calling and Proxy calling. Direct calling applies only to C# static methods marked with the attribute <code>[JSInvokable]</code>. In this case, the call is initiated by JavaScript. Static methods can be placed in any class within Blazor, and are located by their assembly name. To ensure uniqueness, it's important to give your method a distinct name. However, if a unique name is not feasible, you can pass a parameter to the <code>[JSInvokable]</code> attribute to specify an alternative method name.</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\direct-calling.png" alt="direct-calling.png" width="995" height="290" /></p>
+<ol>
+    <li>Add the attribute <code>[JSInvokable]</code> to your static method.</li>
+</ol>
+<pre class="code" language="cs">[JSInvokable]
+public static string LocalStaticMethod()</pre>
+<ol start="2">
+    <li>In JavaScript function, use <code>DotNet.invokeMethodAsync(assemblyName, methodName)</code> to call the C# method.</li>
+</ol>
+<pre class="code" language="js">function CallStaticLocalComponentMethod()
+{
+    DotNet.invokeMethodAsync("JavaScriptInteraction", "LocalStaticMethod");
+}</pre>
+<p>In this code, the first parameter is the assembly name, and the second parameter is the method name. To find your assembly name, right-click your project, select <strong>Properties</strong>, and navigate to <strong>Packages &rArr; General</strong> as shown in the following image:</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\how-to-see-assembly-name.png" alt="how-to-see-assembly-name.png" width="884" height="732" /></p>
+<p>Proxy calling, on the other hand, can be used for any C# method with the attribute <code>[JSInvokable]</code>. In this scenario, C# initiates the call and passes a reference to the JavaScript function. The JavaScript function then uses this reference to make a callback to C#.</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\proxy-calling.png" alt="proxy-calling.png" width="1005" height="617" /></p>
+<ol>
+    <li>Add the attribute <code>[JSInvokable]</code> to your non-static method.</li>
+</ol>
+<pre class="code" language="cs">[JSInvokable]
+public void LocalMethod()
+</pre>
+<ol start="2">
+    <li>Pass an instance of the class to the JavaScript function. Assuming that you have your JavaScript module stored in <code>ExampleModule</code>, you can create an instance of the class and wrap it using the <code>DotNetObjectReference</code> class:</li>
+</ol>
+<pre class="code" language="cs">public async Task CallLocalComponentMethod()
+{
+    var wrappedInstance = DotNetObjectReference.Create(this);
+    await ExampleModule.Value.InvokeVoidAsync("CallLocalComponentMethod", wrappedInstance);
+}</pre>
+<ol start="3">
+    <li>In the JavaScript function, you can receive the reference and use it to invoke the destination C# method:</li>
+</ol>
+<pre class="code" language="js">export function CallLocalComponentMethod(componentInstance)
+{
+    componentInstance.invokeMethodAsync("LocalMethod");
+}</pre>
+<h3>Asynchronous methods</h3>
+<p>Just like in C# programming, when invoking an asynchronous method from JavaScript, you have the option to either fire and forget or await the completion of the invokeMethodAsync function for the corresponding C# method before moving on to the next block of JavaScript code.</p>
+<pre class="code" language="js">export function FireAndForget(csharpObject)
+{
+    csharpObject.invokeMethodAsync("ExampleVoidMethod");
+    DotNet.invokeMethodAsync("JavaScriptInteraction", "LocalStaticMethod");
+}
+
+export async function AwaitForResults(csharpObject)
+{
+    await csharpObject.invokeMethodAsync("ExampleVoidMethodAsync");
+    await DotNet.invokeMethodAsync("JavaScriptInteraction", "LocalStaticMethod");
+}</pre>
+<h3>Methods with return data</h3>
+<p>In C#, methods can return a value, which may either be a primitive data type or a reference to an object. When a method returns a primitive data type, such as a string, it can be treated like a normal variable in a JavaScript function. For example:</p>
+<pre class="code" language="cs">[JSInvokable]
+public string ExamplePrimitiveReturnMethod() =&gt; "Hello BlazorSchool!";</pre>
+<p>In a JavaScript function, the returned value can be accessed and used as follows:</p>
+<pre class="code" language="js">export async function CallPrimitiveDataReturnMethod(csharpObject)
+{
+    let result = await csharpObject.invokeMethodAsync("ExamplePrimitiveReturnMethod");
+    alert(`The result is ${result}`);
+}</pre>
+<p>When a method returns a reference object, such as an instance of a class, the object's properties can be accessed in a JavaScript function, but its methods cannot be called. For example:</p>
+<pre class="code" language="cs">[JSInvokable]
+public JSRuntimeExampleClass ExampleReferenceReturnMethod() =&gt; new();</pre>
+<p>In a JavaScript function, the properties of the returned object can be accessed as follows:</p>
+<pre class="code" language="js">export async function CallReferenceDataReturnMethod(csharpObject)
+{
+    let result = await csharpObject.invokeMethodAsync("ExampleReferenceReturnMethod");
+    alert(`Received object data: string ${result.exampleString}, number ${result.exampleInt}, date time ${result.exampleDate}`)
+}</pre>
+<blockquote>You can't receive a <code>Tuple</code> in JavaScript function.</blockquote>
+<h3>Methods with parameters</h3>
+<p>In C#, methods can have none, one, or multiple parameters. These parameters can be passed when calling a C# method from JavaScript. For example:</p>
+<pre class="code" language="cs">[JSInvokable("MethodWithPrimitiveParameters")]
+public void ExamplePrimitiveParameterizedMethod(string exampleString, int exampleInt, DateTime exampleDate)
+{
+    ExampleString = exampleString;
+    ExampleInt = exampleInt;
+    ExampleDate = exampleDate;
+}</pre>
+<p>In JavaScript, the parameters can be passed to the C# method using the <code>invokeMethodAsync</code> function, as follows:</p>
+<pre class="code" language="js">export function CallPrimitiveParameterizedCSharpMethod(csharpObject)
+{
+    csharpObject.invokeMethodAsync("MethodWithPrimitiveParameters", "Blazor School", 100, new Date());
+}</pre>
+<p>C# methods can also have reference parameters, which allow a JavaScript object to be passed to the C# method. For example:</p>
+<pre class="code" language="cs">[JSInvokable("MethodWithReferenceParameters")]
+public void ExampleReferenceParameterizedMethod(JSRuntimeExampleClass instance)
+{
+    ExampleString = instance.ExampleString;
+    ExampleInt = instance.ExampleInt;
+    ExampleDate = instance.ExampleDate;
+}</pre>
+<p>In JavaScript, a JavaScript object can be passed to the C# method, which will be converted to a C# object with corresponding properties:</p>
+<pre class="code" language="js">export function CallReferenceParameterizedCSharpMethod(csharpObject)
+{
+    let passingObject = {
+        exampleString: "Blazor School",
+        exampleInt: 9000,
+        exampleDate: new Date()
+    };
+
+    csharpObject.invokeMethodAsync("MethodWithReferenceParameters", passingObject);
+}</pre>
+<hr class="my-4" />
+<h1>Common mistakes</h1>
+<p>Try to avoid those common mistakes:</p>
+<ol>
+    <li>Try to call .NET library method directly from JavaScript.</li>
+    <li>Make an infinitive loop.</li>
+    <li>Try to remove a Blazor DOM.</li>
+    <li>Use JS as script.</li>
+</ol>
+<h3>Try to call .NET library method directly from JavaScript</h3>
+<p>JavaScript interaction allow you to call C# methods from JavaScript. However, you need to specify which C# methods can call from JavaScript before actually calling it. Therefore, you cannot call a method that is not specified to call in JavaScript. For example, you cannot call methods from <code>System.Math</code> (or any other libraries) unless you wrap it inside and method and specify that method to be able to call by JavaScript.</p>
+<h3>Make an infinitive loop</h3>
+<p>This common mistake usually made by the beginners. When making a call to a JavaScript function A and that JavaScript function A calls the C# method B again then the C# method B making a call to the JavaScript function A, thus create an infinitive loop. The following image illustrates this mistake.</p>
