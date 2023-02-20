@@ -113,3 +113,47 @@
     <li><code>InvokeVoidAsync</code>: Invokes a JavaScript function asynchronously that returns no value.</li>
 </ul>
 <h3>Call a standard JavaScript global function</h3>
+<p>You can call any JavaScript function that attached to the <code>window</code> object. The following code will call the <code>alert</code> function:</p>
+<pre class="code" languague="csharp">@inject IJSRuntime JS
+...
+@code {
+    private async Task HelloWorld()
+    {
+        await JS.InvokeVoidAsync("alert", "Hello BlazorSchool!");
+    }
+}</pre>
+<p>In the given code example, <code>JS</code> is an instance of <code>IJSRuntime</code> that has been injected from the instance pool using the technique of Dependency Injection, which we will cover later in this course.</p>
+<p>The <code>InvokeVoidAsync</code> method is then used to call a JavaScript function identified by its name or object path. In the first example, the function <code>alert</code> is called and passed a message "Hello BlazorSchool!".</p>
+<p>If your JavaScript function is nested in multiple objects, you can chain them together using dot notation.</p>
+<p>Let's say you have a JavaScript function called <code>myFunction</code> that is defined within an object hierarchy like this:</p>
+<pre class="code" language="js">var myObject = {
+  myOtherObject: {
+    myFunction: function() {
+      console.log("Hello from myFunction!");
+    }
+  }
+};</pre>
+<p>To call this function from your Blazor component using the <code>IJSRuntime</code> interface, you can use dot notation to specify the full path to the function:</p>
+<pre class="code" language="razor">@inject IJSRuntime JS
+
+@code {
+    private async Task CallMyFunction()
+    {
+        // Call the 'myFunction' method defined in the JavaScript file
+        await JS.InvokeVoidAsync("myObject.myOtherObject.myFunction");
+    }
+}</pre>
+<h3>Call JavaScript functions from a module</h3>
+<p>After you've imported a JavaScript module, you can call any of its exported functions from your Blazor component using the <code>IJSObjectReference</code> interface. Here's an example of how to call a function called <code>HelloBlazorSchool</code> from a module:</p>
+<pre class="code" language="razor">@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        JSModule = ...;
+    }
+
+    public async Task CallJSModuleFunctionAsync()
+    {
+        await JSModule.Value.InvokeVoidAsync("HelloBlazorSchool");
+    }
+}</pre>
+<h3>Call a predictable return value JavaScript function</h3>
