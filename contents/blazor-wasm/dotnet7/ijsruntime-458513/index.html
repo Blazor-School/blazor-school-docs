@@ -1,0 +1,375 @@
+﻿<h1><code>IJSRuntime</code></h1>
+<p>🟨 Slightly different to Blazor Server</p>
+<p><code>IJSRuntime</code> is a powerful API that allows developers to interact with the JavaScript runtime in a web browser, providing a bridge between the C# code and the browser's JavaScript engine. With <code>IJSRuntime</code>, developers can execute JavaScript code from C# code and vice versa, as well as access browser APIs such as DOM manipulation, browser storage, and other capabilities. This opens up a world of possibilities for developers looking to create rich, interactive web applications with Blazor.</p>
+<ol>
+    <li>Import JavaScript modules.</li>
+    <li>Import standard JavaScript.</li>
+    <li>Invoke JavaScript code from .NET.</li>
+    <li>Invoke .NET code from JavaScript.</li>
+    <li>Common mistakes.</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
+</ol>
+<blockquote>You can <a href="https://github.com/Blazor-School/javascript-interaction-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Import JavaScript modules</h1>
+<p>You have the option to place your JavaScript module in the <strong>wwwroot</strong> folder or to colocate it with a component.</p>
+<h3>Importing a JavaScript module from the wwwroot folder</h3>
+<p>Assuming your JavaScript module is located in the <strong>/wwwroot/js/JavaScriptModule.js</strong> path, you can import it into your Blazor component by following these steps:</p>
+<ol>
+    <li>Define a property for the JavaScript module in your component:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    private Lazy&lt;IJSObjectReference&gt; JSModule = new();
+}</pre>
+<ol start="2">
+    <li>Implement the <code>IAsyncDisposable</code> interface and dispose of the JavaScript module when the component is destroyed:</li>
+</ol>
+<pre class="code" language="razor">@implements IAsyncDisposable
+
+@code {
+    ...
+    public async ValueTask DisposeAsync()
+    {
+        if(JSModule.IsValueCreated)
+        {
+            await JSModule.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<ol start="3">
+    <li>Import the JavaScript module in either the Initialize phase or AfterRender phase of the component:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    protected override async Task OnInitializedAsync()
+    {
+        JSModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./js/JavaScriptModule.js"));
+    }
+}</pre>
+<pre class="code" language="razor">@code {
+    ...
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        JSModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./js/JavaScriptModule.js"));
+    }
+}</pre>
+<p>Should you check for the first render?</p>
+<p>No, it is not necessary because the module will only be loaded once. The browser will not send multiple requests for the same JavaScript module. Therefore, skipping the check for the first render will simplify the code and make it easier to understand.</p>
+<h3>Import a colocated JavaScript module</h3>
+<p>Assuming your module is colocated with <code>CallJavaScriptFunction</code> component. Then your JavaScript should be in the same folder with <code>CallJavaScriptFunction</code> component and must be named <code>CallJavaScriptFunction.razor.js</code>. The files should appearance like this:</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\colocate-javascript-module-appearance.png" alt="colocate-javascript-module-appearance.png" width="400" height="67" /></p>
+<p>Then you can import the JavaScript module into your Blazor component by following these steps:</p>
+<ol>
+    <li>Define a property for the JavaScript module in your component:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    private Lazy&lt;IJSObjectReference&gt; CollocatedModule = new();
+}</pre>
+<ol start="2">
+    <li>Implement the <code>IAsyncDisposable</code> interface and dispose of the JavaScript module when the component is destroyed:</li>
+</ol>
+<pre class="code" language="razor">@implements IAsyncDisposable
+
+@code {
+    ...
+    public async ValueTask DisposeAsync()
+    {
+        if(CollocatedModule.IsValueCreated)
+        {
+            await CollocatedModule.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<ol start="3">
+    <li>Import the JavaScript module in either the Initialize phase or AfterRender phase of the component:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    protected override async Task OnInitializedAsync()
+    {
+        CollocatedModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./Pages/JSInterop/CallJavaScriptFunction.razor.js"));
+    }
+}</pre>
+<pre class="code" language="razor">@code {
+    ...
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        CollocatedModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./Pages/JSInterop/CallJavaScriptFunction.razor.js"));
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Import standard JavaScript</h1>
+<p>In Blazor, you can import your standard JavaScript in <strong>wwwoort/index.html</strong>:</p>
+<pre class="code" language="razor">&lt;body&gt;
+    &lt;script src="js/GlobalClassicJavaScript.js"&gt;&lt;/script&gt;
+&lt;/body&gt;</pre>
+<p>The <code>&lt;script&gt;</code> tag can be placed in the <code>&lt;head&gt;</code> tag in some rare case. However, we recommend you to place the <code>&lt;script&gt;</code> tag in the <code>&lt;body&gt;</code> tag.</p>
+<p>Placing a script tag in the head section means that the script will be loaded before the rest of the page is rendered. This can be useful if the script is required for the page to function properly or if it needs to be loaded before any other content on the page. However, this can also cause the page to load more slowly, as the script must be fully loaded before the page can be displayed.</p>
+<p>Placing a script tag in the body section means that the script will be loaded after the rest of the page is rendered. This can be useful if the script is not required for the page to function properly or if it is not critical to the user experience. By loading the script after the page content, the page can be displayed more quickly, which can improve the user experience.</p>
+<hr class="my-4" />
+<h1>Invoke JavaScript code from .NET</h1>
+<p>The <code>IJSRuntime</code> interface defines a set of methods that can be used to invoke JavaScript functions and access JavaScript objects from .NET code. These methods include:</p>
+<ul>
+    <li><code>InvokeAsync&lt;T&gt;</code>: Invokes a JavaScript function asynchronously and returns a value of the specified type <code>T</code>.</li>
+    <li><code>InvokeVoidAsync</code>: Invokes a JavaScript function asynchronously that returns no value.</li>
+</ul>
+<h3>Call a standard JavaScript global function</h3>
+<p>You can call any JavaScript function that attached to the <code>window</code> object. The following code will call the <code>alert</code> function:</p>
+<pre class="code" languague="csharp">@inject IJSRuntime JS
+...
+@code {
+    private async Task HelloWorld()
+    {
+        await JS.InvokeVoidAsync("alert", "Hello BlazorSchool!");
+    }
+}</pre>
+<p>In the given code example, <code>JS</code> is an instance of <code>IJSRuntime</code> that has been injected from the instance pool using the technique of Dependency Injection, which we will cover later in this course.</p>
+<p>The <code>InvokeVoidAsync</code> method is then used to call a JavaScript function identified by its name or object path. In the first example, the function <code>alert</code> is called and passed a message "Hello BlazorSchool!".</p>
+<p>If your JavaScript function is nested in multiple objects, you can chain them together using dot notation.</p>
+<p>Let's say you have a JavaScript function called <code>myFunction</code> that is defined within an object hierarchy like this:</p>
+<pre class="code" language="js">var MyObject = {
+  MyOtherObject: {
+    MyFunction: function() {
+      console.log("Hello from MyFunction!");
+    }
+  }
+};</pre>
+<p>To call this function from your Blazor component using the <code>IJSRuntime</code> interface, you can use dot notation to specify the full path to the function:</p>
+<pre class="code" language="razor">@inject IJSRuntime JS
+
+@code {
+    private async Task CallMyFunction()
+    {
+        // Call the 'myFunction' method defined in the JavaScript file
+        await JS.InvokeVoidAsync("MyObject.MyOtherObject.MyFunction");
+    }
+}</pre>
+<h3>Call JavaScript functions from a module</h3>
+<p>After you've imported a JavaScript module, you can call any of its exported functions from your Blazor component using the <code>IJSObjectReference</code> interface. Here's an example of how to call a function called <code>HelloBlazorSchool</code> from a module:</p>
+<pre class="code" language="razor">@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        JSModule = ...;
+    }
+
+    public async Task CallJSModuleFunctionAsync()
+    {
+        await JSModule.Value.InvokeVoidAsync("HelloBlazorSchool");
+    }
+}</pre>
+<h3>Call a predictable JavaScript function</h3>
+<p>A predictable JavaScript function consistently returns the same type of data, regardless of the input or external factors. For instance, the following function always returns the string "<strong>Hello BlazorSchool!</strong>":</p>
+<pre class="code" language="js">export function PredictableFunction()
+{
+    return "Hello BlazorSchool!";
+}</pre>
+<p>To retrieve the data returned by a JavaScript function, you can use the <code>InvokeAsync&lt;T&gt;</code> method, where <code>T</code> is the type of the returned data. In this case, the function returns a string, so you can invoke it as follows:</p>
+<pre class="code" language="cs">public async Task CallPredictableFunctionAsync()
+{
+    PredictableResult = await JSModule.Value.InvokeAsync&lt;string&gt;("PredictableFunction");
+}</pre>
+<h3>Call an unpredictable JavaScript function</h3>
+<p>An unpredictable function is one that may return different types of data, or none at all. Consider the following example:</p>
+<pre class="code" language="js">export function UnpredictableFunction()
+{
+    let randomNum = Math.random() * 10;
+
+    if (randomNum &lt; 3)
+    {
+        return "Blazor School";
+    }
+
+    if (3 &lt; randomNum &amp;&amp; randomNum &lt; 6)
+    {
+        return 10;
+    }
+
+    return;
+}</pre>
+<p>To handle such cases, you need to use a try-catch block to catch any JavaScript exceptions that may be thrown. Additionally, since the returned result of the function is unpredictable, you can use the <code>dynamic</code> type to store the result. Here's an example:</p>
+<pre class="code" language="cs">public async Task CallUnpredictableFunctionAsync()
+{
+    try
+    {
+        dynamic unpredictableResult = await JSModule.Value.InvokeAsync&lt;dynamic&gt;("UnpredictableFunction");
+    }
+    catch (Exception ex)
+    {
+        // Handle JS error
+    }
+}</pre>
+<h3>Call a JavaScript function with parameters</h3>
+<p>Blazor allows you to easily call JavaScript functions and pass parameters using either the <code>InvokeAsync</code> or <code>InvokeVoidAsync</code> method. This section will demonstrate how to use both methods to send data from your C# code to a JavaScript function.</p>
+<h3>Pass primitive data to function</h3>
+<p>Assuming you have the following function:</p>
+<pre class="code" language="js">export function FunctionWithPrimitiveParameters(stringData, numberData, dateTimeData)
+{
+    alert(`Received: string ${stringData}, number ${numberData}, date time ${dateTimeData}`);
+}</pre>
+<p>You can call this function from your Blazor code as follows:</p>
+<pre class="code" language="cs">public async Task PassPrimitiveDataToFunctionAsync()
+{
+    await JSModule.Value.InvokeVoidAsync("FunctionWithPrimitiveParameters", "Blazor School", 5, DateTime.Now);
+}</pre>
+<h3>Pass an C# object reference to a JavaScript function</h3>
+<p>When you pass a C# object reference in Blazor, the corresponding JavaScript function can only access the public methods of the object, but not its fields or properties. To illustrate this, refer to the image below which shows the JavaScript accessibility to a C# object.</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\pass-csharp-object-reference-to-js.png" alt="pass-csharp-object-reference-to-js.png" width="900" height="448" /></p>
+<p>Assuming you have the following function:</p>
+<pre class="code" language="js">export function FunctionWithReferenceParameter(csharpObjectReference)
+{
+    alert(`Received object not null? - ${csharpObjectReference != null}`);
+}</pre>
+<p>To pass a C# object reference to a JavaScript function, you first need to wrap it and then pass the wrapped object as a parameter.</p>
+<pre class="code" language="cs">public async Task PassReferenceDataToFunctionAsync()
+{
+    var instanceToPass = new JSRuntimeExampleClass()
+        {
+            ExampleString = "Blazor School",
+            ExampleInt = 100,
+            ExampleDate = DateTime.Now
+        };
+
+    var wrappedInstance = DotNetObjectReference.Create&lt;JSRuntimeExampleClass&gt;(instanceToPass);
+    await JSModule.Value.InvokeVoidAsync("FunctionWithReferenceParameter", wrappedInstance);
+}</pre>
+<h3>Pass an C# object data to a JavaScript function</h3>
+<p>When passing C# object data, JavaScript can read all of the object's fields and properties (read-only), but it cannot access the object's methods. The image below illustrates the accessibility of a C# object in JavaScript:</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\pass-csharp-object-data-to-js.png" alt="pass-csharp-object-data-to-js.png" width="900" height="448" /></p>
+<hr class="my-4" />
+<h1>Invoke .NET code from JavaScript</h1>
+<p>Blazor enables the calling of C# methods from JavaScript code in two ways: Direct calling and Proxy calling. Direct calling applies only to C# static methods marked with the attribute <code>[JSInvokable]</code>. In this case, the call is initiated by JavaScript. Static methods can be placed in any class within Blazor, and are located by their assembly name. To ensure uniqueness, it's important to give your method a distinct name. However, if a unique name is not feasible, you can pass a parameter to the <code>[JSInvokable]</code> attribute to specify an alternative method name.</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\direct-calling.png" alt="direct-calling.png" width="995" height="290" /></p>
+<ol>
+    <li>Add the attribute <code>[JSInvokable]</code> to your static method.</li>
+</ol>
+<pre class="code" language="cs">[JSInvokable]
+public static string LocalStaticMethod()</pre>
+<ol start="2">
+    <li>In JavaScript function, use <code>DotNet.invokeMethodAsync(assemblyName, methodName)</code> to call the C# method.</li>
+</ol>
+<pre class="code" language="js">function CallStaticLocalComponentMethod()
+{
+    DotNet.invokeMethodAsync("JavaScriptInteraction", "LocalStaticMethod");
+}</pre>
+<p>In this code, the first parameter is the assembly name, and the second parameter is the method name. To find your assembly name, right-click your project, select <strong>Properties</strong>, and navigate to <strong>Packages &rArr; General</strong> as shown in the following image:</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\how-to-see-assembly-name.png" alt="how-to-see-assembly-name.png" width="884" height="732" /></p>
+<p>Proxy calling, on the other hand, can be used for any C# method with the attribute <code>[JSInvokable]</code>. In this scenario, C# initiates the call and passes a reference to the JavaScript function. The JavaScript function then uses this reference to make a callback to C#.</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\proxy-calling.png" alt="proxy-calling.png" width="1005" height="617" /></p>
+<ol>
+    <li>Add the attribute <code>[JSInvokable]</code> to your non-static method.</li>
+</ol>
+<pre class="code" language="cs">[JSInvokable]
+public void LocalMethod()
+</pre>
+<ol start="2">
+    <li>Pass an instance of the class to the JavaScript function. Assuming that you have your JavaScript module stored in <code>ExampleModule</code>, you can create an instance of the class and wrap it using the <code>DotNetObjectReference</code> class:</li>
+</ol>
+<pre class="code" language="cs">public async Task CallLocalComponentMethod()
+{
+    var wrappedInstance = DotNetObjectReference.Create(this);
+    await ExampleModule.Value.InvokeVoidAsync("CallLocalComponentMethod", wrappedInstance);
+}</pre>
+<ol start="3">
+    <li>In the JavaScript function, you can receive the reference and use it to invoke the destination C# method:</li>
+</ol>
+<pre class="code" language="js">export function CallLocalComponentMethod(componentInstance)
+{
+    componentInstance.invokeMethodAsync("LocalMethod");
+}</pre>
+<h3>Asynchronous methods</h3>
+<p>Just like in C# programming, when invoking an asynchronous method from JavaScript, you have the option to either fire and forget or await the completion of the invokeMethodAsync function for the corresponding C# method before moving on to the next block of JavaScript code.</p>
+<pre class="code" language="js">export function FireAndForget(csharpObject)
+{
+    csharpObject.invokeMethodAsync("ExampleVoidMethod");
+    DotNet.invokeMethodAsync("JavaScriptInteraction", "LocalStaticMethod");
+}
+
+export async function AwaitForResults(csharpObject)
+{
+    await csharpObject.invokeMethodAsync("ExampleVoidMethodAsync");
+    await DotNet.invokeMethodAsync("JavaScriptInteraction", "LocalStaticMethod");
+}</pre>
+<h3>Methods with return data</h3>
+<p>In C#, methods can return a value, which may either be a primitive data type or a reference to an object. When a method returns a primitive data type, such as a string, it can be treated like a normal variable in a JavaScript function. For example:</p>
+<pre class="code" language="cs">[JSInvokable]
+public string ExamplePrimitiveReturnMethod() =&gt; "Hello BlazorSchool!";</pre>
+<p>In a JavaScript function, the returned value can be accessed and used as follows:</p>
+<pre class="code" language="js">export async function CallPrimitiveDataReturnMethod(csharpObject)
+{
+    let result = await csharpObject.invokeMethodAsync("ExamplePrimitiveReturnMethod");
+    alert(`The result is ${result}`);
+}</pre>
+<p>When a method returns a reference object, such as an instance of a class, the object's properties can be accessed in a JavaScript function, but its methods cannot be called. For example:</p>
+<pre class="code" language="cs">[JSInvokable]
+public JSRuntimeExampleClass ExampleReferenceReturnMethod() =&gt; new();</pre>
+<p>In a JavaScript function, the properties of the returned object can be accessed as follows:</p>
+<pre class="code" language="js">export async function CallReferenceDataReturnMethod(csharpObject)
+{
+    let result = await csharpObject.invokeMethodAsync("ExampleReferenceReturnMethod");
+    alert(`Received object data: string ${result.exampleString}, number ${result.exampleInt}, date time ${result.exampleDate}`)
+}</pre>
+<blockquote>You can't receive a <code>Tuple</code> in JavaScript function.</blockquote>
+<h3>Methods with parameters</h3>
+<p>In C#, methods can have none, one, or multiple parameters. These parameters can be passed when calling a C# method from JavaScript. For example:</p>
+<pre class="code" language="cs">[JSInvokable("MethodWithPrimitiveParameters")]
+public void ExamplePrimitiveParameterizedMethod(string exampleString, int exampleInt, DateTime exampleDate)
+{
+    ExampleString = exampleString;
+    ExampleInt = exampleInt;
+    ExampleDate = exampleDate;
+}</pre>
+<p>In JavaScript, the parameters can be passed to the C# method using the <code>invokeMethodAsync</code> function, as follows:</p>
+<pre class="code" language="js">export function CallPrimitiveParameterizedCSharpMethod(csharpObject)
+{
+    csharpObject.invokeMethodAsync("MethodWithPrimitiveParameters", "Blazor School", 100, new Date());
+}</pre>
+<p>C# methods can also have reference parameters, which allow a JavaScript object to be passed to the C# method. For example:</p>
+<pre class="code" language="cs">[JSInvokable("MethodWithReferenceParameters")]
+public void ExampleReferenceParameterizedMethod(JSRuntimeExampleClass instance)
+{
+    ExampleString = instance.ExampleString;
+    ExampleInt = instance.ExampleInt;
+    ExampleDate = instance.ExampleDate;
+}</pre>
+<p>In JavaScript, a JavaScript object can be passed to the C# method, which will be converted to a C# object with corresponding properties:</p>
+<pre class="code" language="js">export function CallReferenceParameterizedCSharpMethod(csharpObject)
+{
+    let passingObject = {
+        exampleString: "Blazor School",
+        exampleInt: 9000,
+        exampleDate: new Date()
+    };
+
+    csharpObject.invokeMethodAsync("MethodWithReferenceParameters", passingObject);
+}</pre>
+<hr class="my-4" />
+<h1>Common mistakes</h1>
+<p>Try to avoid those common mistakes:</p>
+<ol>
+    <li>Try to call .NET library method directly from JavaScript.</li>
+    <li>Make an infinitive loop.</li>
+    <li>Try to remove a Blazor DOM.</li>
+    <li>Use JS as script.</li>
+</ol>
+<h3>Try to call .NET library method directly from JavaScript</h3>
+<p>JavaScript interaction allow you to call C# methods from JavaScript. However, you need to specify which C# methods can call from JavaScript before actually calling it. Therefore, you cannot call a method that is not specified to call in JavaScript. For example, you cannot call methods from <code>System.Math</code> (or any other libraries) unless you wrap it inside and method and specify that method to be able to call by JavaScript.</p>
+<h3>Make an infinitive loop</h3>
+<p>This common mistake usually made by the beginners. When making a call to a JavaScript function A and that JavaScript function A calls the C# method B again then the C# method B making a call to the JavaScript function A, thus create an infinitive loop. The following image illustrates this mistake.</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\infinitive-loop-mistake.png" alt="infinitive-loop-mistake.png" width="1005" height="934" /></p>
+<p>The browser will be freezed as the following video:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\ijsruntime-458513\common-mistake-call-js-loop.mp4" />
+    </video>
+</div>
+<h3>Try to remove a Blazor DOM</h3>
+<p>To prevent conflicts between Blazor and JavaScript, it is important to ensure that they don't attempt to modify the same section of the DOM at the same time. If both technologies make changes to the same part of the DOM simultaneously, it can cause the website to malfunction and require a refresh. The following video provides an illustration of this situation.</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\ijsruntime-458513\common-mistake-remove-blazor-dom.mp4" />
+    </video>
+</div>
+<div class="ratio ratio-21x9">
+    <h3>Use JavaScript as script</h3>
+    <p>It's important to note that Blazor cannot use JavaScript as a script in the traditional sense. Although it can call predefined JavaScript functions, it doesn't have direct access to the JavaScript runtime environment. For instance, you cannot create a new object using the <code>new</code> keyword directly in Blazor. To achieve this, you would need to declare a JavaScript function to create the object, and then call that function from Blazor.</p>
+</div>
