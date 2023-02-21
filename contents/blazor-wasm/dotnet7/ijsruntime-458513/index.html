@@ -355,3 +355,21 @@ public void ExampleReferenceParameterizedMethod(JSRuntimeExampleClass instance)
 <p>JavaScript interaction allow you to call C# methods from JavaScript. However, you need to specify which C# methods can call from JavaScript before actually calling it. Therefore, you cannot call a method that is not specified to call in JavaScript. For example, you cannot call methods from <code>System.Math</code> (or any other libraries) unless you wrap it inside and method and specify that method to be able to call by JavaScript.</p>
 <h3>Make an infinitive loop</h3>
 <p>This common mistake usually made by the beginners. When making a call to a JavaScript function A and that JavaScript function A calls the C# method B again then the C# method B making a call to the JavaScript function A, thus create an infinitive loop. The following image illustrates this mistake.</p>
+<p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\infinitive-loop-mistake.png" alt="infinitive-loop-mistake.png" width="1005" height="934" /></p>
+<p>The browser will be freezed as the following video:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\ijsruntime-458513\common-mistake-call-js-loop.mp4" />
+    </video>
+</div>
+<h3>Try to remove a Blazor DOM</h3>
+<p>To prevent conflicts between Blazor and JavaScript, it is important to ensure that they don't attempt to modify the same section of the DOM at the same time. If both technologies make changes to the same part of the DOM simultaneously, it can cause the website to malfunction and require a refresh. The following video provides an illustration of this situation.</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\ijsruntime-458513\common-mistake-remove-blazor-dom.mp4" />
+    </video>
+</div>
+<div class="ratio ratio-21x9">
+    <h3>Use JavaScript as script</h3>
+    <p>It's important to note that Blazor cannot use JavaScript as a script in the traditional sense. Although it can call predefined JavaScript functions, it doesn't have direct access to the JavaScript runtime environment. For instance, you cannot create a new object using the <code>new</code> keyword directly in Blazor. To achieve this, you would need to declare a JavaScript function to create the object, and then call that function from Blazor.</p>
+</div>
