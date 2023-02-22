@@ -1,0 +1,46 @@
+﻿<h1><code>InteropServices.JavaScript</code></h1>
+<p>🟥 Not applicable to Blazor Server</p>
+<p><code>InteropServices.JavaScript</code> is a feature exclusive to Blazor WebAssembly, which offers its own unique advantages over <code>IJSRuntime</code>. In this tutorial, you will learn about:</p>
+<ul>
+    <li>The benefits of using <code>InteropServices.JavaScript</code> over <code>IJSRuntime</code></li>
+    <li>Understanding the marshalling process</li>
+    <li>Enabling <code>InteropServices.JavaScript</code></li>
+    <li>Importing JavaScript code</li>
+    <li>Invoking JavaScript code from .NET</li>
+    <li>Invoking .NET code from JavaScript</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/javascript-interaction-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>The benefits of using <code>InteropServices.JavaScript</code> over <code>IJSRuntime</code></h1>
+<p>There are three primary advantages of using <code>InteropServices.JavaScript</code> over <code>IJSRuntime</code>:</p>
+<ol>
+    <li>It is ideal for modularized JavaScript code.</li>
+    <li>Developers can control the marshaling process without needing to write additional code.</li>
+    <li>The lifetimes of C# instances in JavaScript and JavaScript instances in C# are managed.</li>
+</ol>
+<p>However, <code>InteropServices.JavaScript</code> cannot be used with unpredictable JavaScript functions.</p>
+<h3>Better support for modularized JavaScript code</h3>
+<p>While <code>IJSRuntime</code> enables the invocation of a JavaScript function that is attached to a module or the window object by its name, <code>InteropServices.JavaScript</code> maps a JavaScript function to a C# method. For instance, consider the following example that maps the JavaScript function <code>console.log</code> to a C# method:</p>
+<p>Using <code>IJSRuntime</code>:</p>
+<pre class="code" language="csharp">public class ConsoleWrapper
+{
+    private readonly IJSRuntime _js;
+
+    public ConsoleWrapper(IJSRuntime js)
+	{
+        _js = js;
+    }
+
+    public async Task Log(string message)
+    {
+        await _js.InvokeVoidAsync("console.log", message);
+    }
+}
+</pre>
+<p>Using <code>InteropServices.JavaScript</code>:</p>
+<pre class="code" language="csharp">public static partial class ConsoleWrapper
+{
+    [JSImport("globalThis.console.log")]
+    public static partial void Log(string message);
+}
+</pre>
