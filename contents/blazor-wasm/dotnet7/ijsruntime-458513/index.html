@@ -359,17 +359,18 @@ public void ExampleReferenceParameterizedMethod(JSRuntimeExampleClass instance)
 <p>The browser will be freezed as the following video:</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
-        <source src="contents\blazor-wasm\dotnet7\ijsruntime-458513\common-mistake-call-js-loop.mp4" />
+        <source src="contents\blazor-wasm\dotnet7\ijsruntime-458513\common-mistake-call-js-loop.webm" />
     </video>
 </div>
 <h3>Try to remove a Blazor DOM</h3>
 <p>To prevent conflicts between Blazor and JavaScript, it is important to ensure that they don't attempt to modify the same section of the DOM at the same time. If both technologies make changes to the same part of the DOM simultaneously, it can cause the website to malfunction and require a refresh. The following video provides an illustration of this situation.</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
-        <source src="contents\blazor-wasm\dotnet7\ijsruntime-458513\common-mistake-remove-blazor-dom.mp4" />
+        <source src="contents\blazor-wasm\dotnet7\ijsruntime-458513\common-mistake-remove-blazor-dom.webm" />
     </video>
 </div>
-<div class="ratio ratio-21x9">
-    <h3>Use JavaScript as script</h3>
-    <p>It's important to note that Blazor cannot use JavaScript as a script in the traditional sense. Although it can call predefined JavaScript functions, it doesn't have direct access to the JavaScript runtime environment. For instance, you cannot create a new object using the <code>new</code> keyword directly in Blazor. To achieve this, you would need to declare a JavaScript function to create the object, and then call that function from Blazor.</p>
-</div>
+<h3>Use JavaScript as script</h3>
+<p>It's important to note that Blazor cannot use JavaScript as a script in the traditional sense. Although it can call predefined JavaScript functions, it doesn't have direct access to the JavaScript runtime environment. For instance, you cannot create a new object using the <code>new</code> keyword directly in Blazor. To achieve this, you would need to declare a JavaScript function to create the object, and then call that function from Blazor.</p>
+<hr class="my-4" />
+<h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
+<p>In Blazor Server, you cannot import JavaScript in the Initial phase.</p>
