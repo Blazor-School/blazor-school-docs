@@ -35,12 +35,26 @@
     {
         await _js.InvokeVoidAsync("console.log", message);
     }
-}
-</pre>
+}</pre>
 <p>Using <code>InteropServices.JavaScript</code>:</p>
 <pre class="code" language="csharp">public static partial class ConsoleWrapper
 {
     [JSImport("globalThis.console.log")]
     public static partial void Log(string message);
-}
-</pre>
+}</pre>
+<h3>Control the marshalling process</h3>
+<p><code>IJSRuntime</code> is a versatile tool that can be used to invoke any JavaScript function from .NET. Whereas, one limitation of <code>InteropServices.JavaScript</code> is that it can only invoke JavaScript functions with a single return type. This means that the code structure of the JavaScript function must be carefully considered when using <code>InteropServices.JavaScript</code>.</p>
+<p>Using <code>IJSRuntime</code>:</p>
+<pre class="code" language="csharp">public async Task MyMethod() 
+{
+    await MyModule.Value.InvokeVoidAsync("MyFunction", 5);
+}</pre>
+<p>If we want to convert the received number into a <code>BigInt</code>, we need to write additional JavaScript code:</p>
+<pre class="code" language="javascript">export function MyFunction(number)
+{
+    let bigintNumber = BigInt(number);
+}</pre>
+<p>On the other hand, by using <code>InteropServices.JavaScript</code>, we can simplify the process and eliminate the need for additional code:</p>
+<pre class="code" language="csharp">[JSImport("MyFunction", "MyModule")]
+public static partial void MyMethod([JSMarshalAs&lt;JSType.BigInt&gt;] long number);</pre>
+<p>With this approach, the received parameter on the JavaScript side is already a <code>BigInt</code>, making the code more efficient and easier to maintain.</p>
