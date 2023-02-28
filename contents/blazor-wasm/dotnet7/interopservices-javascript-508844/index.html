@@ -15,7 +15,7 @@
 <p>There are three primary advantages of using <code>InteropServices.JavaScript</code> over <code>IJSRuntime</code>:</p>
 <ol>
     <li>It is ideal for modularized JavaScript code.</li>
-    <li>Developers can control the marshaling process without needing to write additional code.</li>
+    <li>Developers can control the marshalling process without needing to write additional code.</li>
     <li>The lifetimes of C# instances in JavaScript and JavaScript instances in C# are managed.</li>
 </ol>
 <p>However, <code>InteropServices.JavaScript</code> cannot be used with unpredictable JavaScript functions.</p>
@@ -58,3 +58,102 @@
 <pre class="code" language="csharp">[JSImport("MyFunction", "MyModule")]
 public static partial void MyMethod([JSMarshalAs&lt;JSType.BigInt&gt;] long number);</pre>
 <p>With this approach, the received parameter on the JavaScript side is already a <code>BigInt</code>, making the code more efficient and easier to maintain.</p>
+<h3>Managed lifetime</h3>
+<p>One of the major advantages of using C# is its garbage collection (GC) feature. However, when using <code>IJSRuntime</code>, the GC is unable to collect the module instance of C# that is referenced by JavaScript code. To overcome this issue, <code>InteropServices.JavaScript</code> can be used so that you don't need to worry about when a JavaScript module is destroyed. You just need to import the module every time you require it. Importing the JavaScript module multiple times does not impact performance as the module is automatically cached.</p>
+<hr class="my-4" />
+<h1>Understanding the marshalling process</h1>
+<p>JavaScript and C# have their own distinct data types. When integrating between them, it's necessary to marshal the parameters to the other data type because C# cannot recognize the JavaScript type, and vice versa. The following image provides a clear illustration of the marshalling process.</p>
+<p><img src="contents\blazor-wasm\dotnet7\interopservices-javascript-508844\marshalling-process-blazor.png" alt="marshalling-process-blazor.png" width="900" height="461" /></p>
+<p>Here are the table of interchangeable common data type between JavaScript and C#.</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td>JavaScript type</td>
+                <td>.NET type</td>
+            </tr>
+            <tr>
+                <td><code>Boolean</code></td>
+                <td><code>Boolean</code></td>
+            </tr>
+            <tr>
+                <td><code>Number</code></td>
+                <td><code>Byte</code></td>
+            </tr>
+            <tr>
+                <td><code>String</code></td>
+                <td><code>Char</code>, <code>char</code>, <code>String</code>, <code>string</code></td>
+            </tr>
+            <tr>
+                <td><code>Number</code></td>
+                <td><code>Int16</code>, <code>short</code>, <code>Int32</code>, <code>int</code>, <code>Int64</code>, <code>long</code>, <code>Single</code>, <code>float</code>, <code>Double</code>, <code>double</code>, <code>IntPtr</code></td>
+            </tr>
+            <tr>
+                <td><code>BigInt</code></td>
+                <td><code>Int64</code>, <code>long</code></td>
+            </tr>
+            <tr>
+                <td><code>Date</code></td>
+                <td><code>DateTime</code>, <code>DateTimeOffset</code></td>
+            </tr>
+            <tr>
+                <td><code>Error</code></td>
+                <td><code>Exception</code></td>
+            </tr>
+            <tr>
+                <td><code>Object</code></td>
+                <td><code>JSObject</code></td>
+            </tr>
+            <tr>
+                <td><code>Any</code></td>
+                <td><code>Object</code></td>
+            </tr>
+            <tr>
+                <td><code>Promise</code></td>
+                <td><code>Task</code></td>
+            </tr>
+            <tr>
+                <td><code>Function</code></td>
+                <td><code>Action</code>, <code>Action&lt;T&gt;</code>, <code>Action&lt;T1, T2&gt;</code>, <code>Action&lt;T1, T2, T3&gt;</code>, <code>Func&lt;TResult&gt;</code>, <code>Func&lt;T, TResult&gt;</code>, <code>Func&lt;T1, T2, TResult&gt;</code>, <code>Func&lt;T1, T2, T3, TResult&gt;</code></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<hr class="my-4" />
+<h1>Enabling <code>InteropServices.JavaScript</code></h1>
+<p>Enabling unsafe code is necessary when integrating with another programming language, including JavaScript. To integrate with JavaScript, you'll need to enable unsafe code in your project by following these steps:</p>
+<ol>
+    <li>Right-click on your project and select <strong>Properties</strong> to open the project properties.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\interopservices-javascript-508844\open-project-properties.png" alt="open-project-properties.png" width="424" height="825" /></p>
+<ol start="2">
+    <li>Navigate to <strong>Build </strong>&rarr;<strong> General</strong> and select the checkbox for <strong>Unsafe code</strong>.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\interopservices-javascript-508844\allow-unsafe-code.png" alt="allow-unsafe-code.png" width="819" height="804" /></p>
+<hr class="my-4" />
+<h1>Importing JavaScript code</h1>
+<p>You can place your JavaScript code file either in the <strong>wwwroot</strong> folder or in the same directory as the corresponding component. To use the JavaScript code, you'll need to create a C# wrapper for it and import the wrapper whenever you want to interact with the JavaScript functionality.</p>
+<h3>Build and using C# wrapper for a global standard JavaScript function</h3>
+<p>Assuming you have the following standard JavaScript that you want to import into your Blazor project:</p>
+<p><strong>wwwroot/js/GlobalClassicJavaScript.js</strong>:</p>
+<pre class="code" language="javascript">function HelloBlazorSchool()
+{
+    alert(`Hello Blazor School from Global standard JS.`);
+}</pre>
+<ol>
+    <li>In the <strong>index.html</strong> file, import the standard JavaScript file:</li>
+</ol>
+<pre class="code" language="html">&lt;body&gt;
+    ...
+    &lt;script src="js/GlobalClassicJavaScript.js"&gt;&lt;/script&gt;
+&lt;/body&gt;</pre>
+<ol start="2">
+    <li>Create a C# wrapper class.</li>
+</ol>
+<pre class="code" language="csharp">[[SupportedOSPlatform("browser")]
+public partial class ClassicJavaScript
+{
+    [JSImport("globalThis.HelloBlazorSchool")]
+    public static partial void HelloBlazorSchool();
+}</pre>
+<p>In the above example, the first parameter of <code>JSImport</code> attribute is the function name that you want to map. In this case, it's <code>HelloBlazorSchool</code>. Note that the <code>globalThis</code> object in the JavaScript code is a special object created by Blazor, and it's a reference to the <code>window</code> object.</p>
