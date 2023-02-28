@@ -132,8 +132,8 @@ public static partial void MyMethod([JSMarshalAs&lt;JSType.BigInt&gt;] long numb
 <p><img src="contents\blazor-wasm\dotnet7\interopservices-javascript-508844\allow-unsafe-code.png" alt="allow-unsafe-code.png" width="819" height="804" /></p>
 <hr class="my-4" />
 <h1>Importing JavaScript code</h1>
-<p>You can place your JavaScript code file either in the <strong>wwwroot</strong> folder or in the same directory as the corresponding component. To use the JavaScript code, you'll need to create a C# wrapper for it and import the wrapper whenever you want to interact with the JavaScript functionality.</p>
-<h3>Build and using C# wrapper for a global standard JavaScript function</h3>
+<p>You can place your JavaScript code file either in the <strong>wwwroot</strong> folder or in the same directory as the corresponding component. For standard JavaScript, import it in the <strong>index.html</strong> and create a C# wrapper. When working with JavaScript modules, you have the option to either create a C# wrapper that is imported only when needed, or import it when the application starts. Importing the module only when needed is recommended for optimal performance.</p>
+<h3>Build a C# wrapper for a global standard JavaScript</h3>
 <p>Assuming you have the following standard JavaScript that you want to import into your Blazor project:</p>
 <p><strong>wwwroot/js/GlobalClassicJavaScript.js</strong>:</p>
 <pre class="code" language="javascript">function HelloBlazorSchool()
@@ -157,3 +157,81 @@ public partial class ClassicJavaScript
     public static partial void HelloBlazorSchool();
 }</pre>
 <p>In the above example, the first parameter of <code>JSImport</code> attribute is the function name that you want to map. In this case, it's <code>HelloBlazorSchool</code>. Note that the <code>globalThis</code> object in the JavaScript code is a special object created by Blazor, and it's a reference to the <code>window</code> object.</p>
+<h3>Build a C# wrapper for a JavaScript module</h3>
+<p>Assuming you have the following JavaScript Module that you want to import into your Blazor project:</p>
+<p><strong>wwwroot/js/JavaScriptModule.js</strong>:</p>
+<pre class="code" language="javascript">export function HelloBlazorSchool()
+{
+    alert("Hello Blazor School!");
+}</pre>
+<ol>
+    <li>Create a C# class:</li>
+</ol>
+<pre class="code" language="csharp">[SupportedOSPlatform("browser")]
+public partial class JavaScriptModule
+{
+    public static async Task ImportModuleAsync() =&gt; await JSHost.ImportAsync("MyModule", "/js/JavaScriptModule.js");
+
+    [JSImport("HelloBlazorSchool", "MyModule")]
+    public static partial void HelloBlazorSchool();
+}</pre>
+<ol start="2">
+    <li>Call the <code>ImportModuleAsync</code> method to load the JavaScript module. This method can be called multiple times without sending a request if the file is already loaded. There are two options for when to call this method:</li>
+</ol>
+<p>Eager loading: Load the JavaScript module in <strong>Program.cs</strong>. This will slow down your website for the first load, but subsequent loads will be faster.</p>
+<pre class="code" language="csharp">builder.Services...
+
+if (OperatingSystem.IsBrowser())
+{
+    await JavaScriptModule.ImportModuleAsync();
+}</pre>
+<p>Lazy loading: Load the JavaScript module in a Razor Component, during the OnInit or OnAfterRender phase. This will not slow down your website for the first load.</p>
+<pre class="code" language="razor">@code { 
+   protected override async Task OnInitializedAsync()
+    {
+        await JavaScriptModule.ImportModuleAsync();
+    }
+}</pre>
+<pre class="code" language="razor">@code { 
+   protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JavaScriptModule.ImportModuleAsync();
+    }
+}</pre>
+<p>With the C# wrapper in place, you can now use the JavaScript module in your Blazor project by calling the <code>HelloBlazorSchool</code> method.</p>
+<h3>Build a C# wrapper for a colocated JavaScript module</h3>
+<p>To create a C# wrapper for a colocated JavaScript module using <code>InteropServices.JavaScript</code>, you need to follow these steps:</p>
+<ol>
+    <li>Place the JavaScript module in the same folder as the component.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\interopservices-javascript-508844\colocate-javascript-module.png" alt="colocate-javascript-module.png" width="400" height="100" /></p>
+<ol start="2">
+    <li>Create a partial class for the component with the following code:</li>
+</ol>
+<pre class="code" language="csharp">[SupportedOSPlatform("browser")]
+public partial class CallJavaScriptFunction
+{
+    public static async Task ImportModuleAsync() =&gt; await JSHost.ImportAsync("Collocated Module", "../Pages/InteropServices/CallJavaScriptFunction.razor.js");
+
+    [JSImport("HelloBlazorSchool", "Collocated Module")]
+    static partial void CallCollocatedJSModuleFunction();
+}</pre>
+<ol start="3">
+    <li>Import the JavaScript module during the OnInit or OnAfterRender phase:</li>
+</ol>
+<pre class="code" language="razor">@code { 
+   protected override async Task OnInitializedAsync()
+    {
+        await ImportModuleAsync();
+    }
+}</pre>
+<pre class="code" language="razor">@code { 
+   protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await ImportModuleAsync();
+    }
+}</pre>
+<p>By following these steps, you can easily create a C# wrapper for a colocated JavaScript module and use it in your Blazor project.</p>
+<hr class="my-4" />
+<h1>Invoking JavaScript code from .NET</h1>
+<p></p>
