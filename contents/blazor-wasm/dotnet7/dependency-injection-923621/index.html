@@ -1,13 +1,15 @@
-<h1>Dependency Injection</h1>
+﻿<h1>Dependency Injection</h1>
+<p>🟨 Slightly different to Blazor Server</p>
 <p>In Blazor, Dependency Injection enables developers to create more modular, flexible, and maintainable code by managing dependencies between components in a controlled and decoupled manner. This results in more efficient and scalable applications that are easier to maintain and extend over time.</p>
 <ul>
     <li>What is Dependency Injection?</li>
     <li>How Dependency Injection works?</li>
     <li>Why do you need the Dependency Injection?</li>
     <li>How to register a service?</li>
+    <li>Comparing between service scopes.</li>
     <li>Constructor injection.</li>
     <li>Property injection.</li>
-    <li>Comparing between service scopes.</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
 </ul>
 <blockquote>You can <a href="https://github.com/Blazor-School/dependency-injection-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
 <hr class="my-4" />
@@ -19,7 +21,37 @@
 <h1>How Dependency Injection works?</h1>
 <p>Dependency Injection working in 3 steps:</p>
 <ol>
-    <li>Services are registered with the <code>ServiceProvider</code> in the <strong>Program.cs</strong> file. This involves defining the type of the service and any configuration options that are required to create the service.</li>
+    <li>A class with business logic is called a service when it is registered with the <code>ServiceProvider</code> in the <strong>Program.cs</strong> file. This involves defining the type of the service and any configuration options that are required to create the service.</li>
     <li>When a component or a service/class need the registered service, it specifies a property to be the injected instance.</li>
     <li>The <code>ServiceProvider</code> then injects the dependency into the component or service using the specified constructor or property. The <code>ServiceProvider</code> creates the instance of the dependency, resolves any dependencies required by that dependency, and injects it into the component or service.</li>
 </ol>
+<p><img src="contents\blazor-wasm\dotnet7\dependency-injection-923621\dependency-injection-blazor-wasm.png" alt="dependency-injection-blazor-wasm.png" width="929" height="500" /></p>
+<hr class="my-4" />
+<h1>Why do you need the Dependency Injection?</h1>
+<p>In Blazor, dependency injection is essential because it allows you to separate the concerns of your application into individual services or components. This helps to make your code more modular, testable, and easier to maintain.</p>
+<p>Here are a few reasons why you might need to use DI in Blazor:</p>
+<ol>
+    <li>Promotes reusability: By using DI, you can create reusable services that can be shared across different components and services in your application.</li>
+    <li>Makes your code testable: DI makes it easier to test your code because you can easily replace dependencies with mock objects during unit testing.</li>
+    <li>Allows for better modularity: DI promotes modularity by allowing you to easily swap out dependencies without having to modify the code that uses them.</li>
+    <li>Simplifies code maintenance: By separating concerns into individual services, your code becomes more organized and easier to maintain over time.</li>
+    <li>Reduces code complexity: DI can reduce code complexity by enabling developers to break down business logic into smaller pieces and then combine them together</li>
+</ol>
+<hr class="my-4" />
+<h1>How to register a service?</h1>
+<p>In Blazor, you need to register a service before you can inject it into a component. There are several ways to register a service, such as by its class or interface name. Typically, services are registered in the <code>Program.cs</code> file, which is where the application's dependency injection container is configured.</p>
+<p>To register a service, you need to insert the registration code between the <code>WebApplication.CreateBuilder(args)</code> and <code>builder.Build()</code> methods in the <code>Program.cs</code> file. This ensures that the service is available to the application's dependency injection container when it is needed.</p>
+<h3>Register a service with class name</h3>
+<p>To register a service in Blazor using its class name, you can follow these steps:</p>
+<ol>
+    <li>Define the class that you want to register as a service. For example, you might have a <code>MyService</code> class with the following definition:</li>
+</ol>
+<pre class="code" language="csharp">public class MyService
+{
+    public string ExampleString { get; set; } = "";
+}</pre>
+<ol start="2">
+    <li>In your <code>Program.cs</code> file, configure the application's dependency injection container by adding the following line of code between the <code>WebApplication.CreateBuilder(args)</code> and <code>builder.Build()</code> call:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;MyService&gt;();</pre>
+<p>This code registers <code>MyService</code> as a transient service. There are other types of service such as scoped and singleton which will be introduced in this tutorial later.</p>
