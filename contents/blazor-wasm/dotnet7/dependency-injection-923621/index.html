@@ -1,0 +1,25 @@
+<h1>Dependency Injection</h1>
+<p>In Blazor, Dependency Injection enables developers to create more modular, flexible, and maintainable code by managing dependencies between components in a controlled and decoupled manner. This results in more efficient and scalable applications that are easier to maintain and extend over time.</p>
+<ul>
+    <li>What is Dependency Injection?</li>
+    <li>How Dependency Injection works?</li>
+    <li>Why do you need the Dependency Injection?</li>
+    <li>How to register a service?</li>
+    <li>Constructor injection.</li>
+    <li>Property injection.</li>
+    <li>Comparing between service scopes.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/dependency-injection-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is Dependency Injection?</h1>
+<p>Using DI, developers can inject dependencies into a class or component, rather than having to create instances of those dependencies within the class. This makes the code more modular, flexible, and maintainable, as changes to one component do not affect other components that depend on it.</p>
+<p>Using DI, developers can inject dependencies into a class or component, rather than having to create instances of those dependencies within the class. This makes the code more modular, flexible, and maintainable, as changes to one component do not affect other components that depend on it.</p>
+<p>For example, if one class depends on another class, instead of creating an instance of the dependent class, the instance can be injected into the constructor of the first class. This allows the first class to use the functionality of the dependent class without having to manage its creation and lifecycle.</p>
+<hr class="my-4" />
+<h1>How Dependency Injection works?</h1>
+<p>Dependency Injection working in 3 steps:</p>
+<ol>
+    <li>Services are registered with the <code>ServiceProvider</code> in the <strong>Program.cs</strong> file. This involves defining the type of the service and any configuration options that are required to create the service.</li>
+    <li>When a component or a service/class need the registered service, it specifies a property to be the injected instance.</li>
+    <li>The <code>ServiceProvider</code> then injects the dependency into the component or service using the specified constructor or property. The <code>ServiceProvider</code> creates the instance of the dependency, resolves any dependencies required by that dependency, and injects it into the component or service.</li>
+</ol>
