@@ -202,3 +202,14 @@ static void ScanAndRegisterServices(IServiceCollection services)
     }
 }</pre>
 <p>In the code above, the constructor of <code>DependentService</code> takes an instance of <code>ServiceWithParameter</code> as a parameter. This allows the dependent service to access and use the functionality provided by the upstream service.</p>
+<hr class="my-4" />
+<h1>Property injection</h1>
+<p>In Blazor, property injection is a technique used to provide a component with a dependency, such as a service or data source, by assigning it to a property of the component. This can be achieved through the use of either the <code>[Inject]</code> attribute or the <code>@inject</code> directive in the component.</p>
+<p>For example, to use the <code>@inject</code> directive in the component as follows:</p>
+<pre class="code" language="csharp">@inject MyService MyService</pre>
+<p>Alternatively, you can use use the <code>[Inject]</code> attribute for a property in the component as follows:</p>
+<pre class="code" language="csharp">[Inject]
+public MyService MyService { get; set; }</pre>
+<hr class="my-4" />
+<h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
+<p>The key differences between Blazor WebAssembly and Blazor Server is the lifetime of their service scopes. In Blazor Server, the service scopes have a distinct lifespan compared to Blazor WebAssembly.</p>
