@@ -1,0 +1,124 @@
+﻿<h1>Directives</h1>
+<p>✅ Similar to Blazor Server</p>
+<p>In Blazor, directives are powerful features that enable you to add additional behavior to a Razor Component on your website. With Blazor's built-in directives, you can manage various aspects of user interactions. These directives can be grouped into three types:</p>
+<ul>
+    <li>Compiling.</li>
+    <li>DOM interaction.</li>
+    <li>Utilities.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/directive-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Compiling directives</h1>
+<p>Blazor provides compiling directives that manipulate how a Razor Component is compiled. These directives include:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Directive identifier</th>
+                <th class="text-center" scope="col">Description</th>
+            </tr>
+            <tr>
+                <td>@inherits</td>
+                <td>Specify the base class for a component</td>
+            </tr>
+            <tr>
+                <td>@namespace</td>
+                <td>Specify the namespace for a component</td>
+            </tr>
+            <tr>
+                <td>@implements</td>
+                <td>Specify the interface for a component</td>
+            </tr>
+            <tr>
+                <td>@preservewhitespace</td>
+                <td>Remove all redundant white spaces from an element</td>
+            </tr>
+            <tr>
+                <td>@typeparam</td>
+                <td>Specify a generic class for a component</td>
+            </tr>
+            <tr>
+                <td>@layout</td>
+                <td>Specify the layout for a component</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>For instance, the <code>@implements</code> directive specifies the interface for a component, as shown in the example code where the Dispose method is implemented.</p>
+<pre class="code" language="razor">@implements IDisposable
+
+...
+
+@code {
+    public void Dispose()
+    {
+    }
+}</pre>
+<p>If the <code>Dispose</code> method is removed, Visual Studio 2022 will emit an error during project building.</p>
+<p><img src="contents\blazor-wasm\dotnet7\directives-593490\compiling-group-error.png" alt="compiling-group-error.png" width="632" height="98" /></p>
+<hr class="my-4" />
+<h1>DOM interaction directives</h1>
+<p>Blazor also provides DOM interaction directives used to interact with the DOM, such as</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Directive identifier</th>
+                <th class="text-center" scope="col">Description</th>
+            </tr>
+            <tr>
+                <td>@attributes</td>
+                <td>Attach a dictionary of attributes to the element</td>
+            </tr>
+            <tr>
+                <td>@on<strong>&lt;event&gt;</strong></td>
+                <td>Attach the event handlers to the element's event</td>
+            </tr>
+            <tr>
+                <td>@bind-&lt;attribute&gt;:&lt;event&gt;</td>
+                <td>Create a 2-ways binding to an element attribute</td>
+            </tr>
+            <tr>
+                <td>@key</td>
+                <td>Set a unique identifier for an element</td>
+            </tr>
+            <tr>
+                <td>@ref</td>
+                <td>Refer the element to an C# instance</td>
+            </tr>
+            <tr>
+                <td>@code</td>
+                <td>Attach a dictionary of attributes to the element</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>For example, the <code>@attributes</code> directive attaches a dictionary of attributes to an element, as demonstrated in the code.</p>
+<pre class="code" language="razor">&lt;div @attributes="Attributes"&gt;Inspect me to see my attributes.&lt;/div&gt;
+
+@code {
+    Dictionary&lt;string, object&gt; Attributes { get; set; } = new()
+    {
+        { "example-string", "Blazor School" },
+        { "example-int", 10 },
+        { "example-object", new 
+            { 
+                date = DateTime.Now 
+            } 
+        }
+    };
+}</pre>
+<p>Blazor will render the HTML tag with the specified attributes:</p>
+<pre class="code" language="html">&lt;div example-string="Blazor School" example-int="10" example-object="{ date = 2/21/2022 8:34:57 PM }"&gt;Inspect me to see my attributes.&lt;/div&gt;</pre>
+<h3>Blazor event and HTML event</h3>
+<p>When interacting with the DOM, you will need to handle events of an element. Although Blazor events and HTML events share the same name, they are different. The following image illustrates the difference between Blazor events and HTML events:</p>
+<p><img src="contents\blazor-wasm\dotnet7\directives-593490\blazor-vs-html-event.png" alt="blazor-vs-html-event.png" width="1000" height="263" /></p>
+<p>For example, a button with an HTML event is coded as follows:</p>
+<pre class="code" language="html">&lt;button class="btn btn-primary" type="button" onclick="alert('HTML event fired!')"&gt;HTML Event&lt;/button&gt;</pre>
+<p>On the other hand, a button with a Blazor event is coded as follows:</p>
+<pre class="code" language="razor">&lt;button class="btn btn-primary" type="button" @onclick='_ =&gt; ExampleString = "Hello Blazor School!"'&gt;Blazor Event&lt;/button&gt;
+
+@code {
+    public string ExampleString { get; set; } = "";
+}</pre>
+<blockquote>This tutorial will only focus on Blazor events.</blockquote>
