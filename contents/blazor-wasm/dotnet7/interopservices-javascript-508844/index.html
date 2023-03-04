@@ -251,7 +251,8 @@ public partial class JavaScriptModule
 <pre class="code" language="javascript">async function CallAutoMarshalingPrimitiveParameterStaticCSharpMethodAsync()
 {
     let rootAssembly = await globalThis.getDotnetRuntime(0).getAssemblyExports("JavaScriptInteraction.dll");
-    rootAssembly.JavaScriptInteraction.InteropServicesModules.JavaScriptModule.HelloBlazorSchool();
+    rootAssembly.JavaScriptInteraction.InteropServicesModules
+        .JavaScriptModule.HelloBlazorSchool();
 }</pre>
 <p>The <code>JavaScriptInteraction.dll</code> is the name of your project. You can find it in the <strong>Properties</strong> of your project:</p>
 <p><img src="contents\blazor-wasm\dotnet7\interopservices-javascript-508844\how-to-see-assembly-name.png" alt="how-to-see-assembly-name.png" width="884" height="732" /></p>
