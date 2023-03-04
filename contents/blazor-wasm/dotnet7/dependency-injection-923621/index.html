@@ -206,7 +206,7 @@ static void ScanAndRegisterServices(IServiceCollection services)
 <h1>Property injection</h1>
 <p>In Blazor, property injection is a technique used to provide a component with a dependency, such as a service or data source, by assigning it to a property of the component. This can be achieved through the use of either the <code>[Inject]</code> attribute or the <code>@inject</code> directive in the component.</p>
 <p>For example, to use the <code>@inject</code> directive in the component as follows:</p>
-<pre class="code" language="csharp">@inject MyService MyService</pre>
+<pre class="code" language="razor">@inject MyService MyService</pre>
 <p>Alternatively, you can use use the <code>[Inject]</code> attribute for a property in the component as follows:</p>
 <pre class="code" language="csharp">[Inject]
 public MyService MyService { get; set; }</pre>
