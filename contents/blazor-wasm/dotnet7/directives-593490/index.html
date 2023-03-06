@@ -606,3 +606,89 @@
         </tbody>
     </table>
 </div>
+<h3>Pass parameters to a C# method from the DOM</h3>
+<p>To pass parameters to a C# method from the DOM, you can use the following syntax:</p>
+<pre class="code" language="razor">&lt;button type="button" @onclick="_ =&gt; ExampleMethodWithoutHtmlEvent(ExampleString)"&gt;Example parameterized method without HTML event&lt;/button&gt;
+
+@code {
+    public string ExampleString { get; set; } = "";
+
+    public void ExampleMethodWithoutHtmlEvent(string exampleString)
+    {
+    }
+}</pre>
+<p>If you need to pass HTML event data along with other parameters, you can modify the syntax as follows:</p>
+<pre class="code" language="razor">&lt;button type="button" @onclick="(e) =&gt; ExampleMethodWithHtmlEvent(e, ExampleString)"&gt;Example parameterized method with HTML event&lt;/button&gt;
+
+@code {
+    public string ExampleString { get; set; } = "";
+    
+    public void ExampleMethodWithHtmlEvent(MouseEventArgs eventArgs, string exampleString)
+    {
+    }
+}</pre>
+<h3><code>preventDefault</code> in Blazor</h3>
+<p>By default, events in Blazor trigger their respective browser actions. To cancel these actions, you can use the <code>preventDefault()</code> method in JavaScript. This method stops the default actions of the current event.</p>
+<p>For instance, clicking on a checkbox will normally tick the checkbox. By using <code>preventDefault()</code>, the checkbox will not be ticked. You can see an example of <code>preventDefault()</code> in action in the following video:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\directives-593490\prevent-default-explain.mp4" />
+    </video>
+</div>
+<p>Blazor makes it easy to use <code>preventDefault()</code> without writing any JavaScript code. Simply add <code>@&lt;Blazor_event&gt;:preventDefault</code> to your HTML element. For example:</p>
+<pre class="code" language="razor">&lt;input type="checkbox" @onclick:preventDefault /&gt;</pre>
+<h3><code>stopPropagation</code> in Blazor</h3>
+<p>HTML elements can be nested within each other, meaning that events that occur on a child element can propagate to its parent elements. This is known as event propagation, and it can be useful in some cases. However, there may be instances where you want to prevent an event from propagating to its parent elements. To achieve this, you can use the <code>stopPropagation()</code> method in JavaScript. In the following image, you can see an example of event propagation in HTML:</p>
+<p><img src="contents\blazor-wasm\dotnet7\directives-593490\propagation.png" alt="propagation.png" width="631" height="516" /></p>
+<p>To prevent an event from propagating to its parent elements, you can use the <code>stopPropagation()</code> method. Here's a video that demonstrates how <code>stopPropagation()</code> works:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\directives-593490\stop-propagation-explain.mp4" />
+    </video>
+</div>
+<p>In Blazor, you can use the <code>stopPropagation()</code> method without writing any JavaScript code. Simply add <code>@&lt;Blazor_event&gt;:stopPropagation</code> to the HTML element where you want to stop event propagation. For example:</p>
+<pre class="code" language="razor">&lt;div @onclick:stopPropagation&gt;&lt;/div&gt;</pre>
+<hr class="my-4" />
+<h1>Utilities directives</h1>
+<p>Utility directives are a set of directives that provide additional features to your components. The following directives are part of the utility group:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Directive identifier</th>
+                <th class="text-center" scope="col">Description</th>
+                <th class="text-center" scope="col">Type</th>
+            </tr>
+            <tr>
+                <td>@<strong>&lt;C#-keyword&gt;</strong>, @{<strong>&lt;C# Code&gt;</strong>},@(<strong>&lt;C# Code&gt;</strong>)</td>
+                <td>Inject C# code to HTML template</td>
+                <td>Utilities</td>
+            </tr>
+            <tr>
+                <td><code>@inject</code></td>
+                <td>Inject an instance into a component</td>
+                <td>Utilities</td>
+            </tr>
+            <tr>
+                <td><code>@page</code></td>
+                <td>Specify the route and parameter to a component</td>
+                <td>Utilities</td>
+            </tr>
+            <tr>
+                <td><code>@section</code></td>
+                <td>Not apply for Blazor WebAssembly</td>
+                <td>N/A</td>
+            </tr>
+            <tr>
+                <td><code>@functions</code></td>
+                <td>Deprecated, use <code>@code</code> instead</td>
+                <td>N/A</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>For example, the <code>@page</code> directive is a utility directive that specifies the route for a component. Here's an example that demonstrates how <code>@page</code> works:</p>
+<pre classs="code" language="razor">@page "/utility"
+
+&lt;div&gt;The &lt;code&gt;@@page&lt;/code&gt; directive helps you to navigate to this page.&lt;/div&gt;</pre>
+<p>In the example above, the @page directive sets the route for the current component to <strong>/utility</strong>. This means that you can access the component by navigating to <strong>localhost:XXXX/utility</strong>.</p>
