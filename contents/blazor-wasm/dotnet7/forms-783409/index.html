@@ -12,3 +12,167 @@
     <li>Common mistakes.</li>
     <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
 </ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/form-demonstrate-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Blazor form and HTML form</h1>
+<p><code>EditForm</code> is a component that is used to create forms in Blazor applications, while HTML form is a standard way of creating forms in HTML. The <code>EditForm</code> component in Blazor provides features such as form validation, disabling a form control, and data binding. It allows developers to easily create forms that are tightly integrated with their Blazor application.</p>
+<p><img src="contents\blazor-wasm\dotnet7\forms-783409\blazor-form-vs-html-form.png" alt="blazor-form-vs-html-form.png" width="800" height="546" /></p>
+<p>Below is a sample code for a Blazor WebAssembly form:</p>
+<pre class="code" language="razor">&lt;EditForm Model="BlazorFormModel" OnSubmit="_ =&gt; BlazorFormSubmitted = true"&gt;
+    &lt;fieldset&gt;
+        &lt;legend&gt;Blazor form&lt;/legend&gt;
+        &lt;InputText @bind-Value="BlazorFormModel.BlazorFormResult" /&gt;
+        &lt;input type="submit" value="Submit" /&gt;
+    &lt;/fieldset&gt;
+&lt;/EditForm&gt;</pre>
+<p>And here's a sample code for an HTML form:</p>
+<pre class="code" language="razor">&lt;form @onsubmit="_ =&gt; HtmlFormSubmitted = true"&gt;
+    &lt;fieldset&gt;
+        &lt;legend&gt;HTML form&lt;/legend&gt;
+        &lt;input type="text" @bind-value="HtmlFormResult" @bind-value:event="oninput" /&gt;
+        &lt;input type="submit" value="Submit" /&gt;
+    &lt;/fieldset&gt;
+&lt;/form&gt;</pre>
+<blockquote>This tutorial will only cover the Blazor WebAssembly form.</blockquote>
+<hr class="my-4" />
+<h1>Create a simple Blazor form</h1>
+<p>To create a basic Blazor WebAssembly form, follow these steps:</p>
+<ol>
+    <li>Define a form model class that represents the data you want to collect from the user. The form model is an object that stores the information entered by the user. In this example, we'll create a form model that contains a single property of type string:</li>
+</ol>
+<pre class="code" language="csharp">public class SimpleBlazorFormModel
+{
+    public string InputText { get; set; } = "Blazor School";
+}</pre>
+<ol start="2">
+    <li>In your Blazor component, create a property that references your form model. This property will be used to bind the form fields to the model's properties:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    public SimpleBlazorFormModel FormModel { get; set; } = new();
+}</pre>
+<ol start="3">
+    <li>Use the <code>EditForm</code> component to define the form in your UI. The <code>EditForm</code> component is responsible for managing the form submission and binding the form fields to the model's properties:</li>
+</ol>
+<pre class="code" language="razor">&lt;EditForm Model="FormModel" OnSubmit="HandleFormSubmit"&gt;
+    &lt;InputText @bind-Value="FormModel.InputText" /&gt;
+    &lt;button&gt;Submit&lt;/button&gt;
+&lt;/EditForm&gt;</pre>
+<ol start="4">
+    <li>Implement the <code>HandleFormSubmit</code> method in your component to handle the form submission:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    public void HandleFormSubmit()
+    {
+        // Do something with the form data
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Blazor form validation</h1>
+<p>As a programmer, validation is a crucial task that you cannot ignore, especially when it comes to website development. It's essential to validate user input to ensure that the data you receive is correct and safe to use. In Blazor WebAssembly forms, validation is performed in the browser, but you also need to implement another layer of validation at the API level. There are two types of validation that you can use:</p>
+<ul>
+    <li>
+        <p>Static Data Validation: This type of validation is performed against predefined rules or constraints. For example, you might validate that an email address is in the correct format or that a password meets certain complexity requirements. Blazor provides several built-in validation attributes that you can use, such as <code>Required</code>, <code>StringLength</code>, and <code>RegularExpression</code>.</p>
+    </li>
+    <li>
+        <p>Dynamic Data Validation: This type of validation is performed against dynamic data that changes at runtime. For example, you might validate that a username is unique or that a credit card number is valid by calling an external service. Blazor provides a way to implement custom validation logic using the <code>ValidationMessage</code> and <code>ValidationMessage&lt;T&gt;</code> components, which can display error messages based on your custom validation logic.</p>
+    </li>
+</ul>
+<p>By using a combination of these two validation types, you can ensure that your Blazor forms collect correct and valid data from users, and prevent errors and security issues.</p>
+<h3>Static data validation</h3>
+<p>In Blazor form, you can use <code>DataAnnotation</code> to validate data against static rules like length, pattern, and range. Here are the steps to validate data against static rules using <code>DataAnnotation</code>:</p>
+<ol>
+    <li>Define a form model class and specify validation rules for each property using DataAnnotation attributes. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class AgainstStaticDataFormModel
+{
+    [Required]
+    public string ExampleString { get; set; } = "";
+
+    [Range(2, int.MaxValue, ErrorMessage = "This is a custom message.")]
+    public int ExampleInt { get; set; } = 1;
+}</pre>
+<p>In the above example, the <code>ExampleString</code> property has the <code>[Required]</code> attribute which specifies that it must have a value, while the <code>ExampleInt</code> property has the <code>[Range]</code> attribute which specifies the minimum and maximum values it can have.</p>
+<ol start="2">
+    <li>Declare the form model and bind it to the <code>Model</code> property of the <code>EditForm</code> component. Also, add a submit button. For example:</li>
+</ol>
+<pre class="code" language="razor">&lt;EditForm Model="FormModel"&gt;
+    &lt;button&gt;Submit&lt;/button&gt;
+&lt;/EditForm&gt;
+
+@code {
+    public AgainstStaticDataFormModel FormModel { get; set; } = new();
+}</pre>
+<ol start="3">
+    <li>Add the <code>DataAnnotationsValidator</code> component inside the <code>EditForm</code> component. For example:</li>
+</ol>
+<pre class="" code="">&lt;EditForm Model="FormModel"&gt;
+    &lt;DataAnnotationsValidator /&gt;
+    ...
+&lt;/EditForm&gt;</pre>
+<ol start="4">
+    <li>(Optional) Display error messages using the <code>ValidationMessage</code> or <code>ValidationSummary</code> components.</li>
+</ol>
+<p>Here's a list of the available DataAnnotation attributes that you can use for validating data:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Attribute Name</th>
+                <th class="text-center" scope="col">Description</th>
+            </tr>
+            <tr>
+                <td><code>Compare</code></td>
+                <td>Compares two properties.</td>
+            </tr>
+            <tr>
+                <td><code>CreditCard</code></td>
+                <td>Check if the data is a well-formed credit card.</td>
+            </tr>
+            <tr>
+                <td><code>EmailAddress</code></td>
+                <td>Validates an email address.</td>
+            </tr>
+            <tr>
+                <td><code>EnumDataType</code></td>
+                <td>Check if the provided data belongs to an enum.</td>
+            </tr>
+            <tr>
+                <td><code>FileExtensions</code></td>
+                <td>Validates file name extensions.</td>
+            </tr>
+            <tr>
+                <td><code>MaxLength</code></td>
+                <td>Specifies the maximum length of array or string data allowed in a property.</td>
+            </tr>
+            <tr>
+                <td><code>MinLength</code></td>
+                <td>Specifies the minimum length of collection/string data allowed in a property.</td>
+            </tr>
+            <tr>
+                <td><code>Phone</code></td>
+                <td>Specifies that a data field value is a well-formed phone number.</td>
+            </tr>
+            <tr>
+                <td><code>Range</code></td>
+                <td>Specifies the numeric range constraints for the value of a data field.</td>
+            </tr>
+            <tr>
+                <td><code>RegularExpression</code></td>
+                <td>Regular expression validation attribute.</td>
+            </tr>
+            <tr>
+                <td><code>Required</code></td>
+                <td>Validation attribute to indicate that a property field or parameter is required.</td>
+            </tr>
+            <tr>
+                <td><code>StringLength</code></td>
+                <td>Validation attribute to assert a string property, field or parameter does not exceed a maximum length.</td>
+            </tr>
+            <tr>
+                <td><code>Url</code></td>
+                <td>Provides URL validation.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

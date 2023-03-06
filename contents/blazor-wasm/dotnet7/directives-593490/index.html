@@ -114,9 +114,9 @@
 <p>When interacting with the DOM, you will need to handle events of an element. Although Blazor events and HTML events share the same name, they are different. The following image illustrates the difference between Blazor events and HTML events:</p>
 <p><img src="contents\blazor-wasm\dotnet7\directives-593490\blazor-vs-html-event.png" alt="blazor-vs-html-event.png" width="1000" height="263" /></p>
 <p>For example, a button with an HTML event is coded as follows:</p>
-<pre class="code" language="html">&lt;button class="btn btn-primary" type="button" onclick="alert('HTML event fired!')"&gt;HTML Event&lt;/button&gt;</pre>
+<pre class="code" language="html">&lt;button type="button" onclick="alert('HTML event fired!')"&gt;HTML Event&lt;/button&gt;</pre>
 <p>On the other hand, a button with a Blazor event is coded as follows:</p>
-<pre class="code" language="razor">&lt;button class="btn btn-primary" type="button" @onclick='_ =&gt; ExampleString = "Hello Blazor School!"'&gt;Blazor Event&lt;/button&gt;
+<pre class="code" language="razor">&lt;button type="button" @onclick='_ =&gt; ExampleString = "Hello Blazor School!"'&gt;Blazor Event&lt;/button&gt;
 
 @code {
     public string ExampleString { get; set; } = "";
