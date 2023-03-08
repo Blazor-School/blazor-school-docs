@@ -1,0 +1,368 @@
+﻿<h1>Forms</h1>
+<p>🟨 Slightly different to Blazor Server</p>
+<p>Handling user input with forms is the cornerstone of many common applications. Applications use forms to enable users to log in, to update a profile, to enter sensitive information, and to perform many other data-entry tasks. Blazor makes it easy to create and manage them using C#. With Blazor's data binding capabilities, form validation, and other features, you can quickly create dynamic and interactive forms that help users input and submit data. In this tutorial, we'll explore the various aspects of building forms in Blazor and provide you with practical examples to help you get started:</p>
+<ul>
+    <li>Blazor form and HTML form.</li>
+    <li>Create a basic Blazor form.</li>
+    <li>Blazor form validation.</li>
+    <li>Disable a form control.</li>
+    <li>Display validation message.</li>
+    <li>Blazor form events.</li>
+    <li>Blazor form validation styles.</li>
+    <li>Common mistakes.</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/form-demonstrate-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Blazor form and HTML form</h1>
+<p><code>EditForm</code> is a component that is used to create forms in Blazor applications, while HTML form is a standard way of creating forms in HTML. The <code>EditForm</code> component in Blazor provides features such as form validation, disabling a form control, and data binding. It allows developers to easily create forms that are tightly integrated with their Blazor application.</p>
+<p><img src="contents\blazor-wasm\dotnet7\forms-783409\blazor-form-vs-html-form.png" alt="blazor-form-vs-html-form.png" width="800" height="546" /></p>
+<p>Below is a sample code for a Blazor WebAssembly form:</p>
+<pre class="code" language="razor">&lt;EditForm Model="BlazorFormModel" OnSubmit="_ =&gt; BlazorFormSubmitted = true"&gt;
+    &lt;fieldset&gt;
+        &lt;legend&gt;Blazor form&lt;/legend&gt;
+        &lt;InputText @bind-Value="BlazorFormModel.BlazorFormResult" /&gt;
+        &lt;input type="submit" value="Submit" /&gt;
+    &lt;/fieldset&gt;
+&lt;/EditForm&gt;</pre>
+<p>And here's a sample code for an HTML form:</p>
+<pre class="code" language="razor">&lt;form @onsubmit="_ =&gt; HtmlFormSubmitted = true"&gt;
+    &lt;fieldset&gt;
+        &lt;legend&gt;HTML form&lt;/legend&gt;
+        &lt;input type="text" @bind-value="HtmlFormResult" @bind-value:event="oninput" /&gt;
+        &lt;input type="submit" value="Submit" /&gt;
+    &lt;/fieldset&gt;
+&lt;/form&gt;</pre>
+<blockquote>This tutorial will only cover the Blazor WebAssembly form.</blockquote>
+<hr class="my-4" />
+<h1>Create a simple Blazor form</h1>
+<p>To create a basic Blazor WebAssembly form, follow these steps:</p>
+<ol>
+    <li>Define a form model class that represents the data you want to collect from the user. The form model is an object that stores the information entered by the user. In this example, we'll create a form model that contains a single property of type string:</li>
+</ol>
+<pre class="code" language="csharp">public class SimpleBlazorFormModel
+{
+    public string InputText { get; set; } = "Blazor School";
+}</pre>
+<ol start="2">
+    <li>In your Blazor component, create a property that references your form model. This property will be used to bind the form fields to the model's properties:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    public SimpleBlazorFormModel FormModel { get; set; } = new();
+}</pre>
+<ol start="3">
+    <li>Use the <code>EditForm</code> component to define the form in your UI. The <code>EditForm</code> component is responsible for managing the form submission and binding the form fields to the model's properties:</li>
+</ol>
+<pre class="code" language="razor">&lt;EditForm Model="FormModel" OnSubmit="HandleFormSubmit"&gt;
+    &lt;InputText @bind-Value="FormModel.InputText" /&gt;
+    &lt;button&gt;Submit&lt;/button&gt;
+&lt;/EditForm&gt;</pre>
+<ol start="4">
+    <li>Implement the <code>HandleFormSubmit</code> method in your component to handle the form submission:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    public void HandleFormSubmit()
+    {
+        // Do something with the form data
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Blazor form validation</h1>
+<p>As a programmer, validation is a crucial task that you cannot ignore, especially when it comes to website development. It's essential to validate user input to ensure that the data you receive is correct and safe to use. In Blazor WebAssembly forms, validation is performed in the browser, but you also need to implement another layer of validation at the API level. There are two types of validation that you can use:</p>
+<ul>
+    <li>
+        <p>Static Data Validation: This type of validation is performed against predefined rules or constraints. For example, you might validate that an email address is in the correct format or that a password meets certain complexity requirements. Blazor provides several built-in validation attributes that you can use, such as <code>Required</code>, <code>StringLength</code>, and <code>RegularExpression</code>.</p>
+    </li>
+    <li>
+        <p>Dynamic Data Validation: This type of validation is performed against dynamic data that changes at runtime. For example, you might validate that a username is unique or that a credit card number is valid by calling an external service. Blazor provides a way to implement custom validation logic using the <code>ValidationMessage</code> and <code>ValidationMessage&lt;T&gt;</code> components, which can display error messages based on your custom validation logic.</p>
+    </li>
+</ul>
+<p>By using a combination of these two validation types, you can ensure that your Blazor forms collect correct and valid data from users, and prevent errors and security issues.</p>
+<h3>Static data validation</h3>
+<p>In Blazor form, you can use <code>DataAnnotation</code> to validate data against static rules like length, pattern, and range. Here are the steps to validate data against static rules using <code>DataAnnotation</code>:</p>
+<ol>
+    <li>Define a form model class and specify validation rules for each property using DataAnnotation attributes. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class AgainstStaticDataFormModel
+{
+    [Required]
+    public string ExampleString { get; set; } = "";
+
+    [Range(2, int.MaxValue, ErrorMessage = "This is a custom message.")]
+    public int ExampleInt { get; set; } = 1;
+}</pre>
+<p>In the above example, the <code>ExampleString</code> property has the <code>[Required]</code> attribute which specifies that it must have a value, while the <code>ExampleInt</code> property has the <code>[Range]</code> attribute which specifies the minimum and maximum values it can have.</p>
+<ol start="2">
+    <li>Declare the form model and bind it to the <code>Model</code> property of the <code>EditForm</code> component. Also, add a submit button. For example:</li>
+</ol>
+<pre class="code" language="razor">&lt;EditForm Model="FormModel"&gt;
+    &lt;button&gt;Submit&lt;/button&gt;
+&lt;/EditForm&gt;
+
+@code {
+    public AgainstStaticDataFormModel FormModel { get; set; } = new();
+}</pre>
+<ol start="3">
+    <li>Add the <code>DataAnnotationsValidator</code> component inside the <code>EditForm</code> component. For example:</li>
+</ol>
+<pre class="" code="">&lt;EditForm Model="FormModel"&gt;
+    &lt;DataAnnotationsValidator /&gt;
+    ...
+&lt;/EditForm&gt;</pre>
+<ol start="4">
+    <li>(Optional) Display error messages using the <code>ValidationMessage</code> or <code>ValidationSummary</code> components.</li>
+</ol>
+<p>Here's a list of the available DataAnnotation attributes that you can use for validating data:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Attribute Name</th>
+                <th class="text-center" scope="col">Description</th>
+            </tr>
+            <tr>
+                <td><code>Compare</code></td>
+                <td>Compares two properties.</td>
+            </tr>
+            <tr>
+                <td><code>CreditCard</code></td>
+                <td>Check if the data is a well-formed credit card.</td>
+            </tr>
+            <tr>
+                <td><code>EmailAddress</code></td>
+                <td>Validates an email address.</td>
+            </tr>
+            <tr>
+                <td><code>EnumDataType</code></td>
+                <td>Check if the provided data belongs to an enum.</td>
+            </tr>
+            <tr>
+                <td><code>FileExtensions</code></td>
+                <td>Validates file name extensions.</td>
+            </tr>
+            <tr>
+                <td><code>MaxLength</code></td>
+                <td>Specifies the maximum length of array or string data allowed in a property.</td>
+            </tr>
+            <tr>
+                <td><code>MinLength</code></td>
+                <td>Specifies the minimum length of collection/string data allowed in a property.</td>
+            </tr>
+            <tr>
+                <td><code>Phone</code></td>
+                <td>Specifies that a data field value is a well-formed phone number.</td>
+            </tr>
+            <tr>
+                <td><code>Range</code></td>
+                <td>Specifies the numeric range constraints for the value of a data field.</td>
+            </tr>
+            <tr>
+                <td><code>RegularExpression</code></td>
+                <td>Regular expression validation attribute.</td>
+            </tr>
+            <tr>
+                <td><code>Required</code></td>
+                <td>Validation attribute to indicate that a property field or parameter is required.</td>
+            </tr>
+            <tr>
+                <td><code>StringLength</code></td>
+                <td>Validation attribute to assert a string property, field or parameter does not exceed a maximum length.</td>
+            </tr>
+            <tr>
+                <td><code>Url</code></td>
+                <td>Provides URL validation.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<h3>Dynamic data validation</h3>
+<p><code>EditContext</code> and <code>ValidationMessageStore</code> are the two primary components used for data validation. <code>EditContext</code> facilitates control over the validation flow, while <code>ValidationMessageStore</code> enables the addition of validation messages to the entire form or specific form controls. To validate data against dynamic business logic, follow these steps:</p>
+<ol>
+    <li>Declare properties for each of the <code>EditContext</code>, form model, and <code>ValidationMessageStore</code> in the code section:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    public EditContext FormContext { get; set; } = null!;
+    public AgainstDynamicDataFormModel FormModel { get; set; } = new();
+    public ValidationMessageStore ValidationMessageStore { get; set; } = null!;
+}</pre>
+<blockquote>Note: Using <code>null!</code> will help ignore the dereference warning in Visual Studio 2022, but it doesn't safeguard against null references. Always exercise caution when using <code>null!</code>.</blockquote>
+<ol start="2">
+    <li>Initialize the declared properties in the <code>OnInitialized</code> phase:</li>
+</ol>
+<pre class="code" language="csharp">protected override void OnInitialized()
+{
+    FormContext = new(FormModel);
+    ValidationMessageStore = new(FormContext);
+}</pre>
+<ol start="3">
+    <li>Define the validation flow in the method with the signature <code>object? sender, FieldChangedEventArgs e</code>:</li>
+</ol>
+<pre class="code" language="csharp">public void OnFormContextFieldChanged(object? sender, FieldChangedEventArgs e)
+{
+    ValidationMessageStore.Clear();
+
+    if (FormModel.AllowText is false &amp;&amp; string.IsNullOrEmpty(FormModel.Text) is false)
+    {
+        ValidationMessageStore.Add(FormContext.Field(nameof(FormModel.Text)), "This message is for the field!");
+        ValidationMessageStore.Add(FormContext.Field(string.Empty), "This message is for the entire form!");
+    }
+
+    FormContext.Validate();
+}</pre>
+<p>The validation flow involves removing old validation results, executing custom validation code, and running static data validation. To add a validation message, use <code>ValidationMessageStore.Add()</code> and pass in the field. To add a validation message to the entire form, specify the field as <code>&lt;YourEditContext&gt;.Field(string.Empty)</code>.</p>
+<ol start="4">
+    <li>Subscribe to the <code>OnFieldChanged</code> event of <code>EditContext</code>, and unsubscribe when necessary:</li>
+</ol>
+<pre class="code" language="razor">@implements IDisposable
+
+...
+
+@code {
+    ...
+    protected override void OnInitialized()
+    {
+        ...
+        FormContext.OnFieldChanged += OnFormContextFieldChanged;
+    }
+
+    public void Dispose()
+    {
+        FormContext.OnFieldChanged -= OnFormContextFieldChanged;
+    }
+}</pre>
+<p>By following these steps, you can implement dynamic data validation in Blazor forms with ease, ensuring data accuracy and integrity in complex business logic scenarios.</p>
+<hr class="my-4" />
+<h1>Disable a form control</h1>
+<p>Disabling form controls is a common requirement for many websites, especially when certain users need to be prevented from interacting with specific parts of a form based on their roles. There are two ways to disable form controls in Blazor.</p>
+<h3>Method 1: Use the HTML <code>disabled</code> attribute</h3>
+<p>Using this method will permanently disable the form control. To do this, simply add the <code>disabled</code> attribute with a value of <code>true</code> to the control. For example:</p>
+<pre class="code" language="razor">&lt;InputText class="form-control" @bind-Value="FormModel.ExampleString" disabled="true" /&gt;</pre>
+<h3>Method 2: Use the Blazor <code>@bind-disabled</code> directive</h3>
+<p>Using this method, the form control can be dynamically switched between enabled and disabled states. To do this, declare a boolean property in the component and bind it to the form control using the <code>@bind-disabled</code> directive. For example:</p>
+<pre class="code" language="razor">&lt;InputText class="form-control" @bind-Value="FormModel.ExampleString" @bind-disabled="DisableFormControl"/&gt;
+
+@code {
+    public bool DisableFormControl { get; set; } = false;
+    ...
+}</pre>
+<p>Whenever you change the boolean value, the form control will be enabled or disabled accordingly.</p>
+<hr class="my-4" />
+<h1>Display validation message</h1>
+<p>Validation messages are essential in ensuring that users provide the correct inputs in a form. In order to effectively communicate validation errors to users, there are two places to display validation messages: validation summaries and inline validation messages.</p>
+<p><img src="contents\blazor-wasm\dotnet7\forms-783409\validation-summary-vs-validation-form-control.png" alt="validation-summary-vs-validation-form-control.png" width="707" height="349" /></p>
+<p>A validation summary displays all validation errors in a form, and can be implemented using the <code>ValidationSummary</code> component. To use this component, simply add it within the <code>EditForm</code> element:</p>
+<pre class="code" language="razor">&lt;EditForm Model="FormModel"&gt;
+    &lt;DataAnnotationsValidator /&gt;
+    &lt;ValidationSummary /&gt;
+    ...
+&lt;/EditForm&gt;</pre>
+<p>Inline validation messages, on the other hand, are displayed next to the form control that has an error. To display inline validation messages, use the <code>ValidationMessage</code> component. To implement inline validation messages, add the <code>ValidationMessage</code> component immediately after the corresponding form control. Here's an example:</p>
+<pre class="code" language="razor">&lt;EditForm Model="FormModel"&gt;
+    &lt;ValidationSummary /&gt;
+    &lt;InputText @bind-Value="FormModel.ExampleString" /&gt;
+    &lt;ValidationMessage For="() =&gt; FormModel.ExampleString" /&gt;
+&lt;/EditForm&gt;</pre>
+<p>When using the <code>ValidationMessage</code> component, it's important to specify the <code>For</code> parameter, which should be followed by a delegate that returns the corresponding form model property.</p>
+<hr class="my-4" />
+<h1>Blazor form events</h1>
+<p>Blazor forms have three events that you can handle: <code>OnSubmit</code>, <code>OnValidSubmit</code>, and <code>OnInvalidSubmit</code>. Understanding how to handle these events can help you validate user inputs and provide a better user experience.</p>
+<p>Here's what each event does:</p>
+<ul>
+    <li>
+        <p><code>OnSubmit</code>: This event is fired when the user clicks the submit button. Blazor form will let you handle the validation. You can choose to implement your own validation logic or use static data to validate the form.</p>
+    </li>
+    <li>
+        <p><code>OnValidSubmit</code>: This event is fired when the user clicks the submit button and the form has passed validation against static data. You can use this event to perform additional validation or make changes based on the validated form data.</p>
+    </li>
+    <li>
+        <p><code>OnInvalidSubmit</code>: This event is fired when the user clicks the submit button and the form has failed validation against static data. You can use this event to perform additional validation or make changes based on the invalidated form data.</p>
+    </li>
+</ul>
+<p>Handling these events is similar, you just need to bind the event with an event handler. Here's an example of handling the <code>OnValidSubmit</code> event:</p>
+<pre class="code" language="razor">&lt;EditForm Model="FormModel" OnValidSubmit="ValidSubmit"&gt;
+    &lt;DataAnnotationsValidator /&gt;
+    &lt;ValidationSummary /&gt;
+    ...
+    &lt;button&gt;Submit&lt;/button&gt;
+&lt;/EditForm&gt;
+
+@code {
+    ...
+    public void ValidSubmit(EditContext formContext)
+    {
+    }
+}</pre>
+<p>In this example, the <code>ValidSubmit</code> method is called when the form has passed validation against static data. You can modify the method to suit your validation logic, and you can remove the <code>EditContext</code> parameter if you don't need it.</p>
+<hr class="my-4" />
+<h1>Blazor form validation styles</h1>
+<p>When it comes to website development, there are two commonly used form validation styles: inline validation and after submission validation.</p>
+<ul>
+    <li>Inline validation: In this style, validation occurs in real-time as the user makes changes to the form. For instance, if a form requires an email and phone number, inline validation will check if the email is valid as soon as the user moves to the next input field after entering the email.</li>
+    <li>After submission validation: In this style, validation happens only after the user submits the form. For instance, if a form requires an email and phone number, the user would have to enter both pieces of information and then click the submit button, after which validation errors would be displayed (if any).</li>
+</ul>
+<p>By default, Blazor forms do not support after submission validation.</p>
+<hr class="my-4" />
+<h1>Common mistakes</h1>
+<p>When working with Blazor forms, there are some common mistakes that should be avoided. These include:</p>
+<ul>
+    <li>Modifying the form control value without notifying the field change.</li>
+    <li>Creating a function button instead of a submit button.</li>
+    <li>Forgetting to use the DataAnnotationsValidator tag.</li>
+</ul>
+<h3>Modifying the form control value without notifying the field change</h3>
+<p>If you need to modify a form control value for some reason, it's important to notify the field change to ensure that the validations run again. In the following code, the incorrect way of updating the <code>FormModel.RequiredString</code> value is shown:</p>
+<pre class="code" language="razor">&lt;EditForm EditContext="FormContext"&gt;
+    &lt;DataAnnotationsValidator /&gt;
+    &lt;ValidationSummary /&gt;
+    &lt;InputText @bind-Value="FormModel.RequiredString" /&gt;
+    &lt;button type="button" @onclick="Correct"&gt;Correct&lt;/button&gt;
+    &lt;button type="button" @onclick="Mistake"&gt;Mistake&lt;/button&gt;
+&lt;/EditForm&gt;
+
+@code {
+    public void Mistake()
+    {
+        FormModel.RequiredString = "";
+    }
+}</pre>
+<p>To correctly update the <code>FormModel.RequiredString</code> value, you need to notify the field change as shown below:</p>
+<pre class="code" language="csharp">public void Correct()
+{
+    FormModel.RequiredString = "";
+    FormContext.NotifyFieldChanged(FormContext.Field(nameof(FormModel.RequiredString)));
+}</pre>
+<p>By not notifying the field change, you run the risk of accepting incorrect information since the validations are not run again. The following video demonstrates this mistake in action.</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\forms-783409\mistake-forget-to-notify.webm" />
+    </video>
+</div>
+<h3>Creating a function button instead of a submit button</h3>
+<p>To ensure clarity in button functionality, it is important to differentiate between submit buttons and function buttons. Submit buttons are used to send form data to a server while function buttons are used to execute some logic without submitting the form.</p>
+<p>To create a function button, you can use either the <code>&lt;button type="button"&gt;</code> tag or <code>&lt;input type="button"&gt;</code> tag. Correct submit buttons can be created using the <code>&lt;button&gt;</code> tag or the <code>&lt;input type="submit"&gt;</code> tag.</p>
+<p>Examples of correct function buttons include:</p>
+<pre class="code" language="razor">&lt;input type="button" @onclick="Method1" value="Call Method" /&gt;
+&lt;button type="button" @onclick="Method1" value=""&gt;Call Method&lt;/button&gt;</pre>
+<p>Examples of correct submit buttons include:</p>
+<pre class="code" language="html">&lt;button&gt;Submit&lt;/button&gt;
+&lt;input type="submit" value="Submit" /&gt;</pre>
+<p>However, it is important to note that some buttons may unintentionally call a method and submit the form at the same time. This can be problematic and should be avoided. Examples of incorrect buttons that call the method and submit the form at the same time include:</p>
+<pre class="code" language="razor">&lt;button @onclick="Method1"&gt;(Not Intended) Call Method &amp; Submit (button tag)&lt;/button&gt;
+&lt;input type="submit" @onclick="Method1" value="(Not Intended) Call Method &amp; Submit (input tag)" /&gt;</pre>
+<p>To avoid this mistake, it is important to carefully consider the type and functionality of each button when creating them. The following video demonstrates this common mistake and the importance of distinguishing between function buttons and submit buttons.</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\forms-783409\function-button-mistake.webm" />
+    </video>
+</div>
+<h3>Forgetting to use the DataAnnotationsValidator tag</h3>
+<p>The DataAnnotationsValidator tag is a crucial component for validating forms when using the EditForm component. Its absence can result in the failure of form validation. To illustrate this point, please refer to the following video.</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\forms-783409\forget-validation-tag.webm" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
+<p>In Blazor WebAssembly, form validation occurs on the client-side. Therefore, it's necessary to perform additional validation on the API side. Alternatively, you could delegate all validation processes to the API and import errors to the form, as demonstrated in the <strong>Dynamic Data Validation</strong> section.</p>
