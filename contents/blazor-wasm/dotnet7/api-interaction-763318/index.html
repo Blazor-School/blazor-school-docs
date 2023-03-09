@@ -1,0 +1,199 @@
+﻿<h1>API interaction</h1>
+<p>🟨 Slightly different to Blazor Server</p>
+<p>Knowing how to interact with APIs is a crucial skill for working with Blazor WebAssembly. This involves sending requests to an API server and processing the resulting responses. In this tutorial, you will learn:</p>
+<ul>
+    <li>The importance of registering <code>HttpClient</code></li>
+    <li>How to register <code>HttpClient</code> for a single API</li>
+    <li>How to register <code>HttpClient</code> for multiple APIs</li>
+    <li>Interfere <code>HttpClient</code></li>
+    <li>How to send requests and handle responses</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/api-interaction-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>The importance of registering <code>HttpClient</code></h1>
+<p>In Blazor WebAssembly projects, it's essential to register <code>HttpClient</code> in order to perform server operations such as reading or writing files, accessing databases, and more. These operations must be performed at the API level, using technologies like ASP.NET Web API or ASP.NET gRPC Service. To use an API in a Blazor WebAssembly project, <code>HttpClient</code> registration is required.</p>
+<p>The process for registering APIs in Blazor WebAssembly can vary depending on how the API is designed. Factors to consider include whether there is a single API server or multiple servers, how authorization is handled at the API level, and how errors are handled in the API. By understanding these factors, you can determine the appropriate method for registering APIs in your Blazor WebAssembly project.</p>
+<hr class="my-4" />
+<h1>How to register <code>HttpClient</code> for a single API</h1>
+<p>If your website has only one API, you can add <code>HttpClient</code> as a scoped service in the <strong>Program.cs</strong> file. To do this, assuming your API endpoint is <strong>http://localhost:30911</strong>, use the following code:</p>
+<pre class="code" language="csharp">builder.Services.AddScoped(sp =&gt; new HttpClient { BaseAddress = new Uri("http://localhost:30911") });</pre>
+<p>Once registered, you can inject the <code>HttpClient</code> into any razor component to make a request. For example:</p>
+<pre class="code" language="razor">@inject HttpClient HttpClient</pre>
+<p>This will allow you to interact with your API from within your Blazor WebAssembly application.</p>
+<hr class="my-4" />
+<h1>How to register <code>HttpClient</code> for multiple APIs</h1>
+<p>When working with multiple APIs in Blazor WebAssembly, there are several ways to register <code>HttpClient</code>, each with its own advantages and disadvantages. The three most common approaches are:</p>
+<ul>
+    <li>Using a derived class of <code>HttpClient</code></li>
+    <li>Using a named <code>HttpClient</code></li>
+    <li>Using an <code>HttpClient</code> wrapper</li>
+</ul>
+<p>Each approach provides everything you need to interact with multiple APIs in your application, but the best approach will depend on the specific requirements of your project.</p>
+<h3>Using a derived class of <code>HttpClient</code></h3>
+<p><code>HttpClient</code> is a class that provides a simple API for sending and receiving HTTP requests and responses. In most scenarios, you can use <code>HttpClient</code> directly to interact with remote services and APIs.</p>
+<p>However, in some cases, you may need to customize the behavior of <code>HttpClient</code>, such as adding custom headers, handling retries, or implementing a custom message handler. In these situations, you can derive a new class from <code>HttpClient</code> and add your custom logic to it.</p>
+<p>Deriving a new class from <code>HttpClient</code> allows you to extend the functionality of <code>HttpClient</code> while still using its core features and avoiding the need to write all the low-level HTTP code yourself. Your derived class can inherit all the methods and properties of <code>HttpClient</code> and override or add new behavior as needed.</p>
+<p>To create a derived class, follow these steps:</p>
+<ol>
+    <li>Define a new class that extends the <code>HttpClient</code> class and sets the <code>BaseAddress</code> property in its constructor. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class CustomHttpClient : HttpClient
+{
+    public CustomHttpClient()
+    {
+        BaseAddress = new("http://localhost:30911");
+    }
+}</pre>
+<ol start="2">
+    <li>Register the class as a scoped service in the <strong>Program.cs</strong> file, using the <code>AddScoped</code> method of the <code>IServiceCollection</code> interface. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;CustomHttpClient&gt;();</pre>
+<ol start="3">
+    <li>Whenever you need to make a request, you can inject the <code>CustomHttpClient</code> class using the <code>@inject</code> directive. For example:</li>
+</ol>
+<pre class="code" language="razor">@inject CustomHttpClient CustomHttpClient</pre>
+<h3>Using a named <code>HttpClient</code></h3>
+<p>Named <code>HttpClient</code> is a feature that allows you to create and manage multiple instances of the <code>HttpClient</code> class or derived <code>HttpClient</code> classes, each with its own set of configurations and settings, and distinguish between them using a unique name.</p>
+<p>This is useful when your application needs to interact with multiple remote services or APIs, each with different requirements and characteristics, such as different timeouts, headers, base addresses, or authentication credentials. By giving each <code>HttpClient</code> instance a name, you can easily refer to it when making HTTP requests, and the <code>IHttpClientFactory</code> will take care of creating and configuring the appropriate client for you.</p>
+<p>To create named <code>HttpClient</code> instances, you can follow these steps:</p>
+<ol>
+    <li>Register your HttpClient instances in the Program.cs file and provide a unique name for each instance. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddHttpClient("First API", httpClient =&gt; httpClient.BaseAddress = new("http://localhost:30911"));
+builder.Services.AddHttpClient("Second API", httpClient =&gt; httpClient.BaseAddress = new("http://localhost:30912"));</pre>
+<ol start="2">
+    <li>When making a request, inject the <code>IHttpClientFactory</code> interface and create an instance of <code>HttpClient</code> by specifying its name. For example:</li>
+</ol>
+<pre class="code" language="razor">@inject IHttpClientFactory HttpClientFactory
+
+...
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = HttpClientFactory.CreateClient("First API");
+        ...
+    }
+}</pre>
+<p>HttpClient wrapper is a design pattern used to wrap the HttpClient class in a custom class or interface to provide additional functionality or simplify its usage.</p>
+<h3>Using an <code>HttpClient</code> wrapper</h3>
+<p>By wrapping <code>HttpClient</code>, you can encapsulate its implementation details and provide a simpler, more focused API that is easier to use and test. This can be especially useful when you need to add common headers or handle errors in a consistent way across multiple requests.</p>
+<p>To create an HttpClient wrapper, you can follow these steps:</p>
+<ol>
+    <li>Create a wrapper class that takes an instance of HttpClient as a dependency, like this:</li>
+</ol>
+<pre class="code" language="csharp">public class SecondApiHttpClientWrapper
+{
+    private readonly HttpClient _httpClient;
+
+    public SecondApiHttpClientWrapper(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+}</pre>
+<ol start="2">
+    <li>Register the wrapper class with the dependency injection container in your <strong>Program.cs</strong>, like this:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddHttpClient&lt;SecondApiHttpClientWrapper&gt;(httpClient =&gt; httpClient.BaseAddress = new("http://localhost:30912"));</pre>
+<ol start="3">
+    <li>In your code, inject an instance of the wrapper class and use its methods to make requests, like this:</li>
+</ol>
+<pre class="code" language="razor">@inject SecondApiHttpClientWrapper SecondApiHttpClientWrapper</pre>
+<hr class="my-4" />
+<h1>Interfere <code>HttpClient</code></h1>
+<p>Certain APIs require additional measures to interact with, such as protected JWT tokens, specific request headers, or loading indicators for requests and responses. In these cases, interfacing with <code>HttpClient</code> can be beneficial. There are several methods to interface with <code>HttpClient</code>:</p>
+<ul>
+    <li><code>HttpClient</code> middleware.</li>
+    <li><code>HttpClient</code> wrapper.</li>
+    <li><code>HttpClient</code> extension.</li>
+</ul>
+<h3><code>HttpClient</code> middleware</h3>
+<p>The <code>HttpClient</code> middleware technique is built on the chain of responsibility pattern, where multiple middlewares can be applied to an HTTP request and response in a specific order. The middleware chain starts with the first middleware and ends with the last middleware, processing the request and response respectively.&nbsp;</p>
+<p><img src="contents\blazor-wasm\dotnet7\api-interaction-763318\httpclient-middleware-chain.png" alt="httpclient-middleware-chain.png" width="800" height="820" /></p>
+<p>Follow these steps to create and use <code>HttpClient</code> middleware:</p>
+<ol>
+    <li>Create a middleware class that extends the DelegatingHandler class and overrides the <code>Send</code>/<code>SendAsync</code> method. Interfering code can be added before and after sending the request.</li>
+</ol>
+<pre class="code" language="csharp">public class FirstMiddleware : DelegatingHandler
+{
+    protected override async Task&lt;HttpResponseMessage&gt; SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        // Interfering code before sending the request
+        var response = await base.SendAsync(request, cancellationToken);
+        // Interfering code after sending the request
+
+        return response;
+    }
+}</pre>
+<blockquote>It's important to call <code>base.Send()</code> or <code>base.SendAsync()</code> when overriding the <code>Send</code> or <code>SendAsync</code> method respectively, to ensure the middleware chain continues without being broken.</blockquote>
+<ol start="2">
+    <li>Register all the middlewares as transient services in the <strong>Program.cs</strong> file.</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;FirstMiddleware&gt;();
+builder.Services.AddTransient&lt;SecondMiddleware&gt;();</pre>
+<ol start="3">
+    <li>Register the <code>HttpClient</code> by using named <code>HttpClient</code> or <code>HttpClient</code> wrapper technique, then add the middleware chain in your desired sequence.</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddHttpClient("HttpClient with Middlewares", httpClient =&gt; httpClient.BaseAddress = new("http://localhost:30911"))
+       .AddHttpMessageHandler&lt;FirstMiddleware&gt;()
+       .AddHttpMessageHandler&lt;SecondMiddleware&gt;();
+
+builder.Services.AddHttpClient&lt;SecondApiHttpClientWrapper&gt;(httpClient =&gt; httpClient.BaseAddress = new("http://localhost:30912"))
+       .AddHttpMessageHandler&lt;FirstMiddleware&gt;()
+       .AddHttpMessageHandler&lt;SecondMiddleware&gt;();</pre>
+<h3><code>HttpClient</code> wrapper</h3>
+<p><code>HttpClient</code> wrapper is another way to interfere with HTTP requests and responses. You can provide additional methods to the <code>HttpClient</code> wrapper to create a centralized interference code. Here is an example of how to create a method to send a request using a wrapper class:</p>
+<pre class="code" language="csharp">public class InterfereByHttpClientWrapper
+{
+    ...
+    public async Task&lt;T?&gt; GetAsync&lt;T&gt;(string requestUrl)
+    {
+        // Interfering code before sending the request
+        var response = await _httpClient.GetFromJsonAsync&lt;T&gt;(requestUrl);
+        // Interfering code after sending the request
+
+        return response;
+    }
+}</pre>
+<h3><code>HttpClient</code> extension</h3>
+<p><code>HttpClient</code> extension is another way to interfere with HTTP requests and responses. It allows you to add custom methods and functionality to the <code>HttpClient</code> class.</p>
+<p>To create a <code>HttpClient</code> extension, you can create a static class with extension methods for the <code>HttpClient</code> class. For example:</p>
+<pre class="code" language="csharp">public static class HttpClientExtension
+{
+    public static async Task&lt;T?&gt; GetResponse&lt;T&gt;(this HttpClient httpClient, string url)
+    {
+        // Interfering code before sending the request
+        var result = await httpClient.GetFromJsonAsync&lt;T&gt;(url);
+        // Interfering code after sending the request
+
+        return result;
+    }
+}</pre>
+<hr class="my-4" />
+<h1>How to send requests and handle responses</h1>
+<p>There are several common HTTP methods that are used to communicate with web servers. Here are some of the most common ones:</p>
+<ol>
+    <li>
+        <p>GET: This method is used to retrieve information from the server. It is the most commonly used HTTP method and is used to fetch web pages, images, videos, and other resources from the server.</p>
+    </li>
+    <li>
+        <p>POST: This method is used to submit data to the server. It is commonly used in web forms to send data to the server for processing.</p>
+    </li>
+    <li>
+        <p>PUT: This method is used to update or replace existing data on the server. It is commonly used in RESTful API's to update resources on the server.</p>
+    </li>
+    <li>
+        <p>DELETE: This method is used to delete a resource from the server. It is commonly used in RESTful API's to delete resources.</p>
+    </li>
+    <li>
+        <p>HEAD: This method is similar to the GET method, but it only retrieves the headers of the response, not the body. It is commonly used to check the status of a resource without downloading the entire response.</p>
+    </li>
+    <li>
+        <p>OPTIONS: This method is used to retrieve the supported HTTP methods for a resource. It is commonly used in CORS (Cross-Origin Resource Sharing) to check whether a particular origin is allowed to access a resource.</p>
+    </li>
+    <li>
+        <p>PATCH: This method is used to make partial updates to a resource. It is commonly used in RESTful API's to update specific fields of a resource without replacing the entire resource.</p>
+    </li>
+</ol>
+<p>You can find out more at <a href="https://www.w3schools.com/tags/ref_httpmethods.asp" target="_blank" rel="noopener" title="W3 Schools">https://www.w3schools.com/tags/ref_httpmethods.asp</a>.</p>
