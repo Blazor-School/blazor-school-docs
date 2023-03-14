@@ -23,7 +23,7 @@
 <p><img src="contents\blazor-wasm\dotnet7\cache-storage-287548\edge-cache-storage.png" alt="edge-cache-storage.png" width="587" height="682" /></p>
 <hr class="my-4" />
 <h1>Set up the base code for interacting with Cache storage</h1>
-<p>The Cache storage is exclusively accessible through the JavaScript API. This means that in order to access it, you will need to create a JavaScript module. You can refer to the JavaScript Interaction tutorial and choose between <code>IJSRuntime</code> or <code>InteropServices.JavaScript</code> to interact with your module. Below is an example of how to access the cache storage using <code>IJSRuntime</code>.</p>
+<p>The Cache storage is exclusively accessible through the JavaScript API. This means that in order to access it, you will need to create a JavaScript module. You can refer to the <a href="/tutorial/blazor-wasm/dotnet7/javascript-interaction-775363" title="JavaScript Interaction">JavaScript Interaction</a> tutorial and choose between <code>IJSRuntime</code> or <code>InteropServices.JavaScript</code> to interact with your module. Below is an example of how to access the cache storage using <code>IJSRuntime</code>.</p>
 <ol>
     <li>Create a new JavaScript file under the wwwroot folder. For example:</li>
 </ol>
@@ -183,15 +183,15 @@ export async function removeAll()
 }</pre>
 <hr class="my-4" />
 <h1>Use Cache storage</h1>
-<p>Once you have completed all the previous steps, you can use the Cache Storage as follows:</p>
+<p>Once you have completed all the previous steps, you can use the Cache storage as follows:</p>
 <pre class="code" language="razor">@inject CacheStorageAccessor CacheStorageAccessor
 @inject HttpClient HttpClient
 
-&lt;button class="btn btn-primary" type="button" @onclick="SetValueAsync"&gt;Set Value&lt;/button&gt;
+&lt;button type="button" @onclick="SetValueAsync"&gt;Set Value&lt;/button&gt;
 &lt;div&gt;Stored Value: @StoredValue&lt;/div&gt;
-&lt;button class="btn btn-primary" type="button" @onclick="GetValueAsync"&gt;Get Value&lt;/button&gt;
-&lt;button class="btn btn-primary" type="button" @onclick="RemoveAsync"&gt;Remove Value&lt;/button&gt;
-&lt;button class="btn btn-primary" type="button" @onclick="ClearAllAsync"&gt;Clear All&lt;/button&gt;
+&lt;button type="button" @onclick="GetValueAsync"&gt;Get Value&lt;/button&gt;
+&lt;button type="button" @onclick="RemoveAsync"&gt;Remove Value&lt;/button&gt;
+&lt;button type="button" @onclick="ClearAllAsync"&gt;Clear All&lt;/button&gt;
 
 @code {
     public string StoredValue { get; set; } = "";

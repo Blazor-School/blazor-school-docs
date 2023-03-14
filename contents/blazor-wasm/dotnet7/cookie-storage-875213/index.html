@@ -32,7 +32,7 @@
 <p><img src="contents\blazor-wasm\dotnet7\cookie-storage-875213\edge-cookie-storage.png" alt="edge-cookie-storage.png" width="867" height="716" /></p>
 <hr class="my-4" />
 <h1>Set up the base code for interacting with Cookie storage</h1>
-<p>The cache storage is exclusively accessible through the JavaScript API. This means that in order to access it, you will need to create a JavaScript module. You can refer to the JavaScript Interaction tutorial and choose between <code>IJSRuntime</code> or <code>InteropServices.JavaScript</code> to interact with your module. Below is an example of how to access the cache storage using <code>IJSRuntime</code>.</p>
+<p>The cache storage is exclusively accessible through the JavaScript API. This means that in order to access it, you will need to create a JavaScript module. You can refer to the <a href="/tutorial/blazor-wasm/dotnet7/javascript-interaction-775363" title="JavaScript Interaction">JavaScript Interaction</a> tutorial and choose between <code>IJSRuntime</code> or <code>InteropServices.JavaScript</code> to interact with your module. Below is an example of how to access the cache storage using <code>IJSRuntime</code>.</p>
 <ol>
     <li>Create a new JavaScript file under the wwwroot folder. For example <strong>/js/CacheStorageAccessor.js</strong></li>
     <li>Create a C# class with the following base implementation:</li>
