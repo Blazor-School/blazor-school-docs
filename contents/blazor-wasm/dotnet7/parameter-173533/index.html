@@ -104,7 +104,7 @@
 <h3>Detect changes made to a parameter in the parent component</h3>
 <p>In Blazor, whenever the parent component updates the value of a passed parameter, the child components will automatically re-render with the new value. In most cases, there is no need to specifically detect these changes as the re-rendering will take care of it.</p>
 <p>However, in certain scenarios, you may want to detect changes made to a parameter in the parent component and perform additional actions. In such cases, you can override the <code>OnParametersSet()</code> method in your child component. This method is called whenever the component receives new parameter values and it gives you the opportunity to perform custom logic. You can find more information about this method and other lifecycle events in the Blazor <a href="/tutorial/blazor-wasm/dotnet7/component-lifecycle-923500" title="Component lifecycle tutorial">Component lifecycle tutorial</a>.</p>
-<h3>Detect changes made to a parameter in a child component</h3>
+<h3>Detect changes made to a parameter in a child component using <code>EventCallBack</code></h3>
 <p>Unlike changes made in the parent component, updates to a passed parameter made by a child component will not automatically trigger a re-render of the parent component. To make the parent component react to these changes, you must pass a delegate to the child component. This delegate will be called by the child component whenever it updates the parameter value, notifying the parent component to update itself.</p>
 <p>Here's how to implement this:</p>
 <ol>
@@ -129,6 +129,36 @@
     }
 }</pre>
 <ol start="3">
-    <li>In your parent component, pass the method <code>StateHasChanged()</code> along with the parameter to the child component. This will tell the parent component to re-render itself, whenever the child component update the parameter value.</li>
+    <li><strong>In your parent component</strong>, pass the method <code>StateHasChanged()</code> along with the parameter to the child component. This will tell the parent component to re-render itself, whenever the child component update the parameter value.</li>
 </ol>
-<pre class="code" language="razor">&lt;Child ExampleInstance=&quot;ExampleInstance&quot; ExampleInstanceChanged=&quot;StateHasChanged&quot; /&gt;</pre>
+<pre class="code" language="razor">&lt;Child ExampleInstance="ExampleInstance" ExampleInstanceChanged="StateHasChanged" /&gt;</pre>
+<h3>Detect changes made to a parameter in a child component using <code>@bind</code></h3>
+<p>You can achieve the same result as <code>EventCallBack</code> with <code>@bind</code>. This helps reduce the amount of code you need to write and makes your component easier to understand.</p>
+<ol>
+    <li><strong>In your child component</strong>, declare the parameter and an <code>EventCallback&lt;{Type of parameter}&gt;</code>with the name <code>{Parameter}Changed</code>.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public string? Input { get; set; }
+
+    [Parameter]
+    public EventCallback&lt;string&gt; InputChanged { get; set; }
+}</pre>
+<ol start="2">
+    <li>When updating the parameter in the child component, use the associated <code>EventCallback</code> to update it rather than updating the parameter directly. For example:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    public void UpdateInputFromChild()
+    {
+        InputChanged.InvokeAsync("Value changed at child");
+    }
+}</pre>
+<ol start="3">
+    <li><strong>In your parent component</strong>, use <code>@bind-{Parameter}</code> to pass the parameter to the child component. For example:</li>
+</ol>
+<pre class="code" language="razor">&lt;Child @bind-Input="PassingInput" /&gt;
+
+@code {
+    public string PassingInput { get; set; } = "Data from parent";
+}</pre>
