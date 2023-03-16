@@ -21,8 +21,8 @@
 <p>Implementing authentication in Blazor requires several key elements. These include:</p>
 <ul>
     <li>Browser data storage</li>
-    <li>AuthenticationStateProvider</li>
-    <li>CascadingAuthenticationState</li>
+    <li><code>AuthenticationStateProvider</code></li>
+    <li><code>CascadingAuthenticationState</code></li>
 </ul>
 <p>Browser data storage can be achieved through memory, local storage, or session storage. This storage is responsible for maintaining the user's data and ensuring that it persists even when the user opens a new tab or refreshes the page. Local storage is recommended for this purpose.</p>
 <p>The <code>AuthenticationStateProvider</code> is responsible for managing user authentication, determining whether a user is logged in or not. It contains your authentication business logic and is responsible for notifying other elements about the user's authentication status.</p>
@@ -51,9 +51,9 @@
 <p>The Identity model is a framework that provides a set of classes and interfaces for managing user authentication and authorization in .NET applications, including Blazor. The Identity model defines a standard way to represent and manage user identity information, including their user ID, username, password, and any additional information or claims that may be associated with their identity.</p>
 <p>The key elements of the Identity model include:</p>
 <ol>
-    <li>ClaimsPrincipal: Represents the user's identity and contains a collection of claims, which are pieces of information about the user such as their name, role, or email address.</li>
-    <li>ClaimsIdentity: Represents a set of claims associated with a specific identity and provides methods for adding or removing claims.</li>
-    <li>Claim: Represents a single piece of information about the user, such as their name, email, or role.</li>
+    <li><code>ClaimsPrincipal</code>: Represents the user's identity and contains a collection of claims, which are pieces of information about the user such as their name, role, or email address.</li>
+    <li><code>ClaimsIdentity</code>: Represents a set of claims associated with a specific identity and provides methods for adding or removing claims.</li>
+    <li><code>Claim</code>: Represents a single piece of information about the user, such as their name, email, or role.</li>
 </ol>
 <p>Together, these elements form the foundation of the Identity model, which can be used to implement authentication and authorization mechanisms in Blazor applications. By using the Identity model, developers can ensure that user identity and access control are managed consistently and securely across their application.</p>
 <h3>Authorization rule</h3>
