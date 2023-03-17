@@ -1,0 +1,96 @@
+﻿<h1>Basic JWT authentication</h1>
+<p>🟥 Not applicable to Blazor Server</p>
+<p>JWT are often used for authentication and authorization purposes in web applications. In this tutorial, you will be guided step-by-step on how to implement authentication in Blazor WebAssembly using JWT and the Identity model. The tutorial covers the 3 main authentication flows: login, revisiting the website, and logout. Additionally, a comprehensive template for building authentication will be provided.</p>
+<ul>
+    <li>Required NuGet libraries.</li>
+    <li>Project setup and basic classes.</li>
+    <li>Handle login flow.</li>
+    <li>Handle user revisit flow.</li>
+    <li>Handle logout flow.</li>
+    <li>Access user information.</li>
+    <li>Common mistakes.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/authentication-and-authorization-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Required NuGet libraries</h1>
+<p>To get started, make sure to install <code>Microsoft.AspNetCore.Components.Authorization</code>. Additionally, depending on your identity platform, you may need to install additional NuGet packages. For example, if you plan on using JWT, be sure to install <code>System.IdentityModel.Tokens.Jwt</code>.</p>
+<hr class="my-4" />
+<h1>Project setup and basic classes</h1>
+<ol>
+    <li>Install the required NuGet libraries. In this example, we will be using JWT, so you will need to install <code>Microsoft.AspNetCore.Components.Authorization</code> and <code>System.IdentityModel.Tokens.Jwt</code> from the NuGet package manager.</li>
+    <li>In the <strong>_Imports.razor</strong> file, add <code>@using Microsoft.AspNetCore.Components.Authorization</code> to enable the use of the <code>Microsoft.AspNetCore.Components.Authorization</code> namespace.</li>
+    <li>Set <code>CascadingAuthenticationState</code> as the root component in the <strong>App.razor</strong> file by adding the following code:</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingAuthenticationState&gt;
+    &lt;Router AppAssembly="typeof(App).Assembly"&gt;
+        ...
+    &lt;/Router&gt;
+&lt;/CascadingAuthenticationState&gt;</pre>
+<ol start="4">
+    <li>Add a browser storage for authentication. For the purpose of simplicity, we will use memory storage in this case. However, in a real project, you can use local storage and session storage as per your requirements. To do this, create a class named <code>AuthenticationDataMemoryStorage</code> with a <code>Token</code> property that is initialized to an empty <code>string</code>.</li>
+</ol>
+<pre class="code" language="csharp">public class AuthenticationDataMemoryStorage
+{
+    public string Token { get; set; } = "";
+}</pre>
+<ol start="6">
+    <li>To store information about the users, create a <code>User</code> class. You will later use this class to retrieve user information. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class User
+{
+    public string Username { get; set; } = "";
+    public int Age { get; set; }
+    public List&lt;string&gt; Roles { get; set; } = new();
+
+    public ClaimsPrincipal ToClaimsPrincipal() =&gt; new(new ClaimsIdentity(new Claim[]
+    {
+        new (ClaimTypes.Name, Username),
+        new (nameof(Age), Age.ToString())
+    }.Concat(Roles.Select(r =&gt; new Claim(ClaimTypes.Role, r)).ToArray()),
+    "Blazor School"));
+
+    public static User FromClaimsPrincipal(ClaimsPrincipal principal) =&gt; new()
+    {
+        Username = principal.FindFirst(ClaimTypes.Name)?.Value ?? "",
+        Age = Convert.ToInt32(principal.FindFirst(nameof(Age))?.Value),
+        Roles = principal.FindAll(ClaimTypes.Role).Select(c =&gt; c.Value).ToList()
+    };
+}</pre>
+<blockquote>When creating a new <code>ClaimsIdentity</code>, it's important to always pass the <code>authenticationType</code> parameter. In the example above, we used <code>"Blazor School"</code> as the authenticationType, but you can use any other string that identifies the authentication scheme being used. By including the <code>authenticationType</code> parameter, you ensure that the <code>ClaimsIdentity</code> is associated with the correct authentication scheme, which is necessary for proper authorization and authentication within your application. So, always make sure to include this parameter when creating a new <code>ClaimsIdentity</code> object.</blockquote>
+<ol start="7">
+    <li>Create a class that integrate with the API and browser storage. For instance:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolUserService
+{
+    private readonly HttpClient _httpClient;
+    private readonly AuthenticationDataMemoryStorage _authenticationDataMemoryStorage;
+
+    public BlazorSchoolUserService(HttpClient httpClient, AuthenticationDataMemoryStorage authenticationDataMemoryStorage)
+    {
+        _httpClient = httpClient;
+        _authenticationDataMemoryStorage = authenticationDataMemoryStorage;
+    }
+}</pre>
+<blockquote>Refer to the <a href="/tutorial/blazor-wasm/dotnet7/api-interaction-763318" title="API Interaction">API Interaction</a> tutorial for more information.</blockquote>
+<ol start="8">
+    <li>Create a class that extends the <code>AuthenticationStateProvider</code>. For instance:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider
+{
+    private readonly BlazorSchoolUserService _blazorSchoolUserService;
+
+    public BlazorSchoolAuthenticationStateProvider(BlazorSchoolUserService blazorSchoolUserService)
+    {
+        _blazorSchoolUserService = blazorSchoolUserService;
+    }
+}</pre>
+<ol start="9">
+    <li>Register the browser storage accessor and custom <code>AuthenticationStateProvider</code> in the <strong>Program.cs</strong> file by adding the following code:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;AuthenticationDataMemoryStorage&gt;();
+builder.Services.AddScoped&lt;BlazorSchoolUserService&gt;();
+builder.Services.AddScoped&lt;BlazorSchoolAuthenticationStateProvider&gt;();
+builder.Services.AddScoped&lt;AuthenticationStateProvider&gt;(sp =&gt; sp.GetRequiredService&lt;BlazorSchoolAuthenticationStateProvider&gt;());
+builder.Services.AddAuthorizationCore();
+</pre>
+<blockquote>For more information on browser storage, please refer to the <a href="/tutorial/blazor-wasm/dotnet7/browser-storage-overview-253913" title="Browser Storage">Browser Storage</a> tutorial.</blockquote>
