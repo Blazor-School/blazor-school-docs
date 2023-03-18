@@ -329,6 +329,11 @@ builder.Services.AddAuthorizationCore();
     }));
 }</pre>
 <p>What happens if you don't specify the <code>authenticationType</code>?</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\basic-jwt-authentication-683869\common-mistake-1.webm" />
+    </video>
+</div>
 <p>The <code>ClaimsIdentity</code> will mark the user as unauthenticated, and the <code>ClaimsIdentity.IsAuthenticated</code> property will be <code>false</code>. To avoid this mistake, always specify the <code>authenticationType</code> when creating a <code>ClaimsIdentity</code>. For example:</p>
 <pre class="code" language="csharp">public class User
 {
@@ -364,6 +369,11 @@ builder.Services.AddAuthorizationCore();
 }</pre>
 <p>To avoid making this mistake, it is recommended to follow the <strong>Accessing user information</strong> section.</p>
 <p>What happens when you call <code>GetAuthenticationStateAsync</code> from <code>AuthenticationStateProvider</code> to retrieve user information?</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-wasm\dotnet7\basic-jwt-authentication-683869\common-mistake-3.webm" />
+    </video>
+</div>
 <p>If you call <code>GetAuthenticationStateAsync</code> directly from <code>AuthenticationStateProvider</code> to retrieve user information, it will result in the method being executed each time a component is rendered. This will cause multiple authentication requests to be sent to the API, which can negatively impact performance and result in unnecessary traffic.</p>
 <h3>Mistake #4: Incorrectly using <code>HttpContextAccessor</code> to retrieve user information</h3>
 <p>Using <code>HttpContextAccessor</code> to retrieve user information is a common mistake in Blazor. While MVC and Web API use this approach, it is not suitable for Blazor applications. This can lead to confusion and issues when attempting to access user information in Blazor.</p>
