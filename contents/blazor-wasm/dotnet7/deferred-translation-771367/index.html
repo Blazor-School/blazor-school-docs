@@ -1,0 +1,107 @@
+﻿<h1>Deferred translation</h1>
+<p>🟥 Not applicable to Blazor Server</p>
+<p>One of the biggest challenges of building multilingual websites is managing translations efficiently. Blazor provides a powerful feature called deferred translation, which enables the seamless translation of text in your web application. With deferred translation, when a user changes the language preference, the website remembers it for future visits, but the language selection may not take effect until the user refreshes the website. In this tutorial, we will cover:</p>
+<ul>
+    <li>Creating and using resource files.</li>
+    <li>Implementing the browser language strategy.</li>
+    <li>Implementing the local storage strategy.</li>
+    <li>Implementing the URL strategy.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/multilingual-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Creating and using resource files</h1>
+<p>Deferred translation in Blazor only accepts RESX files as resources by default. By default, the RESX files must be located with the component (centralized resource), as shown in the following image:</p>
+<p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\centralized-resource.png" alt="centralized-resource.png" width="299" height="363" /></p>
+<p>However, centralizing resources can pose challenges when it comes to maintenance. To address this, you can distribute resource files into a separate folder from your component and reconstruct the component folder tree inside a folder, as shown in the following image:</p>
+<p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\distributed-resource.png" alt="distributed-resource.png" width="600" height="561" /></p>
+<p>If you have centralized your resource files, you can add the following code to your <strong>Program.cs</strong> file:</p>
+<pre class="code" language="csharp">builder.Services.AddLocalization();</pre>
+<p>On the other hand, if you have distributed your resource files, you can add the following code to your <strong>Program.cs</strong> file:</p>
+<pre class="code" language="csharp">builder.Services.AddLocalization(options =&gt; options.ResourcesPath = "BlazorSchoolResources");</pre>
+<p>In this case, <code>BlazorSchoolResources</code> is the root resource folder where your resource files are located.</p>
+<hr class="my-4" />
+<h1>Implementing the browser language strategy</h1>
+<p>The browser language strategy is one of the methods that can be used to determine a user's preferred language in a multilingual website.</p>
+<p>When a user visits a website, their browser sends a request header that contains information about the user's preferred language(s). This information is based on the language settings that the user has configured in their browser.</p>
+<p>The browser language strategy works by checking the value of the <code>Accept-Language</code> header in the incoming request, and then using that information to select the appropriate language for the website. If the website supports the user's preferred language, it will display content in that language. If the preferred language is not supported, the website may fall back to a default language or display an error message.</p>
+<p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\browser-language-example.png" alt="browser-language-example.png" width="800" height="466" /></p>
+<p>Building upon the <a href="/tutorial/blazor-wasm/dotnet7/multilingual-website-811806" title="Multilingual website">previous tutorial</a>, Blazor developers can implement a browser language strategy by following step:</p>
+<ol start="5">
+    <li>Add the code for a centralized resource or distributed resource to your <strong>Program.cs</strong> file.</li>
+</ol>
+<hr class="my-4" />
+<h1>Implementing the local storage strategy</h1>
+<p>The local storage strategy is a language selection method used by developers to determine a user's preferred language when creating a multilingual website. Local storage is a web storage API that allows web applications to store data locally within a user's browser.</p>
+<p>With the local storage strategy, developers can store the user's preferred language as a value in the local storage object. When the user visits the website again, the website can read the stored value from the local storage object and display the website content in the preferred language.</p>
+<p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\local-strorage-example.png" alt="local-strorage-example.png" width="737" height="233" /></p>
+<p>Building upon the <a href="/tutorial/blazor-wasm/dotnet7/multilingual-website-811806" title="Multilingual website">previous tutorial</a>, Blazor developers can implement a local storage strategy by following step:</p>
+<ol start="5">
+    <li>Add the code for a centralized resource or distributed resource to your <strong>Program.cs</strong> file.</li>
+    <li>In your <strong>index.html</strong> file, add the JavaScript code to change the local storage:</li>
+</ol>
+<pre class="code&quot;" language="html">&lt;script src="_framework/blazor.webassembly.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+    window.blazorCulture = {
+        get: () =&gt; window.localStorage['BlazorCulture'],
+        set: (value) =&gt; window.localStorage['BlazorCulture'] = value
+    };
+&lt;/script&gt;</pre>
+<ol start="7">
+    <li>Set the website language based on the value of the local storage in your <strong>Program.cs</strong> file:</li>
+</ol>
+<pre class="code&quot;" language="csharp">// await builder.Build().RunAsync();
+var host = builder.Build();
+
+await SetWebsiteLanguageAsync(host);
+await host.RunAsync();
+
+static async Task SetWebsiteLanguageAsync(WebAssemblyHost host)
+{
+    var js = host.Services.GetRequiredService&lt;IJSRuntime&gt;();
+    string userPreferenceLanguage = await js.InvokeAsync&lt;string&gt;("blazorCulture.get");
+    string chosenLanguage = string.IsNullOrEmpty(userPreferenceLanguage) ? "en" : userPreferenceLanguage;
+    CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(chosenLanguage);
+    CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(chosenLanguage);
+}</pre>
+<ol start="8">
+    <li>Build the language selector component.</li>
+</ol>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+
+&lt;select @onchange="OnChangeLanguage"&gt;
+    &lt;option value=""&gt;Select&lt;/option&gt;
+    &lt;option value="en"&gt;English&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+&lt;/select&gt;
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        string selectedLanguage = e.Value?.ToString() ?? "en";
+        InvokeAsync(() =&gt; JSRuntime.InvokeVoidAsync("blazorCulture.set", selectedLanguage));
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Implementing the URL strategy</h1>
+<p>The URL strategy allows users to easily switch to their preferred language or share a link with the preferred language</p>
+<p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\url-example.png" alt="url-example.png" width="587" height="48" /></p>
+<p>Building upon the <a href="/tutorial/blazor-wasm/dotnet7/multilingual-website-811806" title="Multilingual website">previous tutorial</a>, Blazor developers can implement an URL strategy by following step:</p>
+<ol start="5">
+    <li>Add the code for a centralized resource or distributed resource to your <strong>Program.cs</strong> file.</li>
+    <li>Set the website language based on the URL in your <strong>Program.cs</strong> file:</li>
+</ol>
+<pre class="code" language="csharp">// await builder.Build().RunAsync();
+var host = builder.Build();
+SetWebsiteLanguage(host);
+await host.RunAsync();
+
+static void SetWebsiteLanguage(WebAssemblyHost host)
+{
+    var navigationManager = host.Services.GetRequiredService&lt;NavigationManager&gt;();
+    var uri = new Uri(navigationManager.Uri);
+    var urlParameters = HttpUtility.ParseQueryString(uri.Query);
+    var defaultCulture =  CultureInfo.GetCultureInfo("fr");
+    string urlQueryKey = "language";
+    CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(urlParameters[urlQueryKey] ?? defaultCulture.Name);
+    CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(urlParameters[urlQueryKey] ?? defaultCulture.Name);
+}</pre>
