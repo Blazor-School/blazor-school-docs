@@ -3,6 +3,7 @@
 <p>One of the biggest challenges of building multilingual websites is managing translations efficiently. Blazor provides a powerful feature called deferred translation, which enables the seamless translation of text in your web application. With deferred translation, when a user changes the language preference, the website remembers it for future visits, but the language selection may not take effect until the user refreshes the website. In this tutorial, we will cover:</p>
 <ul>
     <li>Creating and using resource files.</li>
+    <li>Project preparation</li>
     <li>Implementing the browser language strategy.</li>
     <li>Implementing the local storage strategy.</li>
     <li>Implementing the URL strategy.</li>
@@ -20,12 +21,30 @@
 <pre class="code" language="csharp">builder.Services.AddLocalization(options =&gt; options.ResourcesPath = "BlazorSchoolResources");</pre>
 <p>In this case, <code>BlazorSchoolResources</code> is the root resource folder where your resource files are located.</p>
 <hr class="my-4" />
+<h1>Project preparation</h1>
+<ol>
+    <li>Install the <code>Microsoft.Extensions.Localization</code> NuGet library.</li>
+    <li>To modify the <strong>csproj.cs</strong> file, right-click on your project and select <strong>Edit Project File</strong>. Then, add the following code to the file:</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\edit-csproj-file.png" alt="edit-csproj-file.png" width="429" height="567" /></p>
+<pre class="code" language="html">&lt;PropertyGroup&gt;
+    ...
+    &lt;BlazorWebAssemblyLoadAllGlobalizationData&gt;true&lt;/BlazorWebAssemblyLoadAllGlobalizationData&gt;
+&lt;/PropertyGroup&gt;</pre>
+<ol start="3">
+    <li>In your component, inject <code>IStringLocalizer&lt;T&gt;</code>, where <code>T</code> represents your component type and uses <code>IStringLocalizer&lt;T&gt;</code> to display text in multiple languages.. For example, in <strong>ChangeLanguageDemonstrate.razor</strong>:</li>
+</ol>
+<pre class="code" language="razor">@inject IStringLocalizer&lt;ChangeLanguageDemonstrate&gt; Localizer
+
+@Localizer["String1"]</pre>
+<p>In the example above, <code>String1</code> is your resource key.</p>
+<p>You can also pass parameters to the localizer. To do this, add a placeholder in the translated text, such as <code>"Hello {0}, {1}"</code>. Then, use <code>@Localizer["Hello {0}, {1}", "Blazor School", "Blazor School Books"]</code> to replace the placeholder with parameters.</p>
+<hr class="my-4" />
 <h1>Implementing the browser language strategy</h1>
 <p>The browser language strategy is one of the methods that can be used to determine a user's preferred language in a multilingual website.</p>
 <p>When a user visits a website, their browser sends a request header that contains information about the user's preferred language(s). This information is based on the language settings that the user has configured in their browser.</p>
 <p>The browser language strategy works by checking the value of the <code>Accept-Language</code> header in the incoming request, and then using that information to select the appropriate language for the website. If the website supports the user's preferred language, it will display content in that language. If the preferred language is not supported, the website may fall back to a default language or display an error message.</p>
 <p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\browser-language-example.png" alt="browser-language-example.png" width="800" height="466" /></p>
-<p>Building upon the <a href="/tutorial/blazor-wasm/dotnet7/multilingual-website-811806" title="Multilingual website">previous tutorial</a>, Blazor developers can implement a browser language strategy by following step:</p>
 <ol start="5">
     <li>Add the code for a centralized resource or distributed resource to your <strong>Program.cs</strong> file.</li>
 </ol>
@@ -34,7 +53,6 @@
 <p>The local storage strategy is a language selection method used by developers to determine a user's preferred language when creating a multilingual website. Local storage is a web storage API that allows web applications to store data locally within a user's browser.</p>
 <p>With the local storage strategy, developers can store the user's preferred language as a value in the local storage object. When the user visits the website again, the website can read the stored value from the local storage object and display the website content in the preferred language.</p>
 <p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\local-strorage-example.png" alt="local-strorage-example.png" width="737" height="233" /></p>
-<p>Building upon the <a href="/tutorial/blazor-wasm/dotnet7/multilingual-website-811806" title="Multilingual website">previous tutorial</a>, Blazor developers can implement a local storage strategy by following step:</p>
 <ol start="5">
     <li>Add the code for a centralized resource or distributed resource to your <strong>Program.cs</strong> file.</li>
     <li>In your <strong>index.html</strong> file, add the JavaScript code to change the local storage:</li>
@@ -85,7 +103,6 @@ static async Task SetWebsiteLanguageAsync(WebAssemblyHost host)
 <h1>Implementing the URL strategy</h1>
 <p>The URL strategy allows users to easily switch to their preferred language or share a link with the preferred language</p>
 <p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\url-example.png" alt="url-example.png" width="587" height="48" /></p>
-<p>Building upon the <a href="/tutorial/blazor-wasm/dotnet7/multilingual-website-811806" title="Multilingual website">previous tutorial</a>, Blazor developers can implement an URL strategy by following step:</p>
 <ol start="5">
     <li>Add the code for a centralized resource or distributed resource to your <strong>Program.cs</strong> file.</li>
     <li>Set the website language based on the URL in your <strong>Program.cs</strong> file:</li>
