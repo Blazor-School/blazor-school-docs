@@ -7,7 +7,6 @@
     <li>Language selection strategies.</li>
     <li>Translation approaches.</li>
     <li>Resource loading approaches.</li>
-    <li>Project preparation.</li>
     <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
 </ul>
 <blockquote>You can <a href="https://github.com/Blazor-School/multilingual-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
@@ -59,33 +58,5 @@
     <li><strong>Lazy loading (recommended)</strong>: This strategy loads only the requested resource files, and the loaded files are cached in the browser memory. Thus, if a user changes the language, the resource files don't need to be loaded again. Resource files can have different extensions like <strong>.json</strong> and <strong>.yml</strong> or any other file formats. For example, if a website has 10 components in 3 languages and a user requests 1 component, only 1 resource file will be loaded. This strategy is recommended and can only be used with the <strong>Instant Translation</strong> approach.</li>
 </ul>
 <hr class="my-4" />
-<h1>Project preparation</h1>
-<ol>
-    <li>Install the Microsoft.Extensions.Localization NuGet library.</li>
-    <li>To modify the csproj.cs file, right-click on your project and select <strong>Edit Project File</strong>. Then, add the following code to the file:</li>
-</ol>
-<p><img src="contents\blazor-wasm\dotnet7\multilingual-website-811806\edit-csproj-file.png" alt="edit-csproj-file.png" width="429" height="567" /></p>
-<pre class="code" language="html">&lt;PropertyGroup&gt;
-    ...
-    &lt;BlazorWebAssemblyLoadAllGlobalizationData&gt;true&lt;/BlazorWebAssemblyLoadAllGlobalizationData&gt;
-&lt;/PropertyGroup&gt;</pre>
-<ol start="3">
-    <li>In your component, inject <code>IStringLocalizer&lt;T&gt;</code>, where <code>T</code> represents your component type and uses <code>IStringLocalizer&lt;T&gt;</code> to display text in multiple languages.. For example, in <strong>ChangeLanguageDemonstrate.razor</strong>:</li>
-</ol>
-<pre class="code" language="razor">@inject IStringLocalizer&lt;ChangeLanguageDemonstrate&gt; Localizer
-
-@Localizer["String1"]</pre>
-<p>In the example above, <code>String1</code> is your resource key.</p>
-<ol start="5">
-    <li>Implement a translation approach, which will be covered in the next tutorial.</li>
-</ol>
-<p>You can also pass parameters to the localizer. To do this, add a placeholder in the translated text, such as <code>"Hello {0}, {1}"</code>. Then, use <code>@Localizer["Hello {0}, {1}", "Blazor School", "Blazor School Books"]</code> to replace the placeholder with parameters.</p>
-<hr class="my-4" />
 <h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
-<div class="flex flex-grow flex-col gap-3">
-    <div class="min-h-[20px] flex flex-col items-start gap-4 whitespace-pre-wrap">
-        <div class="markdown prose w-full break-words dark:prose-invert light">
-            <p>When working with Blazor Server, you'll need to use <code>CultureInfo.CurrentCulture</code> and <code>CultureInfo.CurrentUICulture</code>, rather than <code>CultureInfo.DefaultThreadCurrentCulture</code> and <code>CultureInfo.DefaultThreadCurrentUICulture</code> as you would with Blazor WebAssembly. Additionally, the project preparation steps are completely different.</p>
-        </div>
-    </div>
-</div>
+<p>When working with Blazor Server, you'll need to use <code>CultureInfo.CurrentCulture</code> and <code>CultureInfo.CurrentUICulture</code>, rather than <code>CultureInfo.DefaultThreadCurrentCulture</code> and <code>CultureInfo.DefaultThreadCurrentUICulture</code> as you would with Blazor WebAssembly. Additionally, the project preparation steps are completely different.</p>
