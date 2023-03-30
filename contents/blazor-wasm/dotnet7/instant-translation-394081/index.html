@@ -38,7 +38,9 @@
 <p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\edit-csproj-file.png" alt="edit-csproj-file.png" width="429" height="567" /></p>
 <pre class="code" language="html">&lt;PropertyGroup&gt;
     ...
-    &lt;BlazorWebAssemblyLoadAllGlobalizationData&gt;true&lt;/BlazorWebAssemblyLoadAllGlobalizationData&gt;
+    &lt;BlazorWebAssemblyLoadAllGlobalizationData&gt;
+        true
+    &lt;/BlazorWebAssemblyLoadAllGlobalizationData&gt;
 &lt;/PropertyGroup&gt;</pre>
 <ol start="3">
     <li>In your component, inject <code>IStringLocalizer&lt;T&gt;</code>, where <code>T</code> represents your component type and uses <code>IStringLocalizer&lt;T&gt;</code> to display text in multiple languages.. For example, in <strong>ChangeLanguageDemonstrate.razor</strong>:</li>
@@ -198,6 +200,27 @@ await wasmHost.RunAsync();</pre>
 
         return resourceLocaltion;
     }
+    
+    public async Task SubscribeLanguageChangeAsync(ComponentBase component)
+    {
+        _subscribedComponents.Add(component);
+        await LoadCultureAsync(component);
+    }
+
+    public void UnsubscribeLanguageChange(ComponentBase component) =&gt; _subscribedComponents.Remove(component);
+
+    public async Task NotifyLanguageChangeAsync()
+    {
+        foreach (var component in _subscribedComponents)
+        {
+            if (component is not null)
+            {
+                await LoadCultureAsync(component);
+                var stateHasChangedMethod = component.GetType()?.GetMethod("StateHasChanged", BindingFlags.Instance | BindingFlags.NonPublic);
+                stateHasChangedMethod?.Invoke(component, null);
+            }
+        }
+    }
 }</pre>
 <ol start="7">
     <li>Register the culture provider in the <strong>Program.cs</strong> file using the following code:</li>
@@ -249,27 +272,6 @@ await wasmHost.RunAsync();</pre>
 
         return result;
     }
-    
-    public async Task SubscribeLanguageChangeAsync(ComponentBase component)
-    {
-        _subscribedComponents.Add(component);
-        await LoadCultureAsync(component);
-    }
-
-    public void UnsubscribeLanguageChange(ComponentBase component) =&gt; _subscribedComponents.Remove(component);
-
-    public async Task NotifyLanguageChangeAsync()
-    {
-        foreach (var component in _subscribedComponents)
-        {
-            if (component is not null)
-            {
-                await LoadCultureAsync(component);
-                var stateHasChangedMethod = component.GetType()?.GetMethod("StateHasChanged", BindingFlags.Instance | BindingFlags.NonPublic);
-                stateHasChangedMethod?.Invoke(component, null);
-            }
-        }
-    }
 }</pre>
 <ol start="9">
     <li>Register the string localizer in the <strong>Program.cs</strong> file using the following code:</li>
@@ -306,7 +308,8 @@ await wasmHost.RunAsync();</pre>
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(storedLanguage);
             CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(storedLanguage);
         }
-    }</pre>
+    }
+}</pre>
 <ol start="3">
     <li>Load the resources and set the startup language in your <strong>Program.cs</strong>.</li>
 </ol>
