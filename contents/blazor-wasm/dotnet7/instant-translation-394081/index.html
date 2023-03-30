@@ -77,10 +77,21 @@
             AssemblyLoadContext.Default.LoadFromStream(stream);
         }
     }
+    
+    public void SubscribeLanguageChange(ComponentBase component) =&gt; _subscribedComponents.Add(component);
 
-    public async Task SetStartupLanguageAsync(string fallbackLanguage)
+    public void UnsubscribeLanguageChange(ComponentBase component) =&gt; _subscribedComponents.Remove(component);
+
+    public void NotifyLanguageChange()
     {
-        ...
+        foreach (var component in _subscribedComponents)
+        {
+            if (component is not null)
+            {
+                var stateHasChangedMethod = component.GetType()?.GetMethod("StateHasChanged", BindingFlags.Instance | BindingFlags.NonPublic);
+                stateHasChangedMethod?.Invoke(component, null);
+            }
+        }
     }
 }</pre>
 <ol start="7">
@@ -187,4 +198,287 @@ await wasmHost.RunAsync();</pre>
 
         return resourceLocaltion;
     }
+}</pre>
+<ol start="7">
+    <li>Register the culture provider in the <strong>Program.cs</strong> file using the following code:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;BlazorSchoolLazyCultureProvider&gt;();</pre>
+<h3>Create the string localizer</h3>
+<p>When lazily loading a resource, it is important to create a string localizer that can find the translated content in the resource cache based on the provided keys and parameters.</p>
+<ol start="8">
+    <li>Create a string localizer using the following code:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolStringLocalizer&lt;TComponent&gt; : IStringLocalizer&lt;TComponent&gt; where TComponent : ComponentBase
+{
+    private readonly BlazorSchoolResourceMemoryStorage _blazorSchoolResourceMemoryStorage;
+
+    public LocalizedString this[string name] =&gt; FindLocalziedString(name);
+    public LocalizedString this[string name, params object[] arguments] =&gt; FindLocalziedString(name, arguments);
+
+    public BlazorSchoolStringLocalizer(BlazorSchoolResourceMemoryStorage blazorSchoolResourceMemoryStorage)
+    {
+        _blazorSchoolResourceMemoryStorage = blazorSchoolResourceMemoryStorage;
+    }
+
+    public IEnumerable&lt;LocalizedString&gt; GetAllStrings(bool includeParentCultures) =&gt; throw new NotImplementedException("We do not need to implement this method. This method is not support asynchronous anyway.");
+
+    private LocalizedString FindLocalziedString(string name, object[]? arguments = null)
+    {
+        LocalizedString result = new(name, "", true, "External resource");
+        _blazorSchoolResourceMemoryStorage.JsonComponentResources.TryGetValue(new(typeof(TComponent).FullName!, CultureInfo.DefaultThreadCurrentCulture!.Name), out string? jsonResource);
+
+        if (string.IsNullOrEmpty(jsonResource))
+        {
+            return result;
+        }
+
+        var jObject = JObject.Parse(jsonResource);
+        bool success = jObject.TryGetValue(name, out var jToken);
+
+        if (success)
+        {
+            string value = jToken!.Value&lt;string&gt;()!;
+
+            if (arguments is not null)
+            {
+                value = string.Format(value, arguments);
+            }
+
+            result = new(name, value, false, "External resource");
+        }
+
+        return result;
+    }
+    
+    public async Task SubscribeLanguageChangeAsync(ComponentBase component)
+    {
+        _subscribedComponents.Add(component);
+        await LoadCultureAsync(component);
+    }
+
+    public void UnsubscribeLanguageChange(ComponentBase component) =&gt; _subscribedComponents.Remove(component);
+
+    public async Task NotifyLanguageChangeAsync()
+    {
+        foreach (var component in _subscribedComponents)
+        {
+            if (component is not null)
+            {
+                await LoadCultureAsync(component);
+                var stateHasChangedMethod = component.GetType()?.GetMethod("StateHasChanged", BindingFlags.Instance | BindingFlags.NonPublic);
+                stateHasChangedMethod?.Invoke(component, null);
+            }
+        }
+    }
+}</pre>
+<ol start="9">
+    <li>Register the string localizer in the <strong>Program.cs</strong> file using the following code:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped(typeof(IStringLocalizer&lt;&gt;), typeof(BlazorSchoolStringLocalizer&lt;&gt;));</pre>
+<hr class="my-4" />
+<h1>Implementing the cookies storage strategy</h1>
+<p>Blazor can use the cookie language selection strategy to determine a user's preferred language on a website. If a cookie with the preferred language exists, the website can display content in that language by default. However, if the cookie does not exist, Blazor can use other language selection strategies such as browser language or language in the URL. Alternatively, the website can display content in a fallback language.</p>
+<p><img src="contents\blazor-wasm\dotnet7\instant-translation-394081\cookie-storage-strategy-example.png" alt="cookie-storage-strategy-example.png" width="800" height="240" /></p>
+<p>It's worth noting that while cookies can be used for language selection, MDN recommends using alternative browser storage methods like localStorage, sessionStorage, or IndexedDB due to their better performance and security.</p>
+<p>To implement the cookie storage strategy, follow these steps:</p>
+<ol>
+    <li>Import the JavaScript needed to access the cookies. Refer to the <a href="/tutorial/blazor-wasm/dotnet7/cookie-storage-875213" title="Cookie Storage">Cookie Storage</a> tutorial for guidance.</li>
+    <li>Add a method in your culture provider that sets the startup culture based on the cookie value.</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolCultureProvider
+{
+    ...
+    public async Task SetStartupLanguageAsync(string fallbackLanguage)
+    {
+        var jsRuntime = (IJSRuntime)_invoker;
+        string cookie = await jsRuntime.InvokeAsync&lt;string&gt;("BlazorSchoolUtil.getCookieValue", CookieRequestCultureProvider.DefaultCookieName);
+        var result = CookieRequestCultureProvider.ParseCookieValue(cookie);
+
+        if (result is null)
+        {
+            var defaultCulture = CultureInfo.GetCultureInfo(fallbackLanguage);
+            CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
+        }
+        else
+        {
+            string storedLanguage = result.Cultures.First().Value;
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(storedLanguage);
+            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(storedLanguage);
+        }
+    }</pre>
+<ol start="3">
+    <li>Load the resources and set the startup language in your <strong>Program.cs</strong>.</li>
+</ol>
+<pre class="code" language="csharp">// await builder.Build().RunAsync();
+var wasmHost = builder.Build();
+var culturesProvider = wasmHost.Services.GetService&lt;BlazorSchoolCultureProvider&gt;();
+
+if (culturesProvider is not null)
+{
+    await culturesProvider.LoadCulturesAsync("fr", "en");
+    await culturesProvider.SetStartupLanguageAsync("fr");
+}
+
+await wasmHost.RunAsync();</pre>
+<ol start="4">
+    <li>Build the language selector component. This component allows the user to choose their preferred language and stores it in a cookie, which is used to display content in their preferred language on subsequent visits to the website.</li>
+</ol>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+@inject BlazorSchoolEagerCultureProvider BlazorSchoolCultureProvider 
+
+&lt;select @onchange="OnChangeLanguage"&gt;
+    &lt;option value=""&gt;Select&lt;/option&gt;
+    &lt;option value="en"&gt;English&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+&lt;/select&gt;
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Value?.ToString()) is false)
+        {
+            string selectedLanguage = e.Value.ToString()!;
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(selectedLanguage);
+            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(selectedLanguage);
+            InvokeAsync(() =&gt; JSRuntime.InvokeVoidAsync("BlazorSchoolUtil.updateCookies", CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(new(CultureInfo.CurrentCulture, CultureInfo.CurrentUICulture))));
+            BlazorSchoolCultureProvider.NotifyLanguageChange();
+        }
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Implementing the local storage strategy</h1>
+<p>The local storage strategy is a language selection method used by developers to determine a user's preferred language when creating a multilingual website. Local storage is a web storage API that allows web applications to store data locally within a user's browser.</p>
+<p>With the local storage strategy, developers can store the user's preferred language as a value in the local storage object. When the user visits the website again, the website can read the stored value from the local storage object and display the website content in the preferred language.</p>
+<p><img src="contents\blazor-wasm\dotnet7\instant-translation-394081\local-storage-strategy-example.png" alt="local-storage-strategy-example.png" width="638" height="211" /></p>
+<p>To implement the local storage strategy, follow these steps:</p>
+<ol>
+    <li>Create an local storage accessor class. Refer to the <a href="/tutorial/blazor-wasm/dotnet7/interopservices-javascript-508844" title="InteropServices.JavaScript">InteropServices.JavaScript</a> tutorial for guidance.</li>
+    <li>Add a method in your culture provider that sets the startup culture based on the local storage value.</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolLazyCultureProvider
+{
+    ...
+    public void SetStartupLanguage(string fallbackLanguage)
+    {
+        string languageFromLocalStorage = BlazorSchoolLocalStorageAccessor.GetItem("BlazorSchoolInstantTranslation");
+
+        if (string.IsNullOrEmpty(languageFromLocalStorage))
+        {
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(fallbackLanguage);
+            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(fallbackLanguage);
+        }
+        else
+        {
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(languageFromLocalStorage);
+            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(languageFromLocalStorage);
+        }
+    }
+}</pre>
+<ol start="3">
+    <li>Load the resources and set the startup language in your <strong>Program.cs</strong>.</li>
+</ol>
+<pre class="code" language="csharp">// await builder.Build().RunAsync();
+var wasmHost = builder.Build();
+var culturesProvider = wasmHost.Services.GetService&lt;BlazorSchoolCultureProvider&gt;();
+culturesProvider?.SetStartupLanguage("fr");
+
+await wasmHost.RunAsync();</pre>
+<ol start="4">
+    <li>Build the language selector component. This component allows the user to choose their preferred language and stores it in a local storage, which is used to display content in their preferred language on subsequent visits to the website.</li>
+</ol>
+<pre class="code" language="razor">@inject BlazorSchoolCultureProvider BlazorSchoolCultureProvider
+
+&lt;select @onchange="OnChangeLanguage"&gt;
+    &lt;option value=""&gt;Select&lt;/option&gt;
+    &lt;option value="en"&gt;English&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+&lt;/select&gt;
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Value?.ToString()) is false)
+        {
+            string selectedLanguage = e.Value.ToString()!;
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(selectedLanguage);
+            CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(selectedLanguage);
+            BlazorSchoolLocalStorageAccessor.SetItem("BlazorSchoolInstantTranslation", selectedLanguage);
+            InvokeAsync(BlazorSchoolCultureProvider.NotifyLanguageChangeAsync);
+        }
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Implementing the URL strategy</h1>
+<p>The URL strategy allows users to easily switch to their preferred language or share a link with the preferred language</p>
+<p><img src="contents\blazor-wasm\dotnet7\instant-translation-394081\url-strategy-example.png" alt="url-strategy-example.png" width="587" height="48" /></p>
+<p>To implement the URL strategy, follow these steps:</p>
+<ol>
+    <li>Add a method in your culture provider that sets the startup culture based on the URL value.</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolCultureProvider
+{
+    ...
+    public void SetStartupLanguage(string fallbackLanguage)
+    {
+        _fallbackLanguage = fallbackLanguage;
+        string languageFromUrl = GetLanguageFromUrl();
+        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(languageFromUrl);
+        CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(languageFromUrl);
+    }
+
+    public string GetLanguageFromUrl()
+    {
+        var uri = new Uri(_navigationManager.Uri);
+        var urlParameters = HttpUtility.ParseQueryString(uri.Query);
+
+        return string.IsNullOrEmpty(urlParameters["language"]) ? _fallbackLanguage : urlParameters["language"]!;
+    }
+}</pre>
+<ol start="2">
+    <li>Subscribe to the <code>LocationChanged</code> event and unsubscribe from the event afterward.</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolCultureProvider : IDisposable
+{
+    ...
+    private readonly NavigationManager _navigationManager;
+
+    public BlazorSchoolLazyCultureProvider(..., NavigationManager navigationManager)
+    {
+        ...
+        _navigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        string languageFromUrl = GetLanguageFromUrl();
+        CultureInfo.DefaultThreadCurrentCulture = new CultureInfo(languageFromUrl);
+        CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo(languageFromUrl);
+        await NotifyLanguageChangeAsync();
+    }
+
+    public void Dispose() =&gt; _navigationManager.LocationChanged -= OnLocationChanged;
+}</pre>
+<ol start="3">
+    <li>Load the resources and set the startup language in your <strong>Program.cs</strong>.</li>
+</ol>
+<pre class="code" language="csharp">// await builder.Build().RunAsync();
+var wasmHost = builder.Build();
+var culturesProvider = wasmHost.Services.GetService&lt;BlazorSchoolLazyCultureProvider&gt;();
+culturesProvider?.SetStartupLanguage("fr");
+
+await wasmHost.RunAsync();</pre>
+<hr class="my-4" />
+<h1>Using the instant translation</h1>
+<p>After creating all the necessary classes and preparing the translated resources, you can begin using instant translation. When creating a new component, it's important to subscribe and unsubscribe to the language change notification:</p>
+<pre class="code" language="razor">@inject IStringLocalizer&lt;ChangeLanguageDemonstrate&gt; Localizer
+@inject BlazorSchoolCultureProvider BlazorSchoolCultureProvider
+@implements IDisposable
+
+&lt;h3&gt;ChangeLanguageDemonstrate&lt;/h3&gt;
+@Localizer["Hello Blazor School {0} {1}", "optional param1", "optional param2"]
+
+@code {
+    protected override async Task OnInitializedAsync() =&gt; await BlazorSchoolCultureProvider.SubscribeLanguageChangeAsync(this);
+    public void Dispose() =&gt; BlazorSchoolCultureProvider.UnsubscribeLanguageChange(this);
 }</pre>
