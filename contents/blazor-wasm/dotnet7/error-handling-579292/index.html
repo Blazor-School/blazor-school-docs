@@ -1,0 +1,331 @@
+﻿<h1>Error handling</h1>
+<p>🟨 Slightly different to Blazor Server</p>
+<p>Error handling is a critical aspect of building robust and reliable Blazor applications. No matter how carefully you plan and code your application, errors and exceptions are inevitable. However, with the right strategies and tools, you can minimize the impact of errors and quickly diagnose and resolve issues when they arise. In this tutorial:</p>
+<ul>
+    <li>Why error handling is essential?</li>
+    <li>Steps to take when handling an error</li>
+    <li>Types of errors</li>
+    <li>Catching an error</li>
+    <li>The error handler pipeline</li>
+    <li>Actions to take against errors</li>
+    <li>What is an error handler?</li>
+    <li>The need for a custom error handler</li>
+    <li>Building a custom error handler</li>
+    <li>Using a custom error handler</li>
+    <li>Tracking errors</li>
+    <li>Common mistakes</li>
+    <li>Best practices.</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/error-handling-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Why error handling is essential?</h1>
+<ul>
+    <li>Improve user experience: When a user encounters an error on your website, whether it's caused by them or the developers, it creates a negative impression. Proper error handling can mitigate the risk of a poor user experience by providing hints to resolve the error, friendly messages, or automatically resolving the error.</li>
+    <li>Enhance website credibility: Errors in production are inevitable, even for global enterprise websites like Google, Microsoft, or Amazon. But, if users encounter error messages like 404, they might assume that your business is not worth trying or a scam website. Handling errors better by providing friendly messages can enhance your website's credibility.</li>
+    <li>Encourage bug reporting: Your loyal users are always willing to provide useful information on any bugs they find on your website. But, if you don't provide an easy way to report bugs, you won't get much useful information from them. By providing an error report page, you can collect the error information for investigation and encourage bug reporting.</li>
+</ul>
+<hr class="my-4" />
+<h1>Steps to take when handling an error</h1>
+<p>Handling an error involves 2 critical steps:</p>
+<ol>
+    <li><strong>Error detection</strong>: The first step is to detect that something has gone wrong on your website. This can be achieved by implementing proper error handling mechanisms to identify the issue quickly. Additionally, it's essential to answer the question <strong>"What went wrong?"</strong> accurately.</li>
+    <li><strong>Appropriate action</strong>: Once the error is detected, the next step is to take appropriate action. The minimum action required is to provide a friendly message to the user about the error. However, you can also take additional steps, such as collecting error data for investigation, resuming the operation, or suggesting alternative solutions. Taking the right action can improve User Experience and reduce the likelihood of similar errors occurring in the future.</li>
+</ol>
+<hr class="my-4" />
+<h1>Types of errors</h1>
+<ol>
+    <li><strong>Server Faults</strong>: These types of errors are handled by the host, and Blazor WebAssembly has no control over them. They are usually caused by issues such as network connectivity, server overload, or hardware failure.</li>
+    <li><strong>HTTP Errors</strong>: These types of errors do not directly come from your Blazor WebAssembly website, but from the API side. However, you can catch these errors using Blazor WebAssembly. These errors are usually related to incorrect API requests or server-side issues.</li>
+    <li><strong>Client-Side Errors</strong>: These types of errors are usually caused by components, either by C# code or JavaScript. Blazor WebAssembly allows you to catch these errors and handle them accordingly. They are typically related to issues such as invalid user input, unexpected user behavior, or client-side script errors.</li>
+</ol>
+<hr class="my-4" />
+<h1>Catching an error</h1>
+<p>This section will provide an overview of the error catching scopes in Blazor WebAssembly and how to catch errors within each scope.</p>
+<p>There are four scopes where you can catch errors:</p>
+<ol>
+    <li><strong>Global</strong>: This scope catches any errors that occur on the website.</li>
+    <li><strong>Layout</strong>: This scope catches any errors thrown from within the layout.</li>
+    <li><strong>Component</strong>: This scope catches any errors thrown from within a component.</li>
+    <li><code>HttpClient</code>: This scope catches any errors caused by the API.</li>
+</ol>
+<h3>Global error catching</h3>
+<p>When an error hasn't been caught by any other scopes, this is the last fallback to catch it. To make changes, open your <strong>wwwroot/index.html</strong> file and locate the following element:</p>
+<pre class="code" language="html">&lt;div id="blazor-error-ui"&gt;
+    An unhandled error has occurred.
+    &lt;a href="" class="reload"&gt;Reload&lt;/a&gt;
+    &lt;a class="dismiss"&gt;🗙&lt;/a&gt;
+&lt;/div&gt;</pre>
+<p>You can customize the content of this element to show a specific message whenever an error occurs on your website.</p>
+<h3>Catching errors from layout</h3>
+<p>In Blazor web development, layouts are essential components defined by <code>@inherits LayoutComponentBase</code>. The default layout, <strong>MainLayout.razor</strong>, contains the <code>@Body</code> element, which renders child components. By wrapping <code>@Body</code> with the <code>ErrorBoundary</code> component, you can catch and handle all errors that may be thrown by the layout component.</p>
+<pre class="code" language="razor">&lt;ErrorBoundary&gt;
+    @Body
+&lt;/ErrorBoundary&gt;</pre>
+<p>Visit <a href="/tutorial/blazor-wasm/dotnet7/website-layout-124972" title="Website Layout">Website Layout</a> to learn more about this crucial aspect of web development.</p>
+<h3>Catching errors from component</h3>
+<p>To catch errors that occur within a component, you can use an error handler component. For instance, you can wrap the component that may throw an error with an <code>ErrorBoundary</code> component. Suppose you have a <code>TriggerError</code> component defined as follows:</p>
+<pre class="code" language="" razor="">@inject HttpClient HttpClient
+
+&lt;button type="button" @onclick='TriggerHttpClientErrorAsync'&gt;Trigger HttpClient error&lt;/button&gt;
+&lt;button type="button" @onclick="TriggerClientSideError"&gt;Trigger client side error&lt;/button&gt;
+
+@code {
+    public async Task TriggerHttpClientErrorAsync() =&gt; await HttpClient.GetAsync("https://blazorschool.com");
+    public void TriggerClientSideError() =&gt; throw new Exception("Blazor School");
+}</pre>
+<p>To use an <code>ErrorBoundary</code> component to handle errors thrown by the <code>TriggerError</code> component, you can wrap the <code>TriggerError</code> component inside an <code>ErrorBoundary</code> component in another component, as shown below:</p>
+<p><strong>MyComponent.razor</strong></p>
+<pre class="code" language="razor">&lt;ErrorBoundary&gt;
+    &lt;TriggerError/&gt;
+&lt;/ErrorBoundary&gt;</pre>
+<h3>Catch API errors with the <code>HttpClient</code> wrapper technique</h3>
+<p>If you're building an application that consumes an API, it's essential to handle errors gracefully. One way to achieve this is by using the HttpClient wrapper technique. This technique involves wrapping the HttpClient class with a custom class that catches any exceptions thrown by the API and logs them. Visit <a href="/tutorial/blazor-wasm/dotnet7/api-interaction-763318" title="API Interaction">API Interaction</a> tutorial for more information.</p>
+<p>In this example, we have 2 classes:</p>
+<ul>
+    <li><code>ExceptionRecorderService</code>: Responsible for keeping track of any exceptions that are thrown.</li>
+    <li><code>BlazorSchoolHttpClientWrapper</code>: This class is a custom <code>HttpClient</code> wrapper that catches exceptions and logs them using the <code>ExceptionRecorderService</code>.</li>
+</ul>
+<pre class="code" language="csharp">public class ExceptionRecorderService
+{
+    public ObservableCollection&lt;Exception&gt; Exceptions { get; set; } = new();
+}
+</pre>
+<pre class="code" language="csharp">public class BlazorSchoolHttpClientWrapper
+{
+    private readonly HttpClient _httpClient;
+    private readonly ExceptionRecorderService _exceptionRecorderService;
+
+    public BlazorSchoolHttpClientWrapper(HttpClient httpClient, ExceptionRecorderService exceptionRecorderService)
+    {
+        _httpClient = httpClient;
+        _exceptionRecorderService = exceptionRecorderService;
+    }
+
+    public async Task&lt;HttpResponseMessage&gt; GetAsync(string? requestUri)
+    {
+        var response = new HttpResponseMessage();
+
+        try
+        {
+            response = await _httpClient.GetAsync(requestUri);
+        }
+        catch (Exception ex)
+        {
+            _exceptionRecorderService.Exceptions.Add(ex);
+        }
+
+        return response;
+    }
+}</pre>
+<p>To use this technique in your application, register both classes in your <strong>Program.cs</strong> file using the <code>AddScoped</code> and <code>AddHttpClient</code> methods.</p>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;ExceptionRecorderService&gt;();
+builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;((sp, httpClient) 
+    =&gt; httpClient.BaseAddress = new(builder.HostEnvironment.BaseAddress));</pre>
+<p>Once you've registered the classes, you can inject the <code>BlazorSchoolHttpClientWrapper</code> and <code>ExceptionRecorderService</code> into any component and use them to catch and handle API errors.</p>
+<pre class="code" language="razor">@inject ExceptionRecorderService ExceptionRecorderService
+@inject BlazorSchoolHttpClientWrapper BlazorSchoolHttpClientWrapper
+@implements IDisposable
+
+&lt;h3&gt;HandlingHttpErrorsByHttpClientWrapper&lt;/h3&gt;
+&lt;button @onclick="TriggerHttpErrorAsync"&gt;Trigger HTTP Error&lt;/button&gt;
+
+@foreach (var exception in ExceptionRecorderService.Exceptions)
+{
+    &lt;div&gt;@exception.Message&lt;/div&gt;
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        ExceptionRecorderService.Exceptions.CollectionChanged += RefreshUI;
+    }
+
+    public async Task TriggerHttpErrorAsync()
+    {
+        await BlazorSchoolHttpClientWrapper.GetAsync("https://blazorschool.com");
+    }
+
+    public void RefreshUI(object? sender, NotifyCollectionChangedEventArgs eventArgs)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ExceptionRecorderService.Exceptions.CollectionChanged -= RefreshUI;
+    }
+}</pre>
+<p>In the example component provided, we inject the <code>BlazorSchoolHttpClientWrapper</code> and <code>ExceptionRecorderService</code> using the <code>@inject</code> directive. We then use the <code>BlazorSchoolHttpClientWrapper</code> to make an API call that triggers an error. The <code>ExceptionRecorderService</code> catches the error and logs it. Finally, we use the logged error to display an error message to the user.</p>
+<hr class="my-4" />
+<h1>The error handler pipeline</h1>
+<p>Blazor comes with an error handling pipeline that facilitates the handling of errors in different scopes based on a predefined sequence. When an unhandled error occurs, the error handling pipeline delegates it to the next scope in sequence.</p>
+<p>The first error handler that handles the error is the one in the component scope. If there is no error handler in the component scope, the error is delegated to the layout scope. If there is still no error handler, the error is handled by the global error handler.</p>
+<p>If the error is handled by any of the error handlers, it is not delegated to the next scope. However, if it remains unhandled, it continues to delegate to the next scope until it reaches the global error handler.</p>
+<p>It's important to note that HTTP request errors are handled in a separate scope. You have the option to handle these errors or choose not to handle them. Unlike other errors, an <code>HttpClient</code> error will not halt your website.</p>
+<p>To illustrate the error scope delegation, refer to the following image:</p>
+<p><img src="contents\blazor-wasm\dotnet7\error-handling-579292\scope-delegation.png" alt="scope-delegation.png" width="874" height="500" /></p>
+<hr class="my-4" />
+<h1>Actions to take against errors</h1>
+<p>When it comes to handling errors in the second step, there are a couple of common actions you can take. In this section, we'll introduce you to two of them:</p>
+<ul>
+    <li>Displaying an error message to the user.</li>
+    <li>Resuming the operation.</li>
+</ul>
+<h3>Displaying an error message to the user</h3>
+<p>Displaying an error message to the user is a common action taken to handle errors in software. When an error occurs, displaying an error message can provide users with information about the error that occurred and how to resolve it. This can help users understand what went wrong and how to fix it, which can improve the user experience and reduce frustration.</p>
+<p>The <code>ErrorContent</code> element is a child element of the <code>ErrorBoundary</code> component in Blazor, and it is used to define the content that will be displayed when an error occurs from the child components within the <code>ErrorBoundary</code> scope.</p>
+<p>The <code>ErrorContent</code> element accepts a <code>Context</code> parameter, which specifies the name of the variable that will hold the error object that caused the error. You can use this variable to access properties of the error object, such as the error message, and display it to the user.</p>
+<p>For example, if you define an <code>ErrorContent</code> element with the <code>Context</code> parameter set to <code>ex</code>, you can access the error message using the <code>@ex.Message</code> syntax.</p>
+<p>Here's an example of how to use the <code>ErrorContent</code> element:</p>
+<pre class="code" language="razor">&lt;ErrorBoundary&gt;
+    &lt;ChildContent&gt;
+        &lt;TriggerError/&gt;
+    &lt;/ChildContent&gt;
+    &lt;ErrorContent Context="ex"&gt;
+        An error occurred: @ex.Message
+    ErrorContent&gt;
+&lt;/ErrorBoundary&gt;</pre>
+<h3>Resuming the operation</h3>
+<p>In some cases, it may be possible to resume the operation that was interrupted by the error. For example, if an error occurred during a payment transaction, the user may be able to retry the transaction or use an alternative payment method. Resuming the operation can help to minimize the impact of the error on the user experience and ensure that the user can complete the task they were attempting. You can resume the operation by using the ErrorBoundary component and calling its Recover method as follows:</p>
+<pre class="code" language="razor">&lt;ErrorBoundary @ref="MyErrorBoundary"&gt;
+    &lt;ChildContent&gt;
+        &lt;TriggerError/&gt;
+    &lt;/ChildContent&gt;
+    &lt;ErrorContent&gt;
+        An error occurred. &lt;button @onclick="_ =&gt; MyErrorBoundary?.Recover()"&gt;Continue&lt;/button&gt;
+    &lt;/ErrorContent&gt;
+&lt;/ErrorBoundary&gt;
+
+@code {
+    public ErrorBoundary? MyErrorBoundary { get; set; }
+}</pre>
+<hr class="my-4" />
+<h1>What is an error handler?</h1>
+<p>An error handler in Blazor is a component that extends either the <code>ErrorBoundary</code> or <code>ErrorBoundaryBase</code> component to handle errors within a specified scope. For instance, if you place an error handler at the component level, it will handle any errors that occur within that component. The <code>ErrorBoundary</code> is the default error handler component, but you can also create custom error handlers.</p>
+<hr class="my-4" />
+<h1>The need for a custom error handler</h1>
+<p>In web development, having a custom error handler is crucial for several reasons. While the default error handler can handle most issues, there are instances where a more personalized approach is necessary.</p>
+<p>For example, if your website throws more than 100 exceptions, it will be considered critical and fallback to the global error handler. Additionally, you may not have access to the current exception beyond basic details, limiting your ability to respond effectively. By creating a custom error handler, you gain access to the current exception, allowing you to take specific actions such as sending the exception back to your logging API or implementing other solutions.</p>
+<hr class="my-4" />
+<h1>Building a custom error handler</h1>
+<p>To create a customized error handler, you can extend either the <code>ErrorBoundary</code> or <code>ErrorBoundaryBase</code> component. However, by extending the <code>ErrorBoundaryBase</code> component, you will have greater flexibility in managing error situations.</p>
+<p>To use the <code>ErrorBoundaryBase</code> component effectively, it's important to understand its key features and how they work. Here are the main things to keep in mind:</p>
+<ol>
+    <li><code>ChildContent</code>: This is the component that may potentially throw an error. It's important to note that the error must be thrown within <code>ChildContent</code> in order to be caught by the <code>ErrorBoundaryBase</code> component. Refer to the documentation for common mistakes to avoid.</li>
+    <li><code>ErrorContent</code>: This is a <code>RenderFragment</code> that will be displayed if an error occurs within <code>ChildContent</code>. It can be customized to provide a better user experience when errors occur.</li>
+    <li><code>MaximumErrorCount</code>: This property sets a maximum number of errors that can occur before an error is treated as critical and delegated to the global error handler in Blazor. The default value for <code>MaximumErrorCount</code> in <code>ErrorBoundaryBase</code> is 100.</li>
+    <li><code>Recover</code>: This is a method that allows you to reset the current error count and continue using the website without refreshing the page.</li>
+    <li><code>OnErrorAsync</code>: This is an abstract method that you must override in your custom <code>ErrorBoundaryBase</code> component. It will be called whenever an error is raised within <code>ChildContent</code>, giving you the opportunity to handle the error in a way that makes sense for your application.</li>
+</ol>
+<p>To illustrate this, let's create a sample custom error handler that record a list of exceptions.</p>
+<ol>
+    <li>To create a custom error handler using the <code>ErrorBoundaryBase</code> component, you should start by creating a new class that extends the <code>ErrorBoundaryBase</code> class. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolErrorBoundary : ErrorBoundaryBase
+{
+}</pre>
+<ol start="2">
+    <li>Once you have created your custom error handler class, you should override the <code>OnErrorAsync</code> method to record any exceptions that are thrown by the child components. This is where you can add custom logic to handle errors in a way that makes sense for your application. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolErrorBoundary : ErrorBoundaryBase
+{
+    ...
+    public ObservableCollection&lt;Exception&gt; BlazorSchoolExceptions = new();
+
+    protected override Task OnErrorAsync(Exception exception)
+    {
+        BlazorSchoolExceptions.Add(exception);
+
+        return Task.CompletedTask;
+    }
+}</pre>
+<ol start="3">
+    <li>Finally, you can override the <code>BuildRenderTree</code> method to display a default custom UI when an error occurs. This is where you can provide a method for the user to resolve the error, if applicable. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolErrorBoundary : ErrorBoundaryBase
+{
+    ...
+    protected void RecoverAndClearErrors()
+    {
+        Recover();
+        BlazorSchoolExceptions.Clear();
+    }
+
+    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    {
+        if (CurrentException is null)
+        {
+            builder.AddContent(0, ChildContent);
+        }
+        else
+        {
+            if (ErrorContent is not null)
+            {
+                builder.AddContent(1, ErrorContent(CurrentException));
+            }
+            else
+            {
+                builder.OpenElement(2, "div");
+                builder.AddContent(3, "Blazor School Custom Error Boundary.");
+                builder.AddContent(4, __innerBuilder =&gt;
+                {
+                    __innerBuilder.OpenElement(5, "button");
+                    __innerBuilder.AddAttribute(6, "type", "button");
+                    __innerBuilder.AddAttribute(7, "onclick", RecoverAndClearErrors);
+                    __innerBuilder.AddContent(8, "Continue");
+                    __innerBuilder.CloseElement();
+                });
+                builder.CloseElement();
+            }
+        }
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Using a custom error handler</h1>
+<p>Once you have created your custom error handler, you can use it just like the ErrorHandler component. For instance:</p>
+<pre class="code" language="razor">&lt;BlazorSchoolErrorBoundary&gt;
+    &lt;ChildContent&gt;
+        &lt;TriggerError /&gt;
+    &lt;/ChildContent&gt;
+    &lt;ErrorContent&gt;
+        &lt;TriggerError /&gt;
+        &lt;div&gt;Hello Blazor School!&lt;/div&gt;
+    &lt;/ErrorContent&gt;
+&lt;/BlazorSchoolErrorBoundary&gt;</pre>
+<hr class="my-4" />
+<h1>Tracking errors</h1>
+<p>It's common for enterprise websites to include an error reporting page, where users can report any issues they encounter to the developers. By utilizing a custom error handler, you can access the <code>CurrentException</code> property, which contains information on the error that occurred. You can then send this object to the error reporting page, allowing you to gather valuable data from the user regarding the issue they faced.</p>
+<hr class="my-4" />
+<h1>Common mistakes</h1>
+<p>When handling errors, it's important to avoid common mistakes that can lead to unexpected behavior. In this section, we'll discuss one such mistake.</p>
+<h3>Throwing an error outside of the error handler's scope</h3>
+<p>According to data from the Blazor School Discord Community, a common error handling mistake is throwing exceptions outside of the error handler's scope and expecting the error handler to handle the exception. Consider the following code in the <code>TriggerErrorOutsideScope</code> component:</p>
+<pre class="code" language="razor">@inject HttpClient HttpClient
+
+&lt;ErrorBoundary&gt;
+    &lt;ChildContent&gt;
+        &lt;button type="button" @onclick='TriggerHttpClientErrorAsync'&gt;Trigger HttpClient error&lt;/button&gt;
+        &lt;button type="button" @onclick="TriggerClientSideError"&gt;Trigger client side error&lt;/button&gt;
+    &lt;/ChildContent&gt;
+    &lt;ErrorContent&gt;An error has occurred.&lt;/ErrorContent&gt;
+&lt;/ErrorBoundary&gt;
+
+@code {
+    public async Task TriggerHttpClientErrorAsync() =&gt; await HttpClient.GetAsync("https://blazorschool.com");
+    public void TriggerClientSideError() =&gt; throw new Exception("Blazor School");
+}</pre>
+<p>In this example, there are 2 buttons to trigger an HTTP error and a client-side error. However, neither of these errors will be caught by the <code>ErrorBoundary</code> component, even though they appear to be inside it. This is because the <code>TriggerHttpClientErrorAsync</code> and <code>TriggerClientSideError</code> methods are being executed by the <code>TriggerErrorOutsideScope</code> component, rather than executed inside the <code>ErrorBoundary</code> component.</p>
+<hr class="my-4" />
+<h1>Best practices</h1>
+<p>After learning how to handle errors, it's important to keep a few things in mind while developing websites:</p>
+<ul>
+    <li>Use a <code>try-catch</code> block in C# code to handle known errors and take appropriate action. If you cannot take any action against the error, then avoid using the <code>try-catch</code> block and let the error handler do its job.</li>
+    <li>Include an error handler in every layout to catch all unhandled errors and take appropriate action, rather than always delegating to the global error handler and forcing the user to reload the page every time an error occurs.</li>
+    <li>Check for the type of error in the error handler and act accordingly. For example, if the error is from an API (HTTP error), you can use the status code to take necessary action. If there is a 401 Unauthorized error, redirect the user to the login page. If there is a 500 Internal Server Error, send the <code>CurrentException</code> object to your logging API.</li>
+    <li>For all other unhandled errors, send the error details to the logging API. You can use a third-party error provider or build one yourself. By examining these logs, you can make necessary changes to the website.</li>
+    <li>An ideal error report page should be a static HTML page with minimal functionality.</li>
+</ul>
+<hr class="my-4" />
+<h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
+<p>In Blazor Server, you have an additional scope to catch first request error.</p>
