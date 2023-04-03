@@ -65,7 +65,7 @@
 <p>Visit <a href="/tutorial/blazor-wasm/dotnet7/website-layout-124972" title="Website Layout">Website Layout</a> to learn more about this crucial aspect of web development.</p>
 <h3>Catching errors from component</h3>
 <p>To catch errors that occur within a component, you can use an error handler component. For instance, you can wrap the component that may throw an error with an <code>ErrorBoundary</code> component. Suppose you have a <code>TriggerError</code> component defined as follows:</p>
-<pre class="code" language="" razor="">@inject HttpClient HttpClient
+<pre class="code" language="razor=">@inject HttpClient HttpClient
 
 &lt;button type="button" @onclick='TriggerHttpClientErrorAsync'&gt;Trigger HttpClient error&lt;/button&gt;
 &lt;button type="button" @onclick="TriggerClientSideError"&gt;Trigger client side error&lt;/button&gt;
@@ -328,4 +328,4 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;((sp, httpCli
 </ul>
 <hr class="my-4" />
 <h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
-<p>In Blazor Server, you have an additional scope to catch first request error.</p>
+<p>In Blazor Server, you have an additional scope to catch first request errors.</p>
