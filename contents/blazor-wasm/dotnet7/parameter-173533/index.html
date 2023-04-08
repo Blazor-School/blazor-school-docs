@@ -3,7 +3,7 @@
 <p><code>Parameter</code> is a feature for transmitting data from a parent component to its direct child components.</p>
 <ul>
     <li>Passing parameters with Parameter.</li>
-    <li>Capture unmatches values.</li>
+    <li>Capture unmatched values.</li>
     <li>Common mistake.</li>
     <li>Detect changes.</li>
 </ul>
@@ -34,7 +34,7 @@
 </ol>
 <pre class="code" language="razor">&lt;Child InputParameter="FirstData" RequiredInputParameter="SecondData" /&gt;</pre>
 <hr class="my-4" />
-<h1>Capture unmatches values</h1>
+<h1>Capture unmatched values</h1>
 <p>You have learned that in order to pass data from a parent component to a child component, the child component must first acknowledge the parameters that it expects to receive. However, in some cases, it may not be possible to predict which parameters will be passed to the component. A common scenario that demonstrates this situation is when working with HTML attributes (learn more at <a href="https://www.w3schools.com/html/html_attributes.asp" target="_blank" rel="noopener" title="https://www.w3schools.com/html/html_attributes.asp">https://www.w3schools.com/html/html_attributes.asp</a>). As you know, any HTML attribute can be defined and as a result, the child component will not know which or what attributes the parent component will pass. In such cases, Blazor's Parameter feature supports the child component by allowing it to catch all unmatched parameter values into a dictionary.</p>
 <ol>
     <li><strong>In your child component</strong>, declare a public property (just one) that will receive the unmatched parameters passed from the parent component.</li>
