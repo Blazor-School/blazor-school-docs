@@ -34,12 +34,12 @@
 }</pre>
 <blockquote>It's important to note that <code>List&lt;T&gt;</code> does not support hooking events.</blockquote>
 <ol start="2">
-    <li>Register the transfer service in the <code>Program.cs</code> file. For example:</li>
+    <li>Register the transfer service in the <strong>Program.cs</strong> file. For example:</li>
 </ol>
 <pre class="code" language="razor">...
 builder.RootComponents.Add&lt;HeadOutlet&gt;("head::after");
 builder.Services.AddScoped&lt;ExampleTransferService&gt;();</pre>
-<p>By registering the Transfer Service class in the <code>Program.cs</code>, it can be injected into any component that needs it. This allows the components to share the same data and stay in sync with the state of the application.</p>
+<p>By registering the Transfer Service class in the <strong>Program.cs</strong>, it can be injected into any component that needs it. This allows the components to share the same data and stay in sync with the state of the application.</p>
 <hr class="my-4" />
 <h1>Consume a transfer service</h1>
 <p>A transfer service can be consumed in both a component or a class. To consume a transfer service in a class, you need to inject the service into the constructor of your class and register it in the same way as the transfer service class. In this tutorial, we will focus on consuming a transfer service in a component.</p>
