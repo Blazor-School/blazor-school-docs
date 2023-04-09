@@ -35,7 +35,7 @@
     <li>Install the <code>Microsoft.Extensions.Localization</code>, <code>System.Resources.ResourceManager</code>, and <code>Microsoft.AspNetCore.Localization</code> from the NuGet library.</li>
     <li>To modify the <strong>csproj.cs</strong> file, right-click on your project and select <strong>Edit Project File</strong>. Then, add the following code to the file:</li>
 </ol>
-<p><img src="contents\blazor-wasm\dotnet7\deferred-translation-771367\edit-csproj-file.png" alt="edit-csproj-file.png" width="429" height="567" /></p>
+<p><img src="contents\blazor-wasm\dotnet7\instant-translation-394081\edit-csproj-file.png" alt="edit-csproj-file.png" width="429" height="567" /></p>
 <pre class="code" language="html">&lt;PropertyGroup&gt;
     ...
     &lt;BlazorWebAssemblyLoadAllGlobalizationData&gt;
@@ -43,7 +43,7 @@
     &lt;/BlazorWebAssemblyLoadAllGlobalizationData&gt;
 &lt;/PropertyGroup&gt;</pre>
 <ol start="3">
-    <li>In your component, inject <code>IStringLocalizer&lt;T&gt;</code>, where <code>T</code> represents your component type and uses <code>IStringLocalizer&lt;T&gt;</code> to display text in multiple languages.. For example, in <strong>ChangeLanguageDemonstrate.razor</strong>:</li>
+    <li>In your component, inject <code>IStringLocalizer&lt;T&gt;</code>, where <code>T</code> represents your component type and uses <code>IStringLocalizer&lt;T&gt;</code> to display text in multiple languages. For example, in <strong>ChangeLanguageDemonstrate.razor</strong>:</li>
 </ol>
 <pre class="code" language="razor">@inject IStringLocalizer&lt;ChangeLanguageDemonstrate&gt; Localizer
 

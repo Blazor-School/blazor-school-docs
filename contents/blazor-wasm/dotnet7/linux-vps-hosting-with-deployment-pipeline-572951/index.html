@@ -19,10 +19,20 @@
 <p>Before deploying your website to a Linux VPS, you will need to publish it to a folder. This will allow us to make the website functional and then set up a GitHub action for automated deployment later. To publish your website to a folder, follow these steps:</p>
 <ol>
     <li>Right-click on your Blazor WebAssembly project and select <strong>Publish...</strong></li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\linux-vps-hosting-with-deployment-pipeline-572951\publishing-blazor-webassembly-1.png" alt="publishing-blazor-webassembly-1.png" width="426" height="366" /></p>
+<ol start="2">
     <li>In the next step, select <strong>Folder</strong>.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\linux-vps-hosting-with-deployment-pipeline-572951\publishing-blazor-webassembly-2.png" alt="publishing-blazor-webassembly-2.png" width="804" height="564" /></p>
+<ol start="3">
     <li>Choose the folder location where you want to publish the website.</li>
+</ol>
+<p><img src="contents\blazor-wasm\dotnet7\linux-vps-hosting-with-deployment-pipeline-572951\publishing-blazor-webassembly-3.png" alt="publishing-blazor-webassembly-3.png" width="804" height="564" /></p>
+<ol start="4">
     <li>Click <strong>Publish</strong> to start the publishing process.</li>
 </ol>
+<p><img src="contents\blazor-wasm\dotnet7\linux-vps-hosting-with-deployment-pipeline-572951\publishing-blazor-webassembly-4.png" alt="publishing-blazor-webassembly-4.png" width="800" height="283" /></p>
 <p>Once the website is published to the folder, you can test it out locally to ensure it is working as intended. If any changes are needed, make them and republish the website to the folder until you are satisfied with the results.</p>
 <hr class="my-4" />
 <h1>Setting up a Linux VPS</h1>
@@ -105,7 +115,7 @@ server {
 <p>To enable HTTP to HTTPS redirection, simply follow the tutorial provided. In the example, the second server block performs the redirection automatically, so there's no need to worry about it.</p>
 <h3>Verify that MIME types are being handled correctly</h3>
 <p>Handling MIME types is a matter of assigning file extensions to their respective categories. For instance, files ending with <strong>.css</strong> should be identified as <code>text/css</code>. Since there are numerous MIME types available, they must be recognized accurately. A comprehensive list of MIME types is available on <a href="https://www.iana.org/assignments/media-types/media-types.xhtml" target="_blank" rel="noopener" title="IANA Media Types">IANA Media Types</a>.</p>
-<p>To ensure that all of your files are being processed appropriately, navigate to the /etc/nginx/mime.types file on your VPS server. If a particular MIME type is not listed, you must add it manually and reload the NGINX server.</p>
+<p>To ensure that all of your files are being processed appropriately, navigate to the <strong>/etc/nginx/mime.types</strong> file on your VPS server. If a particular MIME type is not listed, you must add it manually and reload the NGINX server.</p>
 <h3>Activate gzip compression</h3>
 <p>Enabling gzip compression can significantly improve your website's loading speed by reducing its weight. When you activate gzip, NGINX uses some CPU power to compress your website before sending it to the browser. The browser then decompresses the website for display. Since compressing and decompressing are less expensive than transportation costs, this technique can boost loading speed.</p>
 <p>However, gzip can be tricky to use if you are unfamiliar with it. To apply it correctly, you must determine when to compress and when not to. Gzip is already enabled in NGINX by default settings. You can find these settings in /etc/nginx/nginx.conf by looking for the # Gzip Settings. To activate advanced settings, uncomment all other settings. Your Gzip settings should resemble the following:</p>

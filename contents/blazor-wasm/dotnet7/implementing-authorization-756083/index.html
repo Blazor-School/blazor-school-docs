@@ -175,7 +175,7 @@
 <p>The requirement handler is bound to a requirement and is responsible for checking if the user satisfies the rule or not. The requirement handler also provides dynamic data to authorize the user. For example, your website sells video games that have ESRB ratings, which require the user to be older than 5, 7, 8, 13, or 18 to play the game. The required age is a dynamic number based on the game, and it is passed to the requirement handler.</p>
 <p>To implement policy-based authentication, follow these steps:</p>
 <ol>
-    <li>Add a property to the <code>User</code> model to authorize the user. For example, if you want to authorize the user's age, add a new property <code>Age</code> to the User model:</li>
+    <li>Add a property to the <code>User</code> model to authorize the user. For example, if you want to authorize the user's age, add a new property <code>Age</code> to the <code>User</code> model:</li>
 </ol>
 <pre class="code" language="csharp">public class User
 {

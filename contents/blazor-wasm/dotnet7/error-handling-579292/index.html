@@ -187,7 +187,7 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;((sp, httpCli
     ErrorContent&gt;
 &lt;/ErrorBoundary&gt;</pre>
 <h3>Resuming the operation</h3>
-<p>In some cases, it may be possible to resume the operation that was interrupted by the error. For example, if an error occurred during a payment transaction, the user may be able to retry the transaction or use an alternative payment method. Resuming the operation can help to minimize the impact of the error on the user experience and ensure that the user can complete the task they were attempting. You can resume the operation by using the ErrorBoundary component and calling its Recover method as follows:</p>
+<p>In some cases, it may be possible to resume the operation that was interrupted by the error. For example, if an error occurred during a payment transaction, the user may be able to retry the transaction or use an alternative payment method. Resuming the operation can help to minimize the impact of the error on the user experience and ensure that the user can complete the task they were attempting. You can resume the operation by using the <code>ErrorBoundary</code> component and calling its Recover method as follows:</p>
 <pre class="code" language="razor">&lt;ErrorBoundary @ref="MyErrorBoundary"&gt;
     &lt;ChildContent&gt;
         &lt;TriggerError/&gt;
@@ -283,7 +283,7 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;((sp, httpCli
 }</pre>
 <hr class="my-4" />
 <h1>Using a custom error handler</h1>
-<p>Once you have created your custom error handler, you can use it just like the ErrorHandler component. For instance:</p>
+<p>Once you have created your custom error handler, you can use it just like the <code>ErrorHandler</code> component. For instance:</p>
 <pre class="code" language="razor">&lt;BlazorSchoolErrorBoundary&gt;
     &lt;ChildContent&gt;
         &lt;TriggerError /&gt;
