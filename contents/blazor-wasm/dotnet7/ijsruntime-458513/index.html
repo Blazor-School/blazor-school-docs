@@ -56,7 +56,7 @@
 <p>Should you check for the first render?</p>
 <p>No, it is not necessary because the module will only be loaded once. The browser will not send multiple requests for the same JavaScript module. Therefore, skipping the check for the first render will simplify the code and make it easier to understand.</p>
 <h3>Import a colocated JavaScript module</h3>
-<p>Assuming your module is colocated with <code>CallJavaScriptFunction</code> component. Then your JavaScript should be in the same folder with <code>CallJavaScriptFunction</code> component and must be named <code>CallJavaScriptFunction.razor.js</code>. The files should appearance like this:</p>
+<p>Assuming your module is colocated with <code>CallJavaScriptFunction</code> component. Then your JavaScript should be in the same folder with <code>CallJavaScriptFunction</code> component and must be named <strong>CallJavaScriptFunction.razor.js</strong>. The files should appearance like this:</p>
 <p><img src="contents\blazor-wasm\dotnet7\ijsruntime-458513\colocate-javascript-module-appearance.png" alt="colocate-javascript-module-appearance.png" width="400" height="67" /></p>
 <p>Then you can import the JavaScript module into your Blazor component by following these steps:</p>
 <ol>
@@ -99,7 +99,7 @@
 }</pre>
 <hr class="my-4" />
 <h1>Import standard JavaScript</h1>
-<p>In Blazor, you can import your standard JavaScript in <strong>wwwoort/index.html</strong>:</p>
+<p>In Blazor, you can import your standard JavaScript in <strong>wwwroot/index.html</strong>:</p>
 <pre class="code" language="razor">&lt;body&gt;
     &lt;script src="js/GlobalClassicJavaScript.js"&gt;&lt;/script&gt;
 &lt;/body&gt;</pre>
@@ -277,7 +277,7 @@ public void LocalMethod()
     componentInstance.invokeMethodAsync("LocalMethod");
 }</pre>
 <h3>Asynchronous methods</h3>
-<p>Just like in C# programming, when invoking an asynchronous method from JavaScript, you have the option to either fire and forget or await the completion of the invokeMethodAsync function for the corresponding C# method before moving on to the next block of JavaScript code.</p>
+<p>Just like in C# programming, when invoking an asynchronous method from JavaScript, you have the option to either fire and forget or await the completion of the <code>invokeMethodAsync</code> function for the corresponding C# method before moving on to the next block of JavaScript code.</p>
 <pre class="code" language="javascript">export function FireAndForget(csharpObject)
 {
     csharpObject.invokeMethodAsync("ExampleVoidMethod");

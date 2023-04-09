@@ -58,7 +58,7 @@
 <p>This is useful when your application needs to interact with multiple remote services or APIs, each with different requirements and characteristics, such as different timeouts, headers, base addresses, or authentication credentials. By giving each <code>HttpClient</code> instance a name, you can easily refer to it when making HTTP requests, and the <code>IHttpClientFactory</code> will take care of creating and configuring the appropriate client for you.</p>
 <p>To create named <code>HttpClient</code> instances, you can follow these steps:</p>
 <ol>
-    <li>Register your HttpClient instances in the Program.cs file and provide a unique name for each instance. For example:</li>
+    <li>Register your HttpClient instances in the <strong>Program.cs</strong> file and provide a unique name for each instance. For example:</li>
 </ol>
 <pre class="code" language="csharp">builder.Services.AddHttpClient("First API", httpClient =&gt; httpClient.BaseAddress = new("http://localhost:30911"));
 builder.Services.AddHttpClient("Second API", httpClient =&gt; httpClient.BaseAddress = new("http://localhost:30912"));</pre>
@@ -76,12 +76,12 @@ builder.Services.AddHttpClient("Second API", httpClient =&gt; httpClient.BaseAdd
         ...
     }
 }</pre>
-<p>HttpClient wrapper is a design pattern used to wrap the HttpClient class in a custom class or interface to provide additional functionality or simplify its usage.</p>
+<p><code>HttpClient</code> wrapper is a design pattern used to wrap the <code>HttpClient</code> class in a custom class or interface to provide additional functionality or simplify its usage.</p>
 <h3>Using an <code>HttpClient</code> wrapper</h3>
 <p>By wrapping <code>HttpClient</code>, you can encapsulate its implementation details and provide a simpler, more focused API that is easier to use and test. This can be especially useful when you need to add common headers or handle errors in a consistent way across multiple requests.</p>
-<p>To create an HttpClient wrapper, you can follow these steps:</p>
+<p>To create an <code>HttpClient</code> wrapper, you can follow these steps:</p>
 <ol>
-    <li>Create a wrapper class that takes an instance of HttpClient as a dependency, like this:</li>
+    <li>Create a wrapper class that takes an instance of <code>HttpClient</code> as a dependency, like this:</li>
 </ol>
 <pre class="code" language="csharp">public class SecondApiHttpClientWrapper
 {
@@ -109,11 +109,11 @@ builder.Services.AddHttpClient("Second API", httpClient =&gt; httpClient.BaseAdd
     <li><code>HttpClient</code> extension.</li>
 </ul>
 <h3><code>HttpClient</code> middleware</h3>
-<p>The <code>HttpClient</code> middleware technique is built on the chain of responsibility pattern, where multiple middlewares can be applied to an HTTP request and response in a specific order. The middleware chain starts with the first middleware and ends with the last middleware, processing the request and response respectively.&nbsp;</p>
+<p>The <code>HttpClient</code> middleware technique is built on the chain of responsibility pattern, where multiple middleware can be applied to an HTTP request and response in a specific order. The middleware chain starts with the first middleware and ends with the last middleware, processing the request and response respectively.&nbsp;</p>
 <p><img src="contents\blazor-wasm\dotnet7\api-interaction-763318\httpclient-middleware-chain.png" alt="httpclient-middleware-chain.png" width="800" height="820" /></p>
 <p>Follow these steps to create and use <code>HttpClient</code> middleware:</p>
 <ol>
-    <li>Create a middleware class that extends the DelegatingHandler class and overrides the <code>Send</code>/<code>SendAsync</code> method. Interfering code can be added before and after sending the request.</li>
+    <li>Create a middleware class that extends the <code>DelegatingHandler</code> class and overrides the <code>Send</code>/<code>SendAsync</code> method. Interfering code can be added before and after sending the request.</li>
 </ol>
 <pre class="code" language="csharp">public class FirstMiddleware : DelegatingHandler
 {
@@ -128,14 +128,14 @@ builder.Services.AddHttpClient("Second API", httpClient =&gt; httpClient.BaseAdd
 }</pre>
 <blockquote>It's important to call <code>base.Send()</code> or <code>base.SendAsync()</code> when overriding the <code>Send</code> or <code>SendAsync</code> method respectively, to ensure the middleware chain continues without being broken.</blockquote>
 <ol start="2">
-    <li>Register all the middlewares as transient services in the <strong>Program.cs</strong> file.</li>
+    <li>Register all the middleware as transient services in the <strong>Program.cs</strong> file.</li>
 </ol>
 <pre class="code" language="csharp">builder.Services.AddTransient&lt;FirstMiddleware&gt;();
 builder.Services.AddTransient&lt;SecondMiddleware&gt;();</pre>
 <ol start="3">
     <li>Register the <code>HttpClient</code> by using named <code>HttpClient</code> or <code>HttpClient</code> wrapper technique, then add the middleware chain in your desired sequence.</li>
 </ol>
-<pre class="code" language="csharp">builder.Services.AddHttpClient("HttpClient with Middlewares", httpClient =&gt; httpClient.BaseAddress = new("http://localhost:30911"))
+<pre class="code" language="csharp">builder.Services.AddHttpClient("HttpClient with Middleware", httpClient =&gt; httpClient.BaseAddress = new("http://localhost:30911"))
        .AddHttpMessageHandler&lt;FirstMiddleware&gt;()
        .AddHttpMessageHandler&lt;SecondMiddleware&gt;();
 
@@ -283,7 +283,7 @@ else
     }
 }</pre>
 <h3>Deserialize response data to object using Newtonsoft library</h3>
-<p>Newtonsoft.Json is a popular third-party library for working with JSON data in .NET applications. It provides a comprehensive set of classes and methods for serializing and deserializing JSON data to and from .NET objects, as well as working with JSON documents directly. Newtonsoft.Json is often considered more user-friendly and flexible than System.Text.Json, with a wider range of configuration options and a more intuitive API. Here's an example implementation:</p>
+<p><code>Newtonsoft.Json</code> is a popular third-party library for working with JSON data in .NET applications. It provides a comprehensive set of classes and methods for serializing and deserializing JSON data to and from .NET objects, as well as working with JSON documents directly. <code>Newtonsoft.Json</code> is often considered more user-friendly and flexible than <code>System.Text.Json</code>, with a wider range of configuration options and a more intuitive API. Here's an example implementation:</p>
 <pre class="code" language="razor">@using Newtonsoft.Json
 @inject IHttpClientFactory HttpClientFactory
 

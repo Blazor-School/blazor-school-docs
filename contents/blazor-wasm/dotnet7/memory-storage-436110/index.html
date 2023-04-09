@@ -15,35 +15,13 @@
 <ol>
     <li>Define a C# class with the properties that will hold your data. For instance, here is an example class named <code>MemoryStorageUtility</code> that uses a dictionary to store data:</li>
 </ol>
-<pre class="code" language="csharp">public class MemoryStorageAccessor : IAsyncDisposable
+<pre class="code" language="csharp">public class MemoryStorageUtility
 {
-    private Lazy&lt;IJSObjectReference&gt; _accessorJsRef = new();
-    private readonly IJSRuntime _jsRuntime;
-
-    public MemoryStorageAccessor(IJSRuntime jsRuntime)
-    {
-        _jsRuntime = jsRuntime;
-    }
-
-    private async Task WaitForReference()
-    {
-        if (_accessorJsRef.IsValueCreated is false)
-        {
-            _accessorJsRef = new(await _jsRuntime.InvokeAsync&lt;IJSObjectReference&gt;("import", "/js/MemoryStorageAccessor.js"));
-        }
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_accessorJsRef.IsValueCreated)
-        {
-            await _accessorJsRef.Value.DisposeAsync();
-        }
-    }
+    public Dictionary&lt;string, object&gt; Storage { get; set; } = new();
 }</pre>
 <blockquote>You may choose a different data type if necessary.</blockquote>
 <ol start="2">
-    <li>Register the <code>CacheStorageAccessor</code> class in the <strong>Program.cs</strong> file:</li>
+    <li>Register the <code>MemoryStorageUtility</code> class in the <strong>Program.cs</strong> file:</li>
 </ol>
 <pre class="code" language="csharp">builder.Services.AddScoped&lt;MemoryStorageUtility&gt;();</pre>
 <hr class="my-4" />

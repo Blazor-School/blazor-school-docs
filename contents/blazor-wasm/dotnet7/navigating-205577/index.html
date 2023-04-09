@@ -41,7 +41,7 @@
 <pre class="code" language="razor">&lt;NavLink href="about" Match="NavLinkMatch.Exact" ActiveClass="active"&gt;About Us&lt;/NavLink&gt;</pre>
 <h3>Understanding the <code>NavLinkMatch</code> enum</h3>
 <p>The <code>NavLink</code> component in Blazor uses the <code>Match</code> parameter to determine when to highlight a menu item. The <code>Match</code> parameter accepts a value from the <code>NavLinkMatch</code> enum, which has two possible options: <code>Prefix</code> and <code>All</code>.</p>
-<p>When the <code>Match</code> parameter is set to <code>NavLinkMatch.Prefix</code>, a menu item will be highlighted if the browser's URL starts with the href value of the <code>NavLink</code>. This is the default behavior if the <code>Match</code> parameter is not specified.</p>
+<p>When the <code>Match</code> parameter is set to <code>NavLinkMatch.Prefix</code>, a menu item will be highlighted if the browser's URL starts with the <code>href</code> value of the <code>NavLink</code>. This is the default behavior if the <code>Match</code> parameter is not specified.</p>
 <p><img src="contents\blazor-wasm\dotnet7\navigating-205577\navlinkmatch-prefix-explain.png" alt="navlinkmatch-prefix-explain.png" width="835" height="368" /></p>
 <p>On the other hand, when the <code>Match</code> parameter is set to <code>NavLinkMatch.All</code>, a menu item will be highlighted only if the browser's URL is exactly the same as the <code>href</code> value of the <code>NavLink</code>. This allows for a more precise match between the browser's URL and the <code>NavLink</code>'s <code>href</code>.</p>
 <p><img src="contents\blazor-wasm\dotnet7\navigating-205577\navlinkmatch-all-explain.png" alt="navlinkmatch-all-explain.png" width="835" height="383" /></p>

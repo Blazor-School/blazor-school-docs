@@ -16,7 +16,6 @@
 <hr class="my-4" />
 <h1>What is Dependency Injection?</h1>
 <p>Using DI, developers can inject dependencies into a class or component, rather than having to create instances of those dependencies within the class. This makes the code more modular, flexible, and maintainable, as changes to one component do not affect other components that depend on it.</p>
-<p>Using DI, developers can inject dependencies into a class or component, rather than having to create instances of those dependencies within the class. This makes the code more modular, flexible, and maintainable, as changes to one component do not affect other components that depend on it.</p>
 <p>For example, if one class depends on another class, instead of creating an instance of the dependent class, the instance can be injected into the constructor of the first class. This allows the first class to use the functionality of the dependent class without having to manage its creation and lifecycle.</p>
 <hr class="my-4" />
 <h1>How Dependency Injection works?</h1>
@@ -52,7 +51,7 @@
     public string ExampleString { get; set; } = "";
 }</pre>
 <ol start="2">
-    <li>In your <code>Program.cs</code> file, configure the application's dependency injection container by adding the following line of code between the <code>WebApplication.CreateBuilder(args)</code> and <code>builder.Build()</code> call:</li>
+    <li>In your <strong>Program.cs</strong> file, configure the application's dependency injection container by adding the following line of code between the <code>WebApplication.CreateBuilder(args)</code> and <code>builder.Build()</code> call:</li>
 </ol>
 <pre class="code" language="csharp">builder.Services.AddTransient&lt;MyService&gt;();</pre>
 <p>This code registers <code>MyService</code> as a transient service. There are other types of service such as scoped and singleton which will be introduced in this tutorial later.</p>
@@ -207,7 +206,7 @@ static void ScanAndRegisterServices(IServiceCollection services)
 <p>In Blazor, property injection is a technique used to provide a component with a dependency, such as a service or data source, by assigning it to a property of the component. This can be achieved through the use of either the <code>[Inject]</code> attribute or the <code>@inject</code> directive in the component.</p>
 <p>For example, to use the <code>@inject</code> directive in the component as follows:</p>
 <pre class="code" language="razor">@inject MyService MyService</pre>
-<p>Alternatively, you can use use the <code>[Inject]</code> attribute for a property in the component as follows:</p>
+<p>Alternatively, you can use the <code>[Inject]</code> attribute for a property in the component as follows:</p>
 <pre class="code" language="csharp">[Inject]
 public MyService MyService { get; set; }</pre>
 <hr class="my-4" />

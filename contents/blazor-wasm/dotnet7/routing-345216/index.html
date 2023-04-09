@@ -168,7 +168,7 @@
 <p>When a parameterized route has the same path as a nested route, it is referred to as "route overloading."</p>
 <p>For example, assuming you have two routes: <strong>/member/{id:guid}</strong> and <strong>/member/page-without-param</strong>. When a user requests the URL <strong>/member/page-without-param</strong>, there are two possible route matches: <strong>/member/{id:guid}</strong> and<strong> /member/page-without-param</strong>. In this case, Blazor will prioritize the route <strong>/member/page-without-param</strong> over the path parameter route <strong>/member/{id:guid}</strong>.</p>
 <p>It is important to note that, in this scenario, the route without parameters will always take precedence over the route with parameters, even if the parameter is optional. This is because the framework will always try to match the most specific route possible.</p>
-<p>To make the code easier to maintain, It's recommended to keep your routes as specific as possible and make sure to distinguish routes with and without parameters in their path.</p>
+<p>To make the code easier to maintain, it's recommended to keep your routes as specific as possible and make sure to distinguish routes with and without parameters in their path.</p>
 <hr class="my-4" />
 <h1>Query parameters</h1>
 <p>Query parameters is a technique that provides flexibility by allowing you to easily add or remove parameters without affecting other routes. The first parameter comes after the question mark (?) symbol and each subsequent parameter comes after the ampersand (&amp;) symbol. For example, the route<strong> /member?id=123&amp;valid=true</strong> has <strong>id</strong> and <strong>valid</strong> as parameters.</p>

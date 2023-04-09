@@ -31,16 +31,16 @@
 &lt;/main&gt;</pre>
 <hr class="my-4" />
 <h1>Setting a default layout for entire website</h1>
-<p>In order to set the default layout for your website in Blazor, you can use the <code>RouteView</code> component. To do this, navigate to the <code>App.razor</code> file and update the <code>DefaultLayout</code> parameter of the <code>RouteView</code> component with the name of your desired layout component. For example:</p>
+<p>In order to set the default layout for your website in Blazor, you can use the <code>RouteView</code> component. To do this, navigate to the <strong>App.razor</strong> file and update the <code>DefaultLayout</code> parameter of the <code>RouteView</code> component with the name of your desired layout component. For example:</p>
 <pre class="code" language="razor">&lt;RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" /&gt;</pre>
 <hr class="my-4" />
 <h1>Setting a layout for all components in a same folder</h1>
 <p>One way to organize similar dependent components is by grouping them into a folder. Additionally, instead of setting a layout for each individual component, you can set the default layout for all the components within a specific folder and its subfolders. Assuming you have the following folder structure:</p>
 <p><img src="contents\blazor-wasm\dotnet7\website-layout-124972\layout-for-folder-folder-structure.png" alt="layout-for-folder-folder-structure.png" width="350" height="157" /></p>
-<p>To set the default layout for all the components inside a specific folder, you can create a new component with the name <code>_Imports.razor</code> within the desired folder. In this component, add the <code>@layout</code> directive in the directive section. For example:</p>
+<p>To set the default layout for all the components inside a specific folder, you can create a new component with the name <strong>_Imports.razor</strong> within the desired folder. In this component, add the <code>@layout</code> directive in the directive section. For example:</p>
 <pre class="code" language="razor">@layout MyLayout</pre>
 <p>This tells Blazor to use the <code>MyLayout</code> component as the default layout for all the components within this folder and its subfolders.</p>
-<blockquote>It's important to note that the component must be named <code>_Imports.razor</code>, as this is a special name that Blazor looks for when searching for default layout settings. Additionally, be aware that there is a default <code>_Imports.razor</code> located at the same level as <code>App.razor</code>, you should not put <code>@layout</code> directive there, otherwise you will have an infinite loop.</blockquote>
+<blockquote>It's important to note that the component must be named <strong>_Imports.razor</strong>, as this is a special name that Blazor looks for when searching for default layout settings. Additionally, be aware that there is a default <strong>_Imports.razor</strong> located at the same level as <strong>App.razor</strong>, you should not put <code>@layout</code> directive there, otherwise you will have an infinite loop.</blockquote>
 <p><img src="contents\blazor-wasm\dotnet7\website-layout-124972\do-and-dont-folder-layout.png" alt="do-and-dont-folder-layout.png" width="950" height="439" /></p>
 <hr class="my-4" />
 <h1>Set layout for a specific component</h1>

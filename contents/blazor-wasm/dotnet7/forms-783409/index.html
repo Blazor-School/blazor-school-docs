@@ -82,7 +82,7 @@
 <h3>Static data validation</h3>
 <p>In Blazor form, you can use <code>DataAnnotation</code> to validate data against static rules like length, pattern, and range. Here are the steps to validate data against static rules using <code>DataAnnotation</code>:</p>
 <ol>
-    <li>Define a form model class and specify validation rules for each property using DataAnnotation attributes. For example:</li>
+    <li>Define a form model class and specify validation rules for each property using <code>DataAnnotation</code> attributes. For example:</li>
 </ol>
 <pre class="code" language="csharp">public class AgainstStaticDataFormModel
 {
@@ -239,14 +239,14 @@
 <p>Using this method will permanently disable the form control. To do this, simply add the <code>disabled</code> attribute with a value of <code>true</code> to the control. For example:</p>
 <pre class="code" language="razor">&lt;InputText class="form-control" @bind-Value="FormModel.ExampleString" disabled="true" /&gt;</pre>
 <h3>Method 2: Use the Blazor <code>@bind-disabled</code> directive</h3>
-<p>Using this method, the form control can be dynamically switched between enabled and disabled states. To do this, declare a boolean property in the component and bind it to the form control using the <code>@bind-disabled</code> directive. For example:</p>
+<p>Using this method, the form control can be dynamically switched between enabled and disabled states. To do this, declare a <code>boolean</code> property in the component and bind it to the form control using the <code>@bind-disabled</code> directive. For example:</p>
 <pre class="code" language="razor">&lt;InputText class="form-control" @bind-Value="FormModel.ExampleString" @bind-disabled="DisableFormControl"/&gt;
 
 @code {
     public bool DisableFormControl { get; set; } = false;
     ...
 }</pre>
-<p>Whenever you change the boolean value, the form control will be enabled or disabled accordingly.</p>
+<p>Whenever you change the <code>boolean</code> value, the form control will be enabled or disabled accordingly.</p>
 <hr class="my-4" />
 <h1>Display validation message</h1>
 <p>Validation messages are essential in ensuring that users provide the correct inputs in a form. In order to effectively communicate validation errors to users, there are two places to display validation messages: validation summaries and inline validation messages.</p>
@@ -308,7 +308,7 @@
 <ul>
     <li>Modifying the form control value without notifying the field change.</li>
     <li>Creating a function button instead of a submit button.</li>
-    <li>Forgetting to use the DataAnnotationsValidator tag.</li>
+    <li>Forgetting to use the <code>DataAnnotationsValidator</code> tag.</li>
 </ul>
 <h3>Modifying the form control value without notifying the field change</h3>
 <p>If you need to modify a form control value for some reason, it's important to notify the field change to ensure that the validations run again. In the following code, the incorrect way of updating the <code>FormModel.RequiredString</code> value is shown:</p>
@@ -356,8 +356,8 @@
         <source src="contents\blazor-wasm\dotnet7\forms-783409\function-button-mistake.webm" />
     </video>
 </div>
-<h3>Forgetting to use the DataAnnotationsValidator tag</h3>
-<p>The DataAnnotationsValidator tag is a crucial component for validating forms when using the EditForm component. Its absence can result in the failure of form validation. To illustrate this point, please refer to the following video.</p>
+<h3>Forgetting to use the <code>DataAnnotationsValidator</code> tag</h3>
+<p>The <code>DataAnnotationsValidator</code> tag is a crucial component for validating forms when using the <code>EditForm</code> component. Its absence can result in the failure of form validation. To illustrate this point, please refer to the following video.</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
         <source src="contents\blazor-wasm\dotnet7\forms-783409\forget-validation-tag.webm" />
