@@ -1,0 +1,694 @@
+﻿<h1>Directives</h1>
+<p>✅ Similar to Blazor WebAssembly</p>
+<p>In Blazor, directives are powerful features that enable you to add additional behavior to a Razor Component on your website. With Blazor's built-in directives, you can manage various aspects of user interactions. These directives can be grouped into three types:</p>
+<ul>
+    <li>Compiling.</li>
+    <li>DOM interaction.</li>
+    <li>Utilities.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/directive-blazor-server-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Compiling directives</h1>
+<p>Blazor provides compiling directives that manipulate how a Razor Component is compiled. These directives include:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Directive identifier</th>
+                <th class="text-center" scope="col">Description</th>
+            </tr>
+            <tr>
+                <td><code>@inherits</code></td>
+                <td>Specify the base class for a component</td>
+            </tr>
+            <tr>
+                <td><code>@namespace</code></td>
+                <td>Specify the namespace for a component</td>
+            </tr>
+            <tr>
+                <td><code>@implements</code></td>
+                <td>Specify the interface for a component</td>
+            </tr>
+            <tr>
+                <td><code>@preservewhitespace</code></td>
+                <td>Remove all redundant white spaces from an element</td>
+            </tr>
+            <tr>
+                <td><code>@typeparam</code></td>
+                <td>Specify a generic class for a component</td>
+            </tr>
+            <tr>
+                <td><code>@layout</code></td>
+                <td>Specify the layout for a component</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>For instance, the <code>@implements</code> directive specifies the interface for a component, as shown in the example code where the Dispose method is implemented.</p>
+<pre class="code" language="razor">@implements IDisposable
+
+...
+
+@code {
+    public void Dispose()
+    {
+    }
+}</pre>
+<p>If the <code>Dispose</code> method is removed, Visual Studio 2022 will emit an error during project building.</p>
+<p><img src="contents\blazor-server\dotnet7\directives-746228\compiling-group-error.png" alt="compiling-group-error.png" width="632" height="98" /></p>
+<hr class="my-4" />
+<h1>DOM interaction directives</h1>
+<p>Blazor also provides DOM interaction directives used to interact with the DOM, such as</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Directive identifier</th>
+                <th class="text-center" scope="col">Description</th>
+            </tr>
+            <tr>
+                <td><code>@attributes</code></td>
+                <td>Attach a dictionary of attributes to the element</td>
+            </tr>
+            <tr>
+                <td><code>@on<strong>&lt;event&gt;</strong></code></td>
+                <td>Attach the event handlers to the element's event</td>
+            </tr>
+            <tr>
+                <td><code>@bind-&lt;attribute&gt;:&lt;event&gt;</code></td>
+                <td>Create a 2-ways binding to an element attribute</td>
+            </tr>
+            <tr>
+                <td><code>@key</code></td>
+                <td>Set a unique identifier for an element</td>
+            </tr>
+            <tr>
+                <td><code>@ref</code></td>
+                <td>Refer the element to an C# instance</td>
+            </tr>
+            <tr>
+                <td><code>@code</code></td>
+                <td>Add C# code that defines the component's logic, state, and behavior</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>For example, the <code>@attributes</code> directive attaches a dictionary of attributes to an element, as demonstrated in the code.</p>
+<pre class="code" language="razor">&lt;div @attributes="Attributes"&gt;Inspect me to see my attributes.&lt;/div&gt;
+
+@code {
+    Dictionary&lt;string, object&gt; Attributes { get; set; } = new()
+    {
+        { "example-string", "Blazor School" },
+        { "example-int", 10 },
+        { "example-object", new 
+            { 
+                date = DateTime.Now 
+            } 
+        }
+    };
+}</pre>
+<p>Blazor will render the HTML tag with the specified attributes:</p>
+<pre class="code" language="html">&lt;div example-string="Blazor School" example-int="10" example-object="{ date = 2/21/2022 8:34:57 PM }"&gt;Inspect me to see my attributes.&lt;/div&gt;</pre>
+<h3>Blazor event and HTML event</h3>
+<p>When interacting with the DOM, you will need to handle events of an element. Although Blazor events and HTML events share the same name, they are different. The following image illustrates the difference between Blazor events and HTML events:</p>
+<p><img src="contents\blazor-server\dotnet7\directives-746228\blazor-vs-html-event.png" alt="blazor-vs-html-event.png" width="1000" height="263" /></p>
+<p>For example, a button with an HTML event is coded as follows:</p>
+<pre class="code" language="html">&lt;button type="button" onclick="alert('HTML event fired!')"&gt;HTML Event&lt;/button&gt;</pre>
+<p>On the other hand, a button with a Blazor event is coded as follows:</p>
+<pre class="code" language="razor">&lt;button type="button" @onclick='_ =&gt; ExampleString = "Hello Blazor School!"'&gt;Blazor Event&lt;/button&gt;
+
+@code {
+    public string ExampleString { get; set; } = "";
+}</pre>
+<blockquote>This tutorial will only focus on Blazor events.</blockquote>
+<h3>Handle HTML event with Blazor</h3>
+<p>Handling HTML events with Blazor is a common task in web development. Each HTML event comes with its own data, and you can pass this event data to a C# method for further processing. Follow these steps to pass HTML event data to a C# method:</p>
+<ol>
+    <li>Create a C# method that corresponds to the relevant C# event, such as <code>FocusEventArgs</code> for the <code>onblur</code> event.</li>
+</ol>
+<pre class="code" language="csharp">public void OnElementBlur(FocusEventArgsargs)
+{
+}</pre>
+<ol start="2">
+    <li>Pass the HTML event data using the <code>@on&lt;event&gt;</code> syntax. For example, to pass focus event data to a <code>OnElementBlur</code> method:</li>
+</ol>
+<pre class="code" language="razor">&lt;div @onblur="OnElementBlur"&gt;&lt;/div&gt;</pre>
+<p>Here's a table of the HTML events and their corresponding C# events:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">HTML Event</th>
+                <th class="text-center" scope="col">C# Event</th>
+                <th class="text-center" scope="col">Event Group</th>
+            </tr>
+            <tr>
+                <td>onfocus</td>
+                <td><code>FocusEventArgs</code></td>
+                <td>Focus</td>
+            </tr>
+            <tr>
+                <td>onblur</td>
+                <td><code>FocusEventArgs</code></td>
+                <td>Focus</td>
+            </tr>
+            <tr>
+                <td>onfocusin</td>
+                <td><code>FocusEventArgs</code></td>
+                <td>Focus</td>
+            </tr>
+            <tr>
+                <td>onfocusout</td>
+                <td><code>FocusEventArgs</code></td>
+                <td>Focus</td>
+            </tr>
+            <tr>
+                <td>onmouseover</td>
+                <td><code>MouseEventArgs</code></td>
+                <td>Mouse</td>
+            </tr>
+            <tr>
+                <td>onmouseout</td>
+                <td><code>MouseEventArgs</code></td>
+                <td>Mouse</td>
+            </tr>
+            <tr>
+                <td>onmousemove</td>
+                <td><code>MouseEventArgs</code></td>
+                <td>Mouse</td>
+            </tr>
+            <tr>
+                <td>onmousedown</td>
+                <td><code>MouseEventArgs</code></td>
+                <td>Mouse</td>
+            </tr>
+            <tr>
+                <td>onmouseup</td>
+                <td><code>MouseEventArgs</code></td>
+                <td>Mouse</td>
+            </tr>
+            <tr>
+                <td>onclick</td>
+                <td><code>MouseEventArgs</code></td>
+                <td>Mouse</td>
+            </tr>
+            <tr>
+                <td>ondblclick</td>
+                <td><code>MouseEventArgs</code></td>
+                <td>Mouse</td>
+            </tr>
+            <tr>
+                <td>onwheel</td>
+                <td><code>WheelEventArgs</code></td>
+                <td>Mouse</td>
+            </tr>
+            <tr>
+                <td>onmousewheel</td>
+                <td><code>WheelEventArgs</code></td>
+                <td>Mouse</td>
+            </tr>
+            <tr>
+                <td>oncontextmenu</td>
+                <td><code>MouseEventArgs</code></td>
+                <td>Mouse</td>
+            </tr>
+            <tr>
+                <td>ondrag</td>
+                <td><code>DragEventArgs</code></td>
+                <td>Drag</td>
+            </tr>
+            <tr>
+                <td>ondragend</td>
+                <td><code>DragEventArgs</code></td>
+                <td>Drag</td>
+            </tr>
+            <tr>
+                <td>ondragenter</td>
+                <td><code>DragEventArgs</code></td>
+                <td>Drag</td>
+            </tr>
+            <tr>
+                <td>ondragleave</td>
+                <td><code>DragEventArgs</code></td>
+                <td>Drag</td>
+            </tr>
+            <tr>
+                <td>ondragover</td>
+                <td><code>DragEventArgs</code></td>
+                <td>Drag</td>
+            </tr>
+            <tr>
+                <td>ondragstart</td>
+                <td><code>DragEventArgs</code></td>
+                <td>Drag</td>
+            </tr>
+            <tr>
+                <td>ondrop</td>
+                <td><code>DragEventArgs</code></td>
+                <td>Drag</td>
+            </tr>
+            <tr>
+                <td>onkeydown</td>
+                <td><code>KeyboardEventArgs</code></td>
+                <td>Keyboard</td>
+            </tr>
+            <tr>
+                <td>onkeyup</td>
+                <td><code>KeyboardEventArgs</code></td>
+                <td>Keyboard</td>
+            </tr>
+            <tr>
+                <td>onkeypress</td>
+                <td><code>KeyboardEventArgs</code></td>
+                <td>Keyboard</td>
+            </tr>
+            <tr>
+                <td>onchange</td>
+                <td><code>ChangeEventArgs</code></td>
+                <td>Input</td>
+            </tr>
+            <tr>
+                <td>oninput</td>
+                <td><code>ChangeEventArgs</code></td>
+                <td>Input</td>
+            </tr>
+            <tr>
+                <td>oninvalid</td>
+                <td><code>EventArgs</code></td>
+                <td>Input</td>
+            </tr>
+            <tr>
+                <td>onreset</td>
+                <td><code>EventArgs</code></td>
+                <td>Input</td>
+            </tr>
+            <tr>
+                <td>onselect</td>
+                <td><code>EventArgs</code></td>
+                <td>Input</td>
+            </tr>
+            <tr>
+                <td>onselectstart</td>
+                <td><code>EventArgs</code></td>
+                <td>Input</td>
+            </tr>
+            <tr>
+                <td>onselectionchange</td>
+                <td><code>EventArgs</code></td>
+                <td>Input</td>
+            </tr>
+            <tr>
+                <td>onsubmit</td>
+                <td><code>EventArgs</code></td>
+                <td>Input</td>
+            </tr>
+            <tr>
+                <td>onbeforecopy</td>
+                <td><code>EventArgs</code></td>
+                <td>Clipboard</td>
+            </tr>
+            <tr>
+                <td>onbeforecut</td>
+                <td><code>EventArgs</code></td>
+                <td>Clipboard</td>
+            </tr>
+            <tr>
+                <td>onbeforepaste</td>
+                <td><code>EventArgs</code></td>
+                <td>Clipboard</td>
+            </tr>
+            <tr>
+                <td>oncopy</td>
+                <td><code>ClipboardEventArgs</code></td>
+                <td>Clipboard</td>
+            </tr>
+            <tr>
+                <td>oncut</td>
+                <td><code>ClipboardEventArgs</code></td>
+                <td>Clipboard</td>
+            </tr>
+            <tr>
+                <td>onpaste</td>
+                <td><code>ClipboardEventArgs</code></td>
+                <td>Clipboard</td>
+            </tr>
+            <tr>
+                <td>ontouchcancel</td>
+                <td><code>TouchEventArgs</code></td>
+                <td>Touch</td>
+            </tr>
+            <tr>
+                <td>ontouchend</td>
+                <td><code>TouchEventArgs</code></td>
+                <td>Touch</td>
+            </tr>
+            <tr>
+                <td>ontouchmove</td>
+                <td><code>TouchEventArgs</code></td>
+                <td>Touch</td>
+            </tr>
+            <tr>
+                <td>ontouchstart</td>
+                <td><code>TouchEventArgs</code></td>
+                <td>Touch</td>
+            </tr>
+            <tr>
+                <td>ontouchenter</td>
+                <td><code>TouchEventArgs</code></td>
+                <td>Touch</td>
+            </tr>
+            <tr>
+                <td>ontouchleave</td>
+                <td><code>TouchEventArgs</code></td>
+                <td>Touch</td>
+            </tr>
+            <tr>
+                <td>ongotpointercapture</td>
+                <td><code>PointerEventArgs</code></td>
+                <td>Pointer</td>
+            </tr>
+            <tr>
+                <td>onlostpointercapture</td>
+                <td><code>PointerEventArgs</code></td>
+                <td>Pointer</td>
+            </tr>
+            <tr>
+                <td>onpointercancel</td>
+                <td><code>PointerEventArgs</code></td>
+                <td>Pointer</td>
+            </tr>
+            <tr>
+                <td>onpointerdown</td>
+                <td><code>PointerEventArgs</code></td>
+                <td>Pointer</td>
+            </tr>
+            <tr>
+                <td>onpointerenter</td>
+                <td><code>PointerEventArgs</code></td>
+                <td>Pointer</td>
+            </tr>
+            <tr>
+                <td>onpointerleave</td>
+                <td><code>PointerEventArgs</code></td>
+                <td>Pointer</td>
+            </tr>
+            <tr>
+                <td>onpointermove</td>
+                <td><code>PointerEventArgs</code></td>
+                <td>Pointer</td>
+            </tr>
+            <tr>
+                <td>onpointerout</td>
+                <td><code>PointerEventArgs</code></td>
+                <td>Pointer</td>
+            </tr>
+            <tr>
+                <td>onpointerover</td>
+                <td><code>PointerEventArgs</code></td>
+                <td>Pointer</td>
+            </tr>
+            <tr>
+                <td>onpointerup</td>
+                <td><code>PointerEventArgs</code></td>
+                <td>Pointer</td>
+            </tr>
+            <tr>
+                <td>oncanplay</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>oncanplaythrough</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>oncuechange</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>ondurationchange</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onemptied</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onpause</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onplay</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onplaying</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onratechange</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onseeked</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onseeking</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onstalled</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onstop</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onsuspend</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>ontimeupdate</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onvolumechange</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onwaiting</td>
+                <td><code>EventArgs</code></td>
+                <td>Media</td>
+            </tr>
+            <tr>
+                <td>onloadstart</td>
+                <td><code>ProgressEventArgs</code></td>
+                <td>Progress</td>
+            </tr>
+            <tr>
+                <td>ontimeout</td>
+                <td><code>ProgressEventArgs</code></td>
+                <td>Progress</td>
+            </tr>
+            <tr>
+                <td>onabort</td>
+                <td><code>ProgressEventArgs</code></td>
+                <td>Progress</td>
+            </tr>
+            <tr>
+                <td>onload</td>
+                <td><code>ProgressEventArgs</code></td>
+                <td>Progress</td>
+            </tr>
+            <tr>
+                <td>onloadend</td>
+                <td><code>ProgressEventArgs</code></td>
+                <td>Progress</td>
+            </tr>
+            <tr>
+                <td>onprogress</td>
+                <td><code>ProgressEventArgs</code></td>
+                <td>Progress</td>
+            </tr>
+            <tr>
+                <td>onerror</td>
+                <td><code>ErrorEventArgs</code></td>
+                <td>Progress</td>
+            </tr>
+            <tr>
+                <td>onactivate</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onbeforeactivate</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onbeforedeactivate</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>ondeactivate</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onended</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onfullscreenchange</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onfullscreenerror</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onloadeddata</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onloadedmetadata</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onpointerlockchange</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onpointerlockerror</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onreadystatechange</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>onscroll</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+            <tr>
+                <td>ontoggle</td>
+                <td><code>EventArgs</code></td>
+                <td>Other</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<h3>Pass parameters to a C# method from the DOM</h3>
+<p>To pass parameters to a C# method from the DOM, you can use the following syntax:</p>
+<pre class="code" language="razor">&lt;button type="button" @onclick="_ =&gt; ExampleMethodWithoutHtmlEvent(ExampleString)"&gt;Example parameterized method without HTML event&lt;/button&gt;
+
+@code {
+    public string ExampleString { get; set; } = "";
+
+    public void ExampleMethodWithoutHtmlEvent(string exampleString)
+    {
+    }
+}</pre>
+<p>If you need to pass HTML event data along with other parameters, you can modify the syntax as follows:</p>
+<pre class="code" language="razor">&lt;button type="button" @onclick="(e) =&gt; ExampleMethodWithHtmlEvent(e, ExampleString)"&gt;Example parameterized method with HTML event&lt;/button&gt;
+
+@code {
+    public string ExampleString { get; set; } = "";
+    
+    public void ExampleMethodWithHtmlEvent(MouseEventArgs eventArgs, string exampleString)
+    {
+    }
+}</pre>
+<h3><code>preventDefault</code> in Blazor</h3>
+<p>By default, events in Blazor trigger their respective browser actions. To cancel these actions, you can use the <code>preventDefault()</code> method in JavaScript. This method stops the default actions of the current event.</p>
+<p>For instance, clicking on a checkbox will normally tick the checkbox. By using <code>preventDefault()</code>, the checkbox will not be ticked. You can see an example of <code>preventDefault()</code> in action in the following video:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-server\dotnet7\directives-746228\prevent-default-explain.mp4" />
+    </video>
+</div>
+<p>Blazor makes it easy to use <code>preventDefault()</code> without writing any JavaScript code. Simply add <code>@&lt;Blazor_event&gt;:preventDefault</code> to your HTML element. For example:</p>
+<pre class="code" language="razor">&lt;input type="checkbox" @onclick:preventDefault /&gt;</pre>
+<h3><code>stopPropagation</code> in Blazor</h3>
+<p>HTML elements can be nested within each other, meaning that events that occur on a child element can propagate to its parent elements. This is known as event propagation, and it can be useful in some cases. However, there may be instances where you want to prevent an event from propagating to its parent elements. To achieve this, you can use the <code>stopPropagation()</code> method in JavaScript. In the following image, you can see an example of event propagation in HTML:</p>
+<p><img src="contents\blazor-server\dotnet7\directives-746228\propagation.png" alt="propagation.png" width="631" height="516" /></p>
+<p>To prevent an event from propagating to its parent elements, you can use the <code>stopPropagation()</code> method. Here's a video that demonstrates how <code>stopPropagation()</code> works:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-server\dotnet7\directives-746228\stop-propagation-explain.mp4" />
+    </video>
+</div>
+<p>In Blazor, you can use the <code>stopPropagation()</code> method without writing any JavaScript code. Simply add <code>@&lt;Blazor_event&gt;:stopPropagation</code> to the HTML element where you want to stop event propagation. For example:</p>
+<pre class="code" language="razor">&lt;div @onclick:stopPropagation&gt;&lt;/div&gt;</pre>
+<hr class="my-4" />
+<h1>Utilities directives</h1>
+<p>Utility directives are a set of directives that provide additional features to your components. The following directives are part of the utility group:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Directive identifier</th>
+                <th class="text-center" scope="col">Description</th>
+                <th class="text-center" scope="col">Type</th>
+            </tr>
+            <tr>
+                <td>@<strong>&lt;C#-keyword&gt;</strong>, @{<strong>&lt;C# Code&gt;</strong>},@(<strong>&lt;C# Code&gt;</strong>)</td>
+                <td>Inject C# code to HTML template</td>
+                <td>Utilities</td>
+            </tr>
+            <tr>
+                <td><code>@inject</code></td>
+                <td>Inject an instance into a component</td>
+                <td>Utilities</td>
+            </tr>
+            <tr>
+                <td><code>@page</code></td>
+                <td>Specify the route and parameter to a component</td>
+                <td>Utilities</td>
+            </tr>
+            <tr>
+                <td><code>@section</code></td>
+                <td>Not apply for Blazor WebAssembly</td>
+                <td>N/A</td>
+            </tr>
+            <tr>
+                <td><code>@functions</code></td>
+                <td>Deprecated, use <code>@code</code> instead</td>
+                <td>N/A</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>For example, the <code>@page</code> directive is a utility directive that specifies the route for a component. Here's an example that demonstrates how <code>@page</code> works:</p>
+<pre classs="code" language="razor">@page "/utility"
+
+&lt;div&gt;The &lt;code&gt;@@page&lt;/code&gt; directive helps you to navigate to this page.&lt;/div&gt;</pre>
+<p>In the example above, the <code>@page</code> directive sets the route for the current component to <strong>/utility</strong>. This means that you can access the component by navigating to <strong>localhost:XXXX/utility</strong>.</p>
