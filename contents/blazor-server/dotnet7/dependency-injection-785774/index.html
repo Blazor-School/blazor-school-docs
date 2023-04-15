@@ -12,7 +12,7 @@
     <li>Property injection.</li>
     <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
 </ul>
-<blockquote>You can <a href="https://github.com/Blazor-School/dependency-injection-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<blockquote>You can <a href="https://github.com/Blazor-School/dependency-injection-blazor-server-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
 <hr class="my-4" />
 <h1>What is Dependency Injection?</h1>
 <p>Using DI, developers can inject dependencies into a class or component, rather than having to create instances of those dependencies within the class. This makes the code more modular, flexible, and maintainable, as changes to one component do not affect other components that depend on it.</p>
@@ -25,7 +25,7 @@
     <li>When a component or a service/class need the registered service, it specifies a property to be the injected instance.</li>
     <li>The <code>ServiceProvider</code> then injects the dependency into the component or service using the specified constructor or property. The <code>ServiceProvider</code> creates the instance of the dependency, resolves any dependencies required by that dependency, and injects it into the component or service.</li>
 </ol>
-<p><img src="contents\blazor-wasm\dotnet7\dependency-injection-923621\dependency-injection-blazor-wasm.png" alt="dependency-injection-blazor-wasm.png" width="929" height="500" /></p>
+<p><img src="contents\blazor-server\dotnet7\dependency-injection-785774\dependency-injection-blazor.png" alt="dependency-injection-blazor.png" width="929" height="500" /></p>
 <hr class="my-4" />
 <h1>Why do you need the Dependency Injection?</h1>
 <p>In Blazor, dependency injection is essential because it allows you to separate the concerns of your application into individual services or components. This helps to make your code more modular, testable, and easier to maintain.</p>
@@ -130,7 +130,7 @@
 <p><img src="contents\blazor-server\dotnet6\dependency-injection-373396\scoped-service.png" alt="scoped-service.png" width="541" height="500" /></p>
 <h3>Transient service scope</h3>
 <p>With transient services, the <code>ServiceProvider</code> creates a new instance every time it's injected. The following image illustrates the transient service scope:</p>
-<p><img src="contents\blazor-wasm\dotnet7\dependency-injection-923621\transient-scope.png" alt="transient-scope.png" width="540" height="500" /></p>
+<p><img src="contents\blazor-server\dotnet7\dependency-injection-785774\transient-scope.png" alt="transient-scope.png" width="540" height="500" /></p>
 <hr class="my-4" />
 <h1>Registering services automatically</h1>
 <p>When registering a service, you need to specify the scope for the service. In case your website has many services, you can simplify the process by registering services automatically by following these steps:</p>
