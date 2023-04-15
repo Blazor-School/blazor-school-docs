@@ -1,0 +1,164 @@
+﻿<h1>Parameter</h1>
+<p>✅ Similar to Blazor WebAssembly</p>
+<p><code>Parameter</code> is a feature for transmitting data from a parent component to its direct child components.</p>
+<ul>
+    <li>Passing parameters with Parameter.</li>
+    <li>Capture unmatched values.</li>
+    <li>Common mistake.</li>
+    <li>Detect changes.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-interaction-blazor-server-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Passing parameters using <code>Parameter</code></h1>
+<p>The following steps will guide you on how to pass parameters from a parent component to a child component in Blazor:</p>
+<ol>
+    <li><strong>In your child component</strong>, declare public properties that will receive the parameters passed from the parent component. You can use the <code>[EditorRequired]</code> attribute to mark a parameter as required. Additionally, you can set default values for the parameter by defining it in the getter and setter.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public string InputParameter { get; set; } = "Default Value";
+
+    [EditorRequired]
+    [Parameter]
+    public string RequiredInputParameter { get; set; } = "";
+}</pre>
+<ol start="2">
+    <li><strong>In your parent component</strong>, declare public properties that will be passed to the child component as parameters.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    public string FirstData { get; set; } = "First data";
+    public string SecondData { get; set; } = "Second data";
+}</pre>
+<ol start="3">
+    <li>Pass the parameters to the child component by including them in the component's tag. If a parameter has been marked as required with the <code>[EditorRequired]</code> attribute, it must be passed, otherwise, you will receive a warning that there is a required parameter.</li>
+</ol>
+<pre class="code" language="razor">&lt;Child InputParameter="FirstData" RequiredInputParameter="SecondData" /&gt;</pre>
+<hr class="my-4" />
+<h1>Capture unmatched values</h1>
+<p>You have learned that in order to pass data from a parent component to a child component, the child component must first acknowledge the parameters that it expects to receive. However, in some cases, it may not be possible to predict which parameters will be passed to the component. A common scenario that demonstrates this situation is when working with HTML attributes (learn more at <a href="https://www.w3schools.com/html/html_attributes.asp" target="_blank" rel="noopener" title="https://www.w3schools.com/html/html_attributes.asp">https://www.w3schools.com/html/html_attributes.asp</a>). As you know, any HTML attribute can be defined and as a result, the child component will not know which or what attributes the parent component will pass. In such cases, Blazor's Parameter feature supports the child component by allowing it to catch all unmatched parameter values into a dictionary.</p>
+<ol>
+    <li><strong>In your child component</strong>, declare a public property (just one) that will receive the unmatched parameters passed from the parent component.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary&lt;string, object&gt; AdditionalAttributes { get; set; } = new();
+}</pre>
+<ol start="2">
+    <li><strong>In your parent component</strong>, pass the parameters to the child component as usual.</li>
+</ol>
+<pre class="code" language="razor">&lt;Child myCustomAttribute myCustomAttribute2="Blazor School"/&gt;</pre>
+<p>Then your property <code>AdditionalAttributes</code> in the child component will have all the unmatched parameter values, where you can access them via dictionary keys:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td>Key</td>
+                <td>Value</td>
+            </tr>
+            <tr>
+                <td>myCustomAttribute</td>
+                <td>true</td>
+            </tr>
+            <tr>
+                <td>myCustomAttribute2</td>
+                <td>Blazor School</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<hr class="my-4" />
+<h1>Common mistake</h1>
+<p>When utilizing the parameter approach in Blazor, it is crucial to avoid altering the reference of a passed parameter within any child component. The following code sample illustrates this mistake:</p>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public ExampleClass ExampleInstance { get; set; } = new();
+
+    public void Correct()
+    {
+        ExampleInstance.Data = "Value changed";
+    }
+
+    public void Mistake()
+    {
+        ExampleInstance = new()
+        {
+            Data = "Reference changed"
+        };
+    }
+}</pre>
+<h3>What will happen if you change the reference of a passed parameter?</h3>
+<p>Changing the reference of a passed parameter can result in unexpected behaviour, as the change will only be reflected within the child component and not the parent component. This can be demonstrated in the following video:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="contents\blazor-server\dotnet7\parameter-228567\parameter-common-mistake.webm" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Detect changes</h1>
+<p>In Blazor, you can update the value of a parameter in both the parent component and its child components. In this section, you will learn how to:</p>
+<ul>
+    <li>Detect changes made to a parameter in the parent component.</li>
+    <li>Detect changes made to a parameter in a child component.</li>
+</ul>
+<p>This allows you to create more dynamic and interactive user interfaces, by keeping the state of your components updated and synchronized.</p>
+<h3>Detect changes made to a parameter in the parent component</h3>
+<p>In Blazor, whenever the parent component updates the value of a passed parameter, the child components will automatically re-render with the new value. In most cases, there is no need to specifically detect these changes as the re-rendering will take care of it.</p>
+<p>However, in certain scenarios, you may want to detect changes made to a parameter in the parent component and perform additional actions. In such cases, you can override the <code>OnParametersSet()</code> method in your child component. This method is called whenever the component receives new parameter values and it gives you the opportunity to perform custom logic. You can find more information about this method and other lifecycle events in the Blazor <a href="/tutorial/blazor-server/dotnet7/component-lifecycle-253729" title="Component lifecycle tutorial">Component lifecycle tutorial</a>.</p>
+<h3>Detect changes made to a parameter in a child component using <code>EventCallBack</code></h3>
+<p>Unlike changes made in the parent component, updates to a passed parameter made by a child component will not automatically trigger a re-render of the parent component. To make the parent component react to these changes, you must pass a delegate to the child component. This delegate will be called by the child component whenever it updates the parameter value, notifying the parent component to update itself.</p>
+<p>Here's how to implement this:</p>
+<ol>
+    <li><strong>In your child component</strong>, declare the parameter and a delegate for that parameter.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public ExampleClass ExampleInstance { get; set; } = new();
+
+    [Parameter]
+    public EventCallback ExampleInstanceChanged { get; set; }
+}</pre>
+<ol start="2">
+    <li>Whenever you update the parameter, ensure to call the delegate of that parameter.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    public void UpdateValue()
+    {
+        ExampleInstance.Data = "Value changed at child";
+        ExampleInstanceChanged.InvokeAsync();
+    }
+}</pre>
+<ol start="3">
+    <li><strong>In your parent component</strong>, pass the method <code>StateHasChanged()</code> along with the parameter to the child component. This will tell the parent component to re-render itself, whenever the child component update the parameter value.</li>
+</ol>
+<pre class="code" language="razor">&lt;Child ExampleInstance="ExampleInstance" ExampleInstanceChanged="StateHasChanged" /&gt;</pre>
+<h3>Detect changes made to a parameter in a child component using <code>@bind</code></h3>
+<p>You can achieve the same result as <code>EventCallBack</code> with <code>@bind</code>. This helps reduce the amount of code you need to write and makes your component easier to understand.</p>
+<ol>
+    <li><strong>In your child component</strong>, declare the parameter and an <code>EventCallback&lt;{Type of parameter}&gt;</code>with the name <code>{Parameter}Changed</code>.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public string? Input { get; set; }
+
+    [Parameter]
+    public EventCallback&lt;string&gt; InputChanged { get; set; }
+}</pre>
+<ol start="2">
+    <li>When updating the parameter in the child component, use the associated <code>EventCallback</code> to update it rather than updating the parameter directly. For example:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    public void UpdateInputFromChild()
+    {
+        InputChanged.InvokeAsync("Value changed at child");
+    }
+}</pre>
+<ol start="3">
+    <li><strong>In your parent component</strong>, use <code>@bind-{Parameter}</code> to pass the parameter to the child component. For example:</li>
+</ol>
+<pre class="code" language="razor">&lt;Child @bind-Input="PassingInput" /&gt;
+
+@code {
+    public string PassingInput { get; set; } = "Data from parent";
+}</pre>

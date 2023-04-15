@@ -1,0 +1,217 @@
+﻿<h1>Dependency Injection</h1>
+<p>🟨 Slightly different to Blazor WebAssembly</p>
+<p>In Blazor, Dependency Injection enables developers to create more modular, flexible, and maintainable code by managing dependencies between components in a controlled and decoupled manner. This results in more efficient and scalable applications that are easier to maintain and extend over time.</p>
+<ul>
+    <li>What is Dependency Injection?</li>
+    <li>How Dependency Injection works?</li>
+    <li>Why do you need the Dependency Injection?</li>
+    <li>How to register a service?</li>
+    <li>Comparing between service scopes.</li>
+    <li>Registering services automatically.</li>
+    <li>Constructor injection.</li>
+    <li>Property injection.</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/dependency-injection-blazor-server-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is Dependency Injection?</h1>
+<p>Using DI, developers can inject dependencies into a class or component, rather than having to create instances of those dependencies within the class. This makes the code more modular, flexible, and maintainable, as changes to one component do not affect other components that depend on it.</p>
+<p>For example, if one class depends on another class, instead of creating an instance of the dependent class, the instance can be injected into the constructor of the first class. This allows the first class to use the functionality of the dependent class without having to manage its creation and lifecycle.</p>
+<hr class="my-4" />
+<h1>How Dependency Injection works?</h1>
+<p>Dependency Injection working in 3 steps:</p>
+<ol>
+    <li>A class with business logic is called a service when it is registered with the <code>ServiceProvider</code> in the <strong>Program.cs</strong> file. This involves defining the type of the service and any configuration options that are required to create the service.</li>
+    <li>When a component or a service/class need the registered service, it specifies a property to be the injected instance.</li>
+    <li>The <code>ServiceProvider</code> then injects the dependency into the component or service using the specified constructor or property. The <code>ServiceProvider</code> creates the instance of the dependency, resolves any dependencies required by that dependency, and injects it into the component or service.</li>
+</ol>
+<p><img src="contents\blazor-server\dotnet7\dependency-injection-785774\dependency-injection-blazor.png" alt="dependency-injection-blazor.png" width="929" height="500" /></p>
+<hr class="my-4" />
+<h1>Why do you need the Dependency Injection?</h1>
+<p>In Blazor, dependency injection is essential because it allows you to separate the concerns of your application into individual services or components. This helps to make your code more modular, testable, and easier to maintain.</p>
+<p>Here are a few reasons why you might need to use DI in Blazor:</p>
+<ol>
+    <li>Promotes reusability: By using DI, you can create reusable services that can be shared across different components and services in your application.</li>
+    <li>Makes your code testable: DI makes it easier to test your code because you can easily replace dependencies with mock objects during unit testing.</li>
+    <li>Allows for better modularity: DI promotes modularity by allowing you to easily swap out dependencies without having to modify the code that uses them.</li>
+    <li>Simplifies code maintenance: By separating concerns into individual services, your code becomes more organized and easier to maintain over time.</li>
+    <li>Reduces code complexity: DI can reduce code complexity by enabling developers to break down business logic into smaller pieces and then combine them together</li>
+</ol>
+<hr class="my-4" />
+<h1>How to register a service?</h1>
+<p>In Blazor, you need to register a service before you can inject it into a component. There are several ways to register a service, such as by its class or interface name. Typically, services are registered in the <strong>Program.cs</strong> file, which is where the application's dependency injection container is configured.</p>
+<p>To register a service, you need to insert the registration code between the <code>WebApplication.CreateBuilder(args)</code> and <code>builder.Build()</code> methods in the <strong>Program.cs</strong> file. This ensures that the service is available to the application's dependency injection container when it is needed.</p>
+<h3>Register a service by class</h3>
+<p>To register a service in Blazor using its class name, you can follow these steps:</p>
+<ol>
+    <li>Define the class that you want to register as a service. For example, you might have a <code>MyService</code> class with the following definition:</li>
+</ol>
+<pre class="code" language="csharp">public class MyService
+{
+    public string ExampleString { get; set; } = "";
+}</pre>
+<ol start="2">
+    <li>In your <strong>Program.cs</strong> file, configure the application's dependency injection container by adding the following line of code between the <code>WebApplication.CreateBuilder(args)</code> and <code>builder.Build()</code> call:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;MyService&gt;();</pre>
+<p>This code registers <code>MyService</code> as a transient service. There are other types of service such as scoped and singleton which will be introduced in this tutorial later.</p>
+<h3>Register a service by interface</h3>
+<p>To register a service in Blazor using its interface name, you can follow these steps:</p>
+<ol>
+    <li>Define the interface that you want to register as a service. For example, let's say you have an <code>IService</code> interface with the following definition:</li>
+</ol>
+<pre class="code" language="csharp">public interface IService
+{
+}</pre>
+<ol start="2">
+    <li>Create a class that implements the <code>IService</code> interface. For example, you can create a <code>ServiceWithInterface</code> class:</li>
+</ol>
+<pre class="code" language="csharp">public class ServiceWithInterface : IServiceInterface
+{
+}</pre>
+<ol start="3">
+    <li>Configure the <code>ServiceProvider</code> in your <strong>Program.cs</strong> file by adding the following line of code:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;IServiceInterface, ServiceWithInterface&gt;();</pre>
+<h3>Register a service with parameter</h3>
+<p>Sometimes, a generic service needs input parameters to function properly. For example, a data access layer service may require a connection string to a database. Consider the following <code>ServiceWithParameter</code>:</p>
+<pre class="code" language="csharp">public class ServiceWithParameter
+{
+    public string ExampleString { get; set; } = "";
+
+    public ServiceWithParameter(string exampleString)
+    {
+        ExampleString = exampleString;
+    }
+}</pre>
+<p>If you don't provide the <code>exampleString</code> parameter when constructing <code>ServiceWithParameter</code>, it will not be created. To instruct the <code>ServiceProvider</code> on how to construct the <code>ServiceWithParameter</code> with the necessary parameter, you can use the following code:</p>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;ServiceWithParameter&gt;(serviceProvider =&gt; new("Blazor School"));</pre>
+<h3>Register a dependent service</h3>
+<p>A service can depends on another service. For example, if a web application relies on a database service to store and retrieve data, the web application would be considered a dependent service, while the database service would be considered the parent or upstream service. Consider the following service:</p>
+<pre class="code" language="csharp">public class DependentService
+{
+    public ServiceWithParameter UpstreamService { get; set; }
+
+    public DependentService(ServiceWithParameter upstreamService)
+    {
+        UpstreamService = upstreamService;
+    }
+}</pre>
+<p>Then the upstream service is automatically injected to the dependent service. You just need to register as follows:</p>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;DependentService&gt;();</pre>
+<h3>Register a dependent service with parameter</h3>
+<p>When a service depends on another service and requires input parameters, you need to provide instructions to the <code>ServiceProvider</code> on how to create the service. Consider the following code for a dependent service that requires input parameters:</p>
+<pre class="code" language="csharp">public class DependentServiceWithParameter
+{
+    public string ExampleString { get; set; } = "";
+    public ServiceWithParameter UpstreamService { get; set; }
+
+    public DependentServiceWithParameter(string exampleString, ServiceWithParameter upstreamService)
+    {
+        ExampleString = exampleString;
+        UpstreamService = upstreamService;
+    }
+}</pre>
+<p>To register the dependent service with its upstream service and input parameters, you can use the following code:</p>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;DependentServiceWithParameter&gt;(serviceProvider=&gt; new("Blazor School", serviceProvider.GetRequiredService&lt;ServiceWithParameter&gt;()));</pre>
+<hr class="my-4" />
+<h1>Comparing between service scopes</h1>
+<p>When registering a service, it's necessary to specify its scope. Each scope has its own lifetime, you can choose from three different scopes:</p>
+<ul>
+    <li>Singleton</li>
+    <li>Scoped</li>
+    <li>Transient</li>
+</ul>
+<h3>Singleton service scope</h3>
+<p>The singleton scope is used to register services that should be created only once and shared across the entire application. This means that the same instance of the service will be used for all users that require it, which can be useful for performance optimization and reducing memory usage. The following image illustrates the singleton service scope:</p>
+<p><img src="contents\blazor-server\dotnet6\dependency-injection-373396\singleton-scope.png" alt="singleton-scope.png" width="542" height="500" /></p>
+<h3>Scoped service scope</h3>
+<p>The scoped service scope is used to register services that should be created once per browser tab. The following image illustrates the scoped service scope:</p>
+<p><img src="contents\blazor-server\dotnet6\dependency-injection-373396\scoped-service.png" alt="scoped-service.png" width="541" height="500" /></p>
+<h3>Transient service scope</h3>
+<p>With transient services, the <code>ServiceProvider</code> creates a new instance every time it's injected. The following image illustrates the transient service scope:</p>
+<p><img src="contents\blazor-server\dotnet7\dependency-injection-785774\transient-scope.png" alt="transient-scope.png" width="540" height="500" /></p>
+<hr class="my-4" />
+<h1>Registering services automatically</h1>
+<p>When registering a service, you need to specify the scope for the service. In case your website has many services, you can simplify the process by registering services automatically by following these steps:</p>
+<ol>
+    <li>Create an interface for scoped, singleton, and transient services.</li>
+</ol>
+<pre class="code" language="csharp">public interface IScopedService
+{
+}</pre>
+<pre class="code" language="csharp">public interface ISingletonService
+{
+}</pre>
+<pre class="code" language="csharp">public interface ITransientService
+{
+}</pre>
+<ol start="2">
+    <li>Use reflection to scan and registering the services in <strong>Program.cs</strong> file:</li>
+</ol>
+<pre class="code" language="csharp">...
+ScanAndRegisterServices(builder.Services);
+...
+
+static void ScanAndRegisterServices(IServiceCollection services)
+{
+    var currentAssembly = Assembly.GetExecutingAssembly();
+    var allTypes = currentAssembly.GetTypes().Concat(
+        currentAssembly
+        .GetReferencedAssemblies()
+        .SelectMany(assemblyName =&gt; Assembly.Load(assemblyName).GetTypes()))
+        .Where(type =&gt; !type.IsInterface &amp;&amp; !type.IsAbstract);
+
+    var scopedServices = allTypes.Where(type =&gt; typeof(IScopedService).IsAssignableFrom(type));
+
+    foreach (var type in scopedServices)
+    {
+        services.AddScoped(type);
+    }
+
+    var transientServices = allTypes.Where(type =&gt; typeof(ITransientService).IsAssignableFrom(type));
+
+    foreach (var type in transientServices)
+    {
+        services.AddTransient(type);
+    }
+
+    var singletonServices = allTypes.Where(type =&gt; typeof(ISingletonService).IsAssignableFrom(type));
+
+    foreach (var type in singletonServices)
+    {
+        services.AddTransient(type);
+    }
+}</pre>
+<ol start="3">
+    <li>Implement one of the interfaces to create a service:</li>
+</ol>
+<pre class="code" language="csharp">public class AutoTransientService : ITransientService
+{
+    public Guid ExampleId { get; set; } = Guid.NewGuid();
+}</pre>
+<p>This way, the <code>ServiceProvider</code> will register the services automatically based on their scope, without the need for explicit registration for each service.</p>
+<hr class="my-4" />
+<h1>Constructor injection</h1>
+<p>Constructor injection is a technique used in object-oriented programming, where a registered service is injected into the constructor of a dependent service. In this approach, the dependent service declares a dependency on the upstream service through its constructor parameter.</p>
+<pre class="code" language="csharp">public class DependentService
+{
+    public ServiceWithParameter UpstreamService { get; set; }
+
+    public DependentService(ServiceWithParameter upstreamService)
+    {
+        UpstreamService = upstreamService;
+    }
+}</pre>
+<p>In the code above, the constructor of <code>DependentService</code> takes an instance of <code>ServiceWithParameter</code> as a parameter. This allows the dependent service to access and use the functionality provided by the upstream service.</p>
+<hr class="my-4" />
+<h1>Property injection</h1>
+<p>In Blazor, property injection is a technique used to provide a component with a dependency, such as a service or data source, by assigning it to a property of the component. This can be achieved through the use of either the <code>[Inject]</code> attribute or the <code>@inject</code> directive in the component.</p>
+<p>For example, to use the <code>@inject</code> directive in the component as follows:</p>
+<pre class="code" language="razor">@inject MyService MyService</pre>
+<p>Alternatively, you can use the <code>[Inject]</code> attribute for a property in the component as follows:</p>
+<pre class="code" language="csharp">[Inject]
+public MyService MyService { get; set; }</pre>
+<hr class="my-4" />
+<h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
+<p>In Blazor WebAssembly, the lifespan of the scoped service and the singleton service instances is the same.</p>
