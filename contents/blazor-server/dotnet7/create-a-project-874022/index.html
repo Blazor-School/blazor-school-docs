@@ -1,0 +1,51 @@
+﻿<h1>Create a Blazor Server project</h1>
+<p>🟥 Not applicable to Blazor WebAssembly</p>
+<p>In this tutorial, we will guide you through the steps of setting up and constructing a basic Blazor Server application from the ground up. To accomplish this, we will leverage Visual Studio, a well-known .NET development environment, for creating and building our project. Specifically, we will cover the following topics:</p>
+<ul>
+    <li>Preparing your local machine for development.</li>
+    <li>Choosing appropriate project templates and configuration options.</li>
+</ul>
+<hr class="my-4" />
+<h1>Preparing your local machine for development</h1>
+<p>To create a Blazor Server project, you need:</p>
+<ul>
+    <li>.NET 7 Runtime.</li>
+    <li><a href="https://visualstudio.microsoft.com/" title="https://visualstudio.microsoft.com/" target="_blank" rel="noopener"> Visual Studio 2022</a>.</li>
+    <li>ASP.NET and web development.</li>
+</ul>
+<p>Once you installed Visual Studio 2022, run <strong>Visual Studio Installer</strong> and click <strong>Modify</strong>.</p>
+<p><img src="contents\blazor-server\dotnet7\create-a-project-874022\vs-installer-1.png" alt="vs-installer-1.png" width="800" height="450" /></p>
+<p>Tick <strong>ASP.NET and web development</strong>.</p>
+<p><img src="contents\blazor-server\dotnet7\create-a-project-874022\vs-installer-2.png" alt="vs-installer-2.png" width="800" height="437" /></p>
+<p>Switch to tab <strong>Individual components</strong> and select <strong>.NET 7 Runtime</strong>.</p>
+<p><img src="contents\blazor-server\dotnet7\create-a-project-874022\vs-installer-3.png" alt="vs-installer-3.png" width="336" height="225" /></p>
+<hr class="my-4" />
+<h1>Choosing appropriate project templates and configuration options</h1>
+<p>When creating a new project in Visual Studio, you will be presented with a variety of templates to choose from, including official templates provided by Microsoft and third-party templates for Blazor Server.</p>
+<p>The two official templates provided by Microsoft for Blazor Server are:</p>
+<ul>
+    <li>Blazor Server App: This template provides a pre-built navigation bar and Bootstrap 5, which can be useful for quickly getting started with a new project.</li>
+    <li>Blazor Server App Empty: This template provides a blank slate, with no pre-built code or libraries. This can be useful if you prefer to build your own navigation bar or use a different CSS framework.</li>
+</ul>
+<p>When selecting a template, keep in mind that using a third-party template might prevent you from debugging the project. Follow the following steps to create a new project:</p>
+<ol>
+    <li>Start your Visual Studio, select <strong>Create a new project</strong>.</li>
+</ol>
+<p><img src="contents\blazor-server\dotnet7\create-a-project-874022\create-blazor-server-project.png" alt="create-blazor-server-project.png" width="800" height="533" /></p>
+<ol start="2">
+    <li>A list of templates will appear, you need to select one of the template: <strong>Blazor Server App</strong> or <strong>Blazor Server App Empty</strong>.</li>
+</ol>
+<p><img src="contents\blazor-server\dotnet7\create-a-project-874022\create-blazor-server-project-2.png" alt="create-blazor-server-project-2.png" width="800" height="562" /></p>
+<ol start="3">
+    <li>Select the options for your project.</li>
+</ol>
+<p><img src="contents\blazor-server\dotnet7\create-a-project-874022\create-blazor-server-project-3.png" alt="create-blazor-server-project-3.png" width="800" height="562" /></p>
+<p>After selecting a template, you will have the option to configure your project with the following options:</p>
+<ul>
+    <li><strong>Framework</strong>: Allows you to choose the target framework of the project.</li>
+    <li><strong>Authentication type</strong> (only available for Blazor Server App template): Allows you to generate code for authentication. It is recommended to leave it as None and build the authentication functionality yourself as the generated code may not meet all your needs for a basic project.</li>
+    <li><strong>Configure for HTTPS</strong>: Allows you to add a profile named https and it will redirect HTTP to HTTPS, which is recommended for security in production.</li>
+    <li><strong>Enable Docker</strong>: Generates a Dockerfile which allow you to package and deploy your application as a Docker container.</li>
+    <li><strong>Do not use top-level statements</strong> (only available for Blazor Server App template): Allows you to use the old syntax for the project, it is recommended to not use this option to adapt the latest syntax of C#.</li>
+</ul>
+<p>It is important to keep in mind that many options can be implemented manually at a later stage in a project, and it is not necessary to stress about selecting them at the beginning. It is often more effective to start with a minimal set of options and gradually add more as needed. This allows for flexibility and adaptability throughout the project.</p>
