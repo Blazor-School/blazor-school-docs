@@ -1,7 +1,7 @@
 ﻿<h1>JavaScript interaction</h1>
 <p>🟨 Slightly different to Blazor WebAssembly</p>
 <p>Blazor allows for seamless integration of JavaScript into your applications, making it easy to leverage existing libraries. This tutorial will walk you through the basics of using JavaScript in Blazor, from standard JavaScript to modules, so that you can get started with minimal hassle.</p>
-<p>We'll explore the two primary interaction features available for JavaScript integration in Blazor: <code>IJSRuntime</code> and <code>JSImport/JSExport</code>. By weighing the pros and cons of each feature, you will be equipped to make an informed decision about which option is the best fit for your project. By the end of this tutorial, you will have a solid understanding of how to incorporate JavaScript into your Blazor applications with confidence.</p>
+<p>We'll explore the the primary interaction feature available for JavaScript integration in Blazor Server: <code>IJSRuntime</code>. By weighing the pros and cons of each feature, you will be equipped to make an informed decision about which option is the best fit for your project. By the end of this tutorial, you will have a solid understanding of how to incorporate JavaScript into your Blazor applications with confidence.</p>
 <ul>
     <li>Why do you need to use JavaScript in a Blazor project?</li>
     <li>Standard JavaScript and JavaScript Module.</li>
@@ -28,9 +28,8 @@
 <p>The syntax for using standard JavaScript and JavaScript modules is different. For example, standard JavaScript uses global variables and functions, while JavaScript modules use the <code>import</code> and <code>export</code> statements to define dependencies and expose functionality between files. In addition, standard JavaScript code is executed in the global scope, while JavaScript modules have their own scope and can be imported and used in other modules.</p>
 <hr class="my-4" />
 <h1>Communication between .NET and JavaScript environments</h1>
-<p>Blazor offers two built-in features for integrating JavaScript code: <code>IJSRuntime</code> and <code>JSImport</code>/<code>JSExport</code>.</p>
+<p>Blazor offers a built-in feature for integrating JavaScript code: <code>IJSRuntime</code>.</p>
 <p><code>IJSRuntime</code> is available for both Blazor Server and Blazor WebAssembly and is typically used inside a component. It can also be used to modularize JavaScript code. When using <code>IJSRuntime</code>, you must control the lifetime of the JavaScript module and its references.</p>
-<p><code>JSImport</code>/<code>JSExport</code> is exclusively available for Blazor WebAssembly and is used to modularize JavaScript code. This feature offers more strict control over the data marshalling process by defining the parameters and return types of JavaScript functions as their equivalent C# data types. This prevents unpredictable return data from JavaScript functions. Importantly, using <code>JSImport</code>/<code>JSExport</code> eliminates the need to manage the lifetime of the module and its references.</p>
 <hr class="my-4" />
 <h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
 <p>In Blazor WebAssembly, you can also use <code>InteropServices.JavaScript</code> to interact with JavaScript.</p>

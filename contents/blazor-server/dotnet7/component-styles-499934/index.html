@@ -48,7 +48,7 @@
 <h3>The definition and concept of scoped styles</h3>
 <p>Scoped styles are the opposite of global styles, where in global styles, any CSS class can be used in any component. Conversely, with scoped styles, all CSS classes are confined to the component in which they are defined. If an attempt is made to use scoped CSS classes outside of their defined component, the styles will appear as undefined. This technique helps to mitigate CSS name pollution. The illustration below demonstrates the contrast between the scoped styles and global styles models.</p>
 <p><img src="contents\blazor-server\dotnet7\component-styles-499934\scoped-styles-global-styles-compare.png" alt="scoped-styles-global-styles-compare.png" width="900" height="390" /></p>
-<blockquote>If you are using <strong>Blazor WebAssembly App Empty</strong> as the project template, you need to head to <strong>index.html</strong> and uncomment the <code>&lt;link&gt;</code> tag in order to enable the scoped styles.</blockquote>
+<blockquote>If you are using <strong>Blazor Server App Empty</strong> as the project template, you need to head to <strong>index.html</strong> and uncomment the <code>&lt;link&gt;</code> tag in order to enable the scoped styles.</blockquote>
 <h3>Understanding how scoped styles work in Blazor</h3>
 <p>Blazor allows for the use of scoped styles, where CSS styles are applied only to specific HTML elements rather than globally. This is achieved through the use of unique attributes added to each HTML tag, which are then matched with CSS selectors to create a scoping effect.</p>
 <p><img src="contents\blazor-server\dotnet7\component-styles-499934\how-scoped-styled-works.png" alt="how-scoped-styled-works.png" width="900" height="410" /></p>
