@@ -1,0 +1,77 @@
+﻿<h1>Browser storage overview</h1>
+<p>✅ Similar to Blazor WebAssembly</p>
+<p>As you build web applications with Blazor, you'll often need to store data locally on the user's device. This is where browser storage comes in handy, providing a way to store and retrieve data directly in the user's browser. In this overview, we'll explore the different types of browser storage available in Blazor and how to use them effectively in your applications. The tutorial will cover the following topics:</p>
+<ul>
+    <li>The importance of using browser storage.</li>
+    <li>Types of browser storage.</li>
+    <li>A comparison of different browser storage types.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/browser-storage-blazor-server-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>The importance of using browser storage</h1>
+<p>Browser storage is an essential feature when developing web applications as it enables you to store data on the user's device, which can be accessed quickly and easily by your application. This is especially important when working with data that needs to be persistent, such as user preferences, login credentials, or application state.</p>
+<p>Using browser storage allows you to reduce server requests and provide a better user experience by caching data locally. It also provides a more secure way of storing sensitive information as it keeps the data on the user's device rather than transmitting it over the internet.</p>
+<hr class="my-4" />
+<h1>Types of browser storage</h1>
+<ol>
+    <li>
+        <p>Cache: This type of storage is used to store temporary data, such as images or scripts, that are frequently accessed by your application. The cache helps to improve performance by allowing your application to load data quickly without needing to make a server request each time.</p>
+    </li>
+    <li>
+        <p>Cookies: Cookies are small pieces of data that are stored on the user's device by the browser. They are often used to store user preferences, session data, or login credentials. Cookies are sent to the server with each request, enabling your application to remember user settings or keep users logged in.</p>
+    </li>
+    <li>
+        <p>IndexedDB: IndexedDB is a client-side database that enables you to store large amounts of structured data on the user's device. This type of storage is useful when working with offline web applications or when you need to store large amounts of data that would be slow to retrieve from the server.</p>
+    </li>
+    <li>Memory: can be useful for storing data that needs to be quickly accessed and updated by the application, such as in-memory caches or variables used for calculations. However, it's important to note that data stored in memory is volatile, meaning it will be lost when the page is refreshed or closed.</li>
+    <li>
+        <p>Local storage: Local storage is similar to cookies but can store larger amounts of data. This type of storage is often used to store user settings, application state, or data that needs to persist between sessions.</p>
+    </li>
+    <li>
+        <p>Session storage: Session storage is similar to local storage, but the data is cleared when the user closes the browser window. This type of storage is useful when working with temporary data or when you don't want to persist data between sessions.</p>
+    </li>
+</ol>
+<hr class="my-4" />
+<h1>A comparison of different browser storage types</h1>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td></td>
+                <td>Cache</td>
+                <td>Cookie</td>
+                <td>IndexedDB</td>
+                <td>Local Storage</td>
+                <td>Memory</td>
+                <td>Session Storage</td>
+            </tr>
+            <tr>
+                <td>Lifetime</td>
+                <td>Until deleted</td>
+                <td>Expired time/Until deleted</td>
+                <td>Until deleted</td>
+                <td>Until deleted</td>
+                <td>When the user exits the tab</td>
+                <td>When the user exits the tab</td>
+            </tr>
+            <tr>
+                <td>Allowed Data Type</td>
+                <td><code>Request</code>, <code>Response</code></td>
+                <td>Key value</td>
+                <td>Various types</td>
+                <td>Key value</td>
+                <td>Various types</td>
+                <td>Key value</td>
+            </tr>
+            <tr>
+                <td>Shared between tabs</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>No</td>
+                <td>No</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
