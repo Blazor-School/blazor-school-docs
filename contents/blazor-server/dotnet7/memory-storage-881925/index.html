@@ -1,0 +1,80 @@
+﻿<h1>Memory storage</h1>
+<p>✅ Similar to Blazor WebAssembly</p>
+<p>Memory storage is an ideal choice for temporary storage that does not need to be persisted beyond the current session.</p>
+<ul>
+    <li>What is Memory storage?</li>
+    <li>Set up the base code for interacting with Memory storage.</li>
+    <li>Use Memory storage.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/browser-storage-blazor-server-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is Memory storage?</h1>
+<p>In Blazor, memory storage involves storing data in variables within a web application's memory instead of external storage like databases or local storage. One major advantage of memory storage is that developers can directly access it using C# code, rather than relying on JavaScript APIs. Additionally, memory storage is strongly-typed, allowing for more efficient and accurate data handling. Data in memory storage is also isolated by browser tab, providing a level of security and organization.</p>
+<hr class="my-4" />
+<h1>Set up the base code for interacting with Memory storage</h1>
+<ol>
+    <li>Define a C# class with the properties that will hold your data. For instance, here is an example class named <code>MemoryStorageUtility</code> that uses a dictionary to store data:</li>
+</ol>
+<pre class="code" language="csharp">public class MemoryStorageUtility
+{
+    public Dictionary&lt;string, object&gt; Storage { get; set; } = new();
+}</pre>
+<blockquote>You may choose a different data type if necessary.</blockquote>
+<ol start="2">
+    <li>Register the <code>MemoryStorageUtility</code> class in the <strong>Program.cs</strong> file:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;MemoryStorageUtility&gt;();</pre>
+<hr class="my-4" />
+<h1>Use Memory storage</h1>
+<p>Once you have completed all the previous steps, you can use the Memory storage as follows:</p>
+<pre class="code" language="razor">@inject MemoryStorageUtility MemoryStorageUtility
+
+&lt;h3&gt;BrowserStorageDemonstrate&lt;/h3&gt;
+&lt;form&gt;
+    &lt;label&gt;
+        Key
+        &lt;input type=&quot;text&quot; @bind-value=&quot;Key&quot; /&gt;
+    &lt;/label&gt;
+    &lt;label&gt;
+        Value
+        &lt;input type=&quot;text&quot; @bind-value=&quot;Value&quot; /&gt;
+    &lt;/label&gt;
+    &lt;button type=&quot;button&quot; @onclick=&quot;SetValue&quot;&gt;Set Value&lt;/button&gt;
+&lt;/form&gt;
+&lt;div&gt;Stored Value: @StoredValue&lt;/div&gt;
+&lt;button type=&quot;button&quot; @onclick=&quot;GetValue&quot;&gt;Get Value&lt;/button&gt;
+&lt;button type=&quot;button&quot; @onclick=&quot;Remove&quot;&gt;Remove Value&lt;/button&gt;
+&lt;button type=&quot;button&quot; @onclick=&quot;ClearAll&quot;&gt;Clear All&lt;/button&gt;
+
+@code {
+    public string Key { get; set; } = &quot;&quot;;
+    public string Value { get; set; } = &quot;&quot;;
+    public string StoredValue { get; set; } = &quot;&quot;;
+
+    public void SetValue()
+    {
+        MemoryStorageUtility.Storage[Key] = Value;
+    }
+
+    public void GetValue()
+    {
+        if (MemoryStorageUtility.Storage.TryGetValue(Key, out var value))
+        {
+            StoredValue = value.ToString()!;
+        }
+        else
+        {
+            StoredValue = &quot;&quot;;
+        }
+    }
+
+    public void Remove()
+    {
+        MemoryStorageUtility.Storage.Remove(Key);
+    }
+
+    public void ClearAll()
+    {
+        MemoryStorageUtility.Storage.Clear();
+    }
+}</pre>
