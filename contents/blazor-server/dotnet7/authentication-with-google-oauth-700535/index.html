@@ -82,9 +82,9 @@ function blazorSchoolCallback(googleResponse)
     blazorSchoolAuthenticationStateProviderInstance.invokeMethodAsync("GoogleLogin", { ClientId: googleResponse.clientId, SelectedBy: googleResponse.select_by, Credential: googleResponse.credential });   
 }</pre>
 <ol start="2">
-    <li>Import the Google GSI Client JavaScript and your JavaScript file into <strong>index.html</strong>.</li>
+    <li>Import the Google GSI Client JavaScript and your JavaScript file into <strong>_Host.html</strong>.</li>
 </ol>
-<pre class="code" language="html">&lt;script src="_framework/blazor.webassembly.js"&gt;&lt;/script&gt;
+<pre class="code" language="html">&lt;script src="_framework/blazor.server.js"&gt;&lt;/script&gt;
 &lt;script src="js/BlazorSchoolGoogleOAuth.js"&gt;&lt;/script&gt;
 &lt;script src="https://accounts.google.com/gsi/client" async defer&gt;&lt;/script&gt;</pre>
 <ol start="3">
@@ -97,7 +97,7 @@ function blazorSchoolCallback(googleResponse)
     public string Credential { get; set; } = "";
 }</pre>
 <ol start="4">
-    <li>Add a new method to your <code>User</code> class to create a new user from the Google JWT. For example:</li>
+    <li>Add a new method to your <code>User</code> class to create a new user from the Google JWT. We use the NuGet package <code>System.IdentityModel.Tokens.Jwt</code> in the following example:</li>
 </ol>
 <pre class="code" language="csharp">public class User
 {
