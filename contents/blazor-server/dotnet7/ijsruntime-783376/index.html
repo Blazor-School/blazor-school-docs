@@ -37,15 +37,8 @@
     }
 }</pre>
 <ol start="3">
-    <li>Import the JavaScript module in either the Initialize phase or AfterRender phase of the component:</li>
+    <li>Import the JavaScript module in AfterRender phase of the component:</li>
 </ol>
-<pre class="code" language="razor">@code {
-    ...
-    protected override async Task OnInitializedAsync()
-    {
-        JSModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./js/JavaScriptModule.js"));
-    }
-}</pre>
 <pre class="code" language="razor">@code {
     ...
     protected override async Task OnAfterRenderAsync(bool firstRender)
