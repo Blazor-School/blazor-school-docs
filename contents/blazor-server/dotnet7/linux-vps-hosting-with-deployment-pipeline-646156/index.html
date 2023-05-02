@@ -30,9 +30,13 @@
 </ol>
 <p><img src="contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\publishing-blazor-server-3.png" alt="publishing-blazor-server-3.png" width="800" height="561" /></p>
 <ol start="4">
-    <li>Click <strong>Publish</strong> to start the publishing process.</li>
+    <li>To view publishing options, click on <strong>Show all settings</strong>. In the next section, we will discuss these options in more detail.</li>
 </ol>
 <p><img src="contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\publishing-blazor-server-4.png" alt="publishing-blazor-server-4.png" width="800" height="253" /></p>
+<ol start="5">
+    <li>Click <strong>Publish</strong> to start the publishing process.</li>
+</ol>
+<p><img src="contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\publishing-blazor-server-5.png" alt="publishing-blazor-server-5.png" width="800" height="253" /></p>
 <p>Once the website is published to the folder, you can test it out locally to ensure it is working as intended. If any changes are needed, make them and republish the website to the folder until you are satisfied with the results.</p>
 <hr class="my-4" />
 <h1>Compare between deployment modes</h1>
@@ -145,15 +149,15 @@
     <li>Open the folder <strong>/etc/systemd/system</strong> and create a new file named <strong>YOUR_SERVICE.service</strong>.</li>
 </ol>
 <pre class="code" language="yml">[Unit]
-Description=Online Shop
+Description=Blazor School Demonstrate
 
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/home/OnlineShop
-ExecStart=/usr/bin/dotnet OnlineShop.dll --urls=http://localhost:2023/
+WorkingDirectory=/home/TourOfHeroes
+ExecStart=/usr/bin/dotnet TourOfHeroes.dll --urls=http://localhost:2023/
 Restart=always
-SyslogIdentifier=Online Shop
+SyslogIdentifier=Tour Of Heroes
 KillMode=process
 StandardOutput=file:/home/log/log.log
 StandardError=file:/home/log/error.log
@@ -325,6 +329,6 @@ jobs:
 <h3>Mistake #1: Deploying to the wrong folder.</h3>
 <p>When publishing your project, you will see two folders: <strong>bin\Release\net7.0\</strong> and <strong>bin\Release\net7.0\publish</strong>. It is important to note that you should never use <strong>bin\Release\net7.0\</strong> to deploy. Instead, use <strong>bin\Release\net7.0\publish</strong>.</p>
 <p><img src="contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\common-mistake-1.png" alt="common-mistake-1.png" width="800" height="371" /></p>
-<p>If you deploy to <strong>bin\Release\net7.0</strong>, some files will not be served because there is no wwwroot folder in that directory.</p>
+<p>If you deploy to <strong>bin\Release\net7.0</strong>, some files will not be served because there is no <strong>wwwroot</strong> folder in that directory.</p>
 <h3>Mistake #2: Case sensitivity with files</h3>
 <p>By default, NGINX is case-sensitive when searching for files. So if you're trying to access a file named <strong>wwwroot/Logo.png</strong> but you type <strong>&lt;your_website&gt;.com/logo.png</strong>, you'll get a 404 error because the file name should be <strong>wwwroot/Logo.png</strong>.</p>
