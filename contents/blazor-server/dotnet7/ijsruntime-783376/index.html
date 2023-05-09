@@ -74,15 +74,8 @@
     }
 }</pre>
 <ol start="3">
-    <li>Import the JavaScript module in either the Initialize phase or AfterRender phase of the component:</li>
+    <li>Import the JavaScript module in the AfterRender phase of the component:</li>
 </ol>
-<pre class="code" language="razor">@code {
-    ...
-    protected override async Task OnInitializedAsync()
-    {
-        CollocatedModule = new(await JS.InvokeAsync&lt;IJSObjectReference&gt;("import", "./Pages/JSInterop/CallJavaScriptFunction.razor.js"));
-    }
-}</pre>
 <pre class="code" language="razor">@code {
     ...
     protected override async Task OnAfterRenderAsync(bool firstRender)
