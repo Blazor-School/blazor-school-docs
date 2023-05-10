@@ -4,7 +4,6 @@
 <ul>
     <li>What is first-party API?</li>
     <li>Why designing a first-party web API for Blazor Server is not recommended</li>
-    <li>The importance of registering <code>HttpClient</code></li>
     <li>How to register <code>HttpClient</code> for a single API</li>
     <li>How to register <code>HttpClient</code> for multiple APIs</li>
     <li>Interfere <code>HttpClient</code></li>
@@ -29,19 +28,16 @@
 <p>If you are considering designing a first-party API for your Blazor project, it is recommended to use Blazor WebAssembly instead. This can help avoid the issues mentioned above and provide a smoother user experience.</p>
 <p>However, if you already have an API and want to reuse the logic in the API, you can split the logic into a Class Library project and then use that project in your Blazor Server website. This allows you to reuse the existing logic while avoiding the security vulnerabilities and performance issues associated with first-party APIs.</p>
 <p>To use the Class Library project in your Blazor Server website, you can add a reference to the project and use the logic in your Blazor components. This approach can help you maintain a separation of concerns and ensure that your code is modular and easy to maintain.</p>
-<h1>The importance of registering <code>HttpClient</code></h1>
-<p>In Blazor WebAssembly projects, it's essential to register <code>HttpClient</code> in order to perform server operations such as reading or writing files, accessing databases, and more. These operations must be performed at the API level, using technologies like ASP.NET Web API or ASP.NET gRPC Service. To use an API in a Blazor WebAssembly project, <code>HttpClient</code> registration is required.</p>
-<p>The process for registering APIs in Blazor WebAssembly can vary depending on how the API is designed. Factors to consider include whether there is a single API server or multiple servers, how authorization is handled at the API level, and how errors are handled in the API. By understanding these factors, you can determine the appropriate method for registering APIs in your Blazor WebAssembly project.</p>
 <hr class="my-4" />
 <h1>How to register <code>HttpClient</code> for a single API</h1>
 <p>If your website has only one API, you can add <code>HttpClient</code> as a scoped service in the <strong>Program.cs</strong> file. To do this, assuming your API endpoint is <strong>http://localhost:30911</strong>, use the following code:</p>
 <pre class="code" language="csharp">builder.Services.AddScoped(sp =&gt; new HttpClient { BaseAddress = new Uri("http://localhost:30911") });</pre>
 <p>Once registered, you can inject the <code>HttpClient</code> into any razor component to make a request. For example:</p>
 <pre class="code" language="razor">@inject HttpClient HttpClient</pre>
-<p>This will allow you to interact with your API from within your Blazor WebAssembly application.</p>
+<p>This will allow you to interact with your API from within your Blazor Server application.</p>
 <hr class="my-4" />
 <h1>How to register <code>HttpClient</code> for multiple APIs</h1>
-<p>When working with multiple APIs in Blazor WebAssembly, there are several ways to register <code>HttpClient</code>, each with its own advantages and disadvantages. The three most common approaches are:</p>
+<p>When working with multiple APIs in Blazor Server, there are several ways to register <code>HttpClient</code>, each with its own advantages and disadvantages. The three most common approaches are:</p>
 <ul>
     <li>Using a derived class of <code>HttpClient</code></li>
     <li>Using a named <code>HttpClient</code></li>
