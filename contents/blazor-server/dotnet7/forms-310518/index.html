@@ -17,7 +17,7 @@
 <h1>Blazor form and HTML form</h1>
 <p><code>EditForm</code> is a component that is used to create forms in Blazor applications, while HTML form is a standard way of creating forms in HTML. The <code>EditForm</code> component in Blazor provides features such as form validation, disabling a form control, and data binding. It allows developers to easily create forms that are tightly integrated with their Blazor application.</p>
 <p><img src="contents\blazor-server\dotnet7\forms-310518\blazor-form-vs-html-form.png" alt="blazor-form-vs-html-form.png" width="800" height="474" /></p>
-<p>Below is a sample code for a Blazor WebAssembly form:</p>
+<p>Below is a sample code for a Blazor form:</p>
 <pre class="code" language="razor">&lt;EditForm Model="BlazorFormModel" OnSubmit="_ =&gt; BlazorFormSubmitted = true"&gt;
     &lt;fieldset&gt;
         &lt;legend&gt;Blazor form&lt;/legend&gt;
@@ -33,10 +33,10 @@
         &lt;input type="submit" value="Submit" /&gt;
     &lt;/fieldset&gt;
 &lt;/form&gt;</pre>
-<blockquote>This tutorial will only cover the Blazor WebAssembly form.</blockquote>
+<blockquote>This tutorial will only cover the Blazor form.</blockquote>
 <hr class="my-4" />
 <h1>Create a simple Blazor form</h1>
-<p>To create a basic Blazor WebAssembly form, follow these steps:</p>
+<p>To create a basic Blazor form, follow these steps:</p>
 <ol>
     <li>Define a form model class that represents the data you want to collect from the user. The form model is an object that stores the information entered by the user. In this example, we'll create a form model that contains a single property of type string:</li>
 </ol>
@@ -250,7 +250,7 @@
 <hr class="my-4" />
 <h1>Display validation message</h1>
 <p>Validation messages are essential in ensuring that users provide the correct inputs in a form. In order to effectively communicate validation errors to users, there are two places to display validation messages: validation summaries and inline validation messages.</p>
-<p><img src="contents\blazor-wasm\dotnet7\forms-310518\validation-summary-vs-validation-form-control.png" alt="validation-summary-vs-validation-form-control.png" width="707" height="349" /></p>
+<p><img src="contents\blazor-server\dotnet7\forms-310518\validation-summary-vs-validation-form-control.png" alt="validation-summary-vs-validation-form-control.png" width="707" height="349" /></p>
 <p>A validation summary displays all validation errors in a form, and can be implemented using the <code>ValidationSummary</code> component. To use this component, simply add it within the <code>EditForm</code> element:</p>
 <pre class="code" language="razor">&lt;EditForm Model="FormModel"&gt;
     &lt;DataAnnotationsValidator /&gt;
@@ -335,7 +335,7 @@
 <p>By not notifying the field change, you run the risk of accepting incorrect information since the validations are not run again. The following video demonstrates this mistake in action.</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
-        <source src="contents\blazor-wasm\dotnet7\forms-310518\mistake-forget-to-notify.webm" />
+        <source src="contents\blazor-server\dotnet7\forms-310518\mistake-forget-to-notify.webm" />
     </video>
 </div>
 <h3>Creating a function button instead of a submit button</h3>
@@ -353,14 +353,14 @@
 <p>To avoid this mistake, it is important to carefully consider the type and functionality of each button when creating them. The following video demonstrates this common mistake and the importance of distinguishing between function buttons and submit buttons.</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
-        <source src="contents\blazor-wasm\dotnet7\forms-310518\function-button-mistake.webm" />
+        <source src="contents\blazor-server\dotnet7\forms-310518\function-button-mistake.webm" />
     </video>
 </div>
 <h3>Forgetting to use the <code>DataAnnotationsValidator</code> tag</h3>
 <p>The <code>DataAnnotationsValidator</code> tag is a crucial component for validating forms when using the <code>EditForm</code> component. Its absence can result in the failure of form validation. To illustrate this point, please refer to the following video.</p>
 <div class="ratio ratio-21x9">
     <video width="300" height="150" controls="controls">
-        <source src="contents\blazor-wasm\dotnet7\forms-310518\forget-validation-tag.webm" />
+        <source src="contents\blazor-server\dotnet7\forms-310518\forget-validation-tag.webm" />
     </video>
 </div>
 <hr class="my-4" />
