@@ -20,13 +20,13 @@
 <p><img src="contents\blazor-server\dotnet7\local-storage-916405\edge-local-storage.png" alt="edge-local-storage.png" width="582" height="709" /></p>
 <hr class="my-4" />
 <h1>Comparing local storage access methods in Blazor Server</h1>
-<p>Blazor Server provides two methods for accessing local storage:ProtectedLocalStorage and JavaScript API.</p>
+<p>Blazor Server provides two methods for accessing local storage: <code>ProtectedLocalStorage</code> and JavaScript API.</p>
 <ul>
-    <li>ProtectedLocalStorage is a built-in function that encrypts data before storing it. This means that data stored using this approach can only be retrieved using ProtectedLocalStorage and cannot be decrypted by other Blazor Server projects, even within the same domain. However, ProtectedLocalStorage does not provide an option to retrieve or delete all the data stored in local storage at once.</li>
+    <li><code>ProtectedLocalStorage</code> is a built-in function that encrypts data before storing it. This means that data stored using this approach can only be retrieved using <code>ProtectedLocalStorage</code> and cannot be decrypted by other Blazor Server projects, even within the same domain. However, <code>ProtectedLocalStorage</code> does not provide an option to retrieve or delete all the data stored in local storage at once.</li>
     <li>JavaScript API, on the other hand, allows you to access local storage using JavaScript. Data stored using this approach is not encrypted and can be retrieved by other Blazor Server projects within the same domain. Additionally, JavaScript API provides the ability to retrieve or delete all the data stored in local storage at once.</li>
 </ul>
 <hr class="my-4" />
-<h1>Accessing local storage using ProtectedLocalStorage</h1>
+<h1>Accessing local storage using <code>ProtectedLocalStorage</code></h1>
 <p>To use <code>ProtectedLocalStorage</code>, you can inject it into your Blazor Server component and call its methods. For example:</p>
 <pre class="code" language="razor">@inject ProtectedLocalStorage ProtectedLocalStorage
 
@@ -189,7 +189,7 @@ export function remove(key)
     }
 }</pre>
 <h3>Use the <code>LocalStorageAccessor</code></h3>
-<p>Once you have completed all the previous steps, you can use the <code>LocalStorageAccessor</code>as follows:</p>
+<p>Once you have completed all the previous steps, you can use the <code>LocalStorageAccessor</code> as follows:</p>
 <pre class="code" language="razor">@inject LocalStorageAccessor LocalStorageAccessor
 
 &lt;form&gt;
