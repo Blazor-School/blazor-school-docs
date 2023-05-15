@@ -153,7 +153,7 @@ public class BlazorSchoolError : PageModel
     &lt;TriggerError/&gt;
 &lt;/ErrorBoundary&gt;</pre>
 <h3>Catch API errors with the <code>HttpClient</code> wrapper technique</h3>
-<p>If you're building an application that might an API, it's essential to handle errors gracefully. One way to achieve this is by using the <code>HttpClient</code> interfere technique. T This technique involves intercepting HttpClient requests to catch any exceptions thrown by the API and log them appropriately. Visit <a href="/tutorial/blazor-server/dotnet7/api-interaction-583622" title="API Interaction">API Interaction</a> tutorial for more information.</p>
+<p>If you're building an application that might an API, it's essential to handle errors gracefully. One way to achieve this is by using the <code>HttpClient</code> interfere technique. T This technique involves intercepting <code>HttpClient</code> requests to catch any exceptions thrown by the API and log them appropriately. Visit <a href="/tutorial/blazor-server/dotnet7/api-interaction-583622" title="API Interaction">API Interaction</a> tutorial for more information.</p>
 <p>The following code sample demonstrates the <code>HttpClient</code> wrapper technique, but keep in mind that in a real project, it's best to avoid using this technique. In this example, we have two classes:</p>
 <ul>
     <li><code>ExceptionRecorderService</code>: Responsible for keeping track of any exceptions that are thrown.</li>
