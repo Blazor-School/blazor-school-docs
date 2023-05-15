@@ -237,7 +237,7 @@ builder.Services.AddHttpClient&lt;BlazorSchoolHttpClientWrapper&gt;();</pre>
 <p>It's important to note that HTTP request errors are handled in a separate scope. You have the option to handle these errors or choose not to handle them. Unlike other errors, an <code>HttpClient</code> error will not halt your website.</p>
 <p>If the first request error occurs, your website will become unresponsive or inaccessible until the error is resolved.</p>
 <p>To illustrate the error scope delegation, refer to the following image:</p>
-<p><img src="contents\blazor-wasm\dotnet7\error-handling-579292\scope-delegation.png" alt="scope-delegation.png" width="874" height="500" /></p>
+<p><img src="contents\blazor-server\dotnet7\error-handling-101402\scope-delegation.png" alt="scope-delegation.png" width="874" height="500" /></p>
 <hr class="my-4" />
 <h1>Actions to take against errors</h1>
 <p>When it comes to handling errors in the second step, there are a couple of common actions you can take. In this section, we'll introduce you to two of them:</p>
