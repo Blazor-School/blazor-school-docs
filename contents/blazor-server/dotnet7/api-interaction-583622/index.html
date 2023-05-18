@@ -216,7 +216,7 @@ builder.Services.AddHttpClient&lt;SecondApiHttpClientWrapper&gt;(httpClient =&gt
 <pre class="code" language="csharp">await httpClient.GetAsync($"example/ProcessPrimitiveUrlData?data=Blazor School");</pre>
 <h3>Sending primitive data in the request body</h3>
 <p>When sending primitive data in an HTTP request, the data can be included in the request body rather than in the URL. This is useful when the data being sent is larger or more complex than a simple query parameter. To send primitive data in the request body, the following code can be used:</p>
-<pre class="code" language="csharp">await httpClient.PostAsync("example/ProcessPrimitiveData", new StringContent(""Blazor School"", Encoding.UTF8, "application/json"));</pre>
+<pre class="code" language="csharp">await httpClient.PostAsync("example/ProcessPrimitiveData", new StringContent("Blazor School", Encoding.UTF8, "application/json"));</pre>
 <p>This will encode the data as a JSON string and send it to the specified API endpoint for processing.</p>
 <h3>Sending complex data in the request body</h3>
 <p>Sending complex data in the request body is a common practice in web development when exchanging data between a client (such as a web browser) and a server. Complex data can include objects, arrays, and nested data structures.</p>
