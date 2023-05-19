@@ -51,7 +51,7 @@
 </ol>
 <h3>First request error catching</h3>
 <p>Blazor is a Single Page Application (SPA) framework. In the event that the first request fails, the error will be caught by the scope responsible for handling errors on the first request. In general, it's recommended to avoid accessing <code>HttpContext</code> in Blazor. However, if Blazor fails to initiate, accessing <code>HttpContext</code> can provide additional information to investigate the problem.</p>
-<p>If you are using the <strong>Blazor Server App</strong> template instead of the <strong>Blazor Server App Empty</strong> template, the default scope for catching first request errors is Error.cshtml, which has the path <strong>/Error</strong>. If you need to customize the first request error page, you can follow these steps:</p>
+<p>If you are using the <strong>Blazor Server App</strong> template instead of the <strong>Blazor Server App Empty</strong> template, the default scope for catching first request errors is <strong>Error.cshtml</strong>, which has the path <strong>/Error</strong>. If you need to customize the first request error page, you can follow these steps:</p>
 <ol>
     <li>Set the path to the first request error page in <strong>Program.cs</strong>. For example:</li>
 </ol>
