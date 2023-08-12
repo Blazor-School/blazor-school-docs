@@ -149,7 +149,6 @@ builder.Services.AddAuthorizationCore();
     {
         var principal = new ClaimsPrincipal();
         var user = await _blazorSchoolUserService.SendAuthenticateRequestAsync(username, password);
-        CurrentUser = user;
 
         if (user is not null)
         {
