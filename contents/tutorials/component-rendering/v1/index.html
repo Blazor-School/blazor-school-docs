@@ -1,0 +1,102 @@
+﻿<h1>Component Rendering</h1>
+<p>In Blazor, rendering is the mechanism that produces HTML from Razor components, which the browser then interprets to present the user interface. For developers working with Blazor, controlling how the final HTML output looks is an essential goal. In this tutorial, you will learn:</p>
+<ul>
+    <li>Basic render.</li>
+    <li>Render with attributes.</li>
+    <li>Manual rendering.</li>
+    <li>Self rendering.</li>
+    <li>Common mistakes.</li>
+</ul>
+<hr class="my-4" />
+<h1>Basic Render</h1>
+<p>An HTML tag comprises 3 parts: the tag name, attributes, and content. Consider this example:</p>
+<p>Consider this HTML example:</p>
+<p><img src="tutorials/component-rendering/v1/html-tag-example.webp" alt="html-tag-example.webp" width="1302" height="412" /></p>
+<p>Here, <code>div</code> is the tag name, <code>data-my-custom</code> is the attribute with <code>Ok</code> as its value, and <code>Hello Blazor School!</code> is the content.</p>
+<p>Since this markup is static HTML, rendering it in Blazor is straightforward. Just provide the same markup to a Razor Component, and Blazor will output the corresponding HTML unchanged.</p>
+<hr class="my-4" />
+<h1>Render with Attributes</h1>
+<p>In HTML, attributes play a big role in describing an HTML element. These attributes can provide data (with <code>data-*</code>), change its appearance, or be used to scope a CSS class so that the CSS class name can be reused in the app. Building on the basic rendering example, where you rendered a <code>div</code> with a known attribute (<code>data-my-custom</code>), Blazor also supports dynamic attribute rendering without prior specification. This is particularly useful when creating a component library, allowing users to attach their own attributes to your elements for downstream processing. Examine this example:</p>
+<pre language="razor">&lt;div @attributes="customAttributes"&gt;RenderWithAttribute&lt;/div&gt;
+
+@code {
+    Dictionary&lt;string, object&gt; customAttributes = new Dictionary&lt;string, object&gt;
+    {
+        { "class", "text-bg-primary" },
+        { "data-name", "Blazor School" }
+    };
+}</pre>
+<p>Blazor renders this as:</p>
+<pre language="razor">&lt;div class="text-bg-primary" data-name="Blazor School"&gt;RenderWithAttribute&lt;/div&gt;</pre>
+<p>In the example, we have a <code>Dictionary&lt;string, object&gt;</code> as the collection of attributes&nbsp;which are applied to the <code>div</code> using the <code>@attributes</code> directive. This approach allows developers to pass 2 or more attributes dynamically to the rendered element.</p>
+<hr class="my-4" />
+<h1>Manual Rendering</h1>
+<p>When something changes in a component, Blazor will render it again. However, not all changes need the UI to be updated. To improve performance in such cases, we can hold the rerendering process and only render when needed. Consider the following code sample:</p>
+<pre language="razor">&lt;label&gt;
+    Give me a string
+    &lt;input type="text" @bind-value="Text" @bind-value:event="oninput" /&gt;
+&lt;/label&gt;
+
+&lt;div&gt;Your string: @Text&lt;/div&gt;
+
+@code {
+    public string Text { get; set; } = "";
+
+    protected override bool ShouldRender()
+    {
+        return Text.Length &gt; 3;
+    }
+}
+</pre>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/NXw126hi8_E?si=jB3uqll75K3Hxxrx" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<p>In this example, we have a textbox to capture user input and a <code>div</code> reflects the entered data. To improve efficiency, <code>ShouldRender</code> is overridden to restrict updates where the input is 3 or fewer letters.</p>
+<hr class="my-4" />
+<h1>Self Rendering</h1>
+<p>In Blazor, a component can render itself recursively to build complex, hierarchical displays, such as a tree structure, which is ideal for nested data like a JSON object. Take this data structure:</p>
+<pre language="csharp">public record TreeNodeData(string Name, List&lt;TreeNodeData&gt; Children);</pre>
+<div>The <code>TreeNode.razor</code> component can be designed to render this tree recursively:</div>
+<pre language="razor">&lt;div style="padding-left: @(Level*10)px"&gt;Node: @Node.Name&lt;/div&gt;
+
+@foreach (var child in Node.Children)
+{
+    &lt;TreeNode Node="child" Level="Level + 1" /&gt;
+}
+
+@code {
+    [Parameter]
+    public TreeNodeData Node { get; set; } = null!;
+
+    [Parameter]
+    public int Level { get; set; } = 0;
+}</pre>
+<p>To use it in another component, simply pass a list of nodes:</p>
+<pre language="razor">@foreach (var node in Nodes)
+{
+    &lt;TreeNode Node="node" /&gt;
+}
+
+@code {
+    public List&lt;TreeNodeData&gt; Nodes { get; set; } = new()
+    {
+        new("Root", new() { new("Child1", new()), new("Child2", new()) })
+    };
+}</pre>
+<p>In this example, the <code>TreeNode</code> component renders itself for each child, indenting based on Level to form a tree-like UI.</p>
+<hr class="my-4" />
+<h1>Common Mistakes</h1>
+<p>Blazor manages the creation and updating of HTML elements, including their inner content and attributes, within its rendering system. A frequent error is attempting to modify Blazor-managed elements with JavaScript&mdash;or vice versa. Examine this example:</p>
+<pre language="razor">&lt;div id="TestElement"&gt;@BlazorManagedValue&lt;/div&gt;
+&lt;button type="button" @onclick='_ =&gt; BlazorManagedValue = "Updated by Blazor"'&gt;Update Value with Blazor&lt;/button&gt;
+&lt;button type="button" onclick="updateAttribute()"&gt;Update Value with JavaScript&lt;/button&gt;
+
+@code {
+    public string BlazorManagedValue { get; set; } = "Initiated by Blazor";
+}
+
+&lt;script&gt;
+    function updateAttribute() {
+        document.getElementById("TestElement").innerText = "Updated by JavaScript";
+    }
+&lt;/script&gt;</pre>
+<p>In this example, the <code>div</code>'s content is initially set by Blazor. Clicking the Blazor button updates it via Blazor's rendering, which works perfectly. However, clicking the JavaScript button alters the DOM directly, making updating with Blazor impossible afterwards.</p>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/Shmo8NP0e3g?si=BoW8HAizh46DxG2C" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>

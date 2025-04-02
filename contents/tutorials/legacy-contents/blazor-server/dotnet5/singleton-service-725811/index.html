@@ -1,0 +1,38 @@
+<h1>Singleton Service</h1>
+<p>Scoped service is a service type in Blazor Server DI. Singleton services are better for:</p>
+<ol>
+    <li>Logging.</li>
+    <li>Caching.</li>
+    <li>Logics that are not based on users.</li>
+    <li>State is required and have the same state for entire website.</li>
+</ol>
+<blockquote><a href="https://github.com/Blazor-School/dependency-example-blazor-server" target="_blank" title="Dependency Injection Example">Download the example</a> for a working example containing the code snippets in this guide.</blockquote>
+<hr class="my-4" />
+<h1>Creating a single service</h1>
+<ol>
+    <li>Navigate to the <code>Data</code> folder and create the <code>SingletonGuidProviderService.cs</code> class:</li>
+</ol>
+<pre class="code" language="csharp">using System;
+
+namespace DependencyExampleBlazorSchool.Data
+{
+    public class SingletonGuidProviderService
+    {
+        public Guid Id { get; set; } = Guid.NewGuid();
+    }
+}</pre>
+<ol start="2">
+    <li>Navigate to <code>Startup.cs</code> and register the service as a scoped service.</li>
+</ol>
+<pre class="code" language="csharp">public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddSingleton&lt;SingletonGuidProviderService&gt;();
+}</pre>
+<blockquote>For injecting and using a service, please refer to <a href="/tutorial/blazor-server/dotnet5/dependency-injection-478834" title="Dependency Injection in Blazor Server">Dependency Injection</a>.</blockquote>
+<hr class="my-4" />
+<h1>Lifetime</h1>
+<p>Singleton services are created for the first time the service is requested and exists until the website shutdown. Singleton services are memory efficient because they are created once and reused everywhere. But beware when you use singleton services because any memory leaks will build up over time.</p>
+<p>In the example provided at the beginning of this context, you will see a singleton service being injected 2 times and their values are the same every time injected.</p>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\singleton-service-725811\92fe771c-1e2b-41e0-adfe-a7f3bebf3983..png" alt="" width="1137" height="659" /></p>
+<blockquote>Note: Use the "Trigger new request" in the example to create a new request.</blockquote>

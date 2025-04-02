@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Authentication with Google OAuth 2.0",
+    "Slug": "authentication-with-google-oauth-700535",
+    "Description": "Google OAuth 2 can enhance user experience and streamline sign-up, allowing it to work together with basic JWT authentication"
+}

@@ -1,0 +1,259 @@
+<h1>Blazor Server Routing</h1>
+<p>On a single-page website, you change what the user sees by showing or hiding portions of the display that correspond to particular components, rather than going out to the server to get a new page. As users perform application tasks, they need to move between the different Razor Components that you have defined.</p>
+<blockquote><a href="https://github.com/Blazor-School/routing-example-blazor-school-solution" target="_blank" title="Blazor Server directive example">Download the example</a> for a working example containing the code snippets in this guide.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisites</h1>
+<p>Before creating a route, you should be familiar with the following:</p>
+<ul>
+    <li><a href="/tutorial/blazor-server/dotnet5/components-417405" title="Basics of Blazor Server component">Basics of components</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/dependency-injection-478834" title="Dependency Injection">Blazor Server DI</a>.</li>
+    <li>A Blazor Server website - you can generate a basic Blazor Server website using the <a href="https://docs.microsoft.com/en-us/dotnet/core/tools/" target="_blank" rel="noopener">.NET CLI</a>.</li>
+</ul>
+<hr class="my-4" />
+<h1>Setting up basic routing</h1>
+<p>Blazor Server was built on top of ASP.NET and Razor Pages. When you create a Blazor Server website, there will be a pre-configuration code at <code>Startup.cs</code>. These are some routing pre-configuration codes for routing.</p>
+<pre class="code" language="csharp">public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    if (env.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+    else
+    {
+        app.UseExceptionHandler("/Error");
+    }
+
+    app.UseStaticFiles();
+
+    app.UseRouting();
+
+    app.UseEndpoints(endpoints =&gt;
+    {
+        endpoints.MapBlazorHub();
+        endpoints.MapFallbackToPage("/_Host");
+    });
+}</pre>
+<p>We will go through line by line to analyze what is pre-configured. Starting at the first block:</p>
+<pre class="code" language="csharp">if (env.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+}</pre>
+<p>This if statement will determine if we are in development environment or production environment and use the respective error page. You can find the error page at <code>Pages/Error.cshtml</code>. the <code>UseDeveloperExceptionPage</code> method is a built-in middleware to capture unhandled exceptions in detail. Detailed exception information should not be displayed publicly in the production environment for security reasons.</p>
+<pre class="code" language="csharp">app.UseRouting();
+
+app.UseEndpoints(endpoints =&gt;
+{
+    endpoints.MapBlazorHub();
+    endpoints.MapFallbackToPage("/_Host");
+});</pre>
+<p>The <code>UseRouting</code> method to indicate that we will use default routing of ASP.NET. <code>UseRouting</code> must be used with <code>UseEndpoints</code> and are required by ASP.NET.</p>
+<p>The <code>MapBlazorHub</code> method is to open the default port for SignalR Core to interact with the frontend of Blazor Server.</p>
+<p>The <code>MapFallbackToPage</code> method to indicate the entry point of Blazor Server. The default entry point is located in <code>Pages/_Host.cshtml</code>, you can change this entry point to another <strong>Razor Page</strong>. Whenever a requested url does not match any <code>@page</code> directive, Blazor Server will redirect to the default entry point.</p>
+<blockquote>You can only use Razor Page as the entry point of Blazor Server website.</blockquote>
+<hr class="my-4" />
+<h1>Defining a route</h1>
+<p>You can use <code>@page</code> directive in a Razor Component to define a route to a component.</p>
+<ul>
+    <li>The <code>@page</code> directive always begins with a forward splash (/).</li>
+    <li>A Razor Component can have many <code>@page</code> directives to have many routes.</li>
+    <li>If the requested url matches many routes, Blazor Server prioritizes the most nested route first.</li>
+    <li>A route must be unique to the entire website.</li>
+    <li>A route can have parameter(s).</li>
+</ul>
+<p>To define a route for a component, add a <code>@page</code> directive to the directive section of the component.</p>
+<pre class="code" language="razor">@page "/simple-route" 
+
+&lt;h3&gt;This is a simple page&lt;/h3&gt;</pre>
+<p>In the example, we set the route <code>host/simple-route</code> for the component. When the user navigates to that route, the component will be rendered.</p>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\routing-and-navigation-574891\b0985744-99aa-452e-9c2c-13843fab58ae..png" alt="Blazor Server routing" width="566" height="276" /></p>
+<h3>Route selection</h3>
+<div>Blazor Server uses more-specific wins strategy when matching routes. For example: consider you have 2 components, User component with "/user" and UserDetail component with "/user/{id:int}", if the requested url is "/user/1" then the UserDetail component will be selected because the UserDetail component has more nested routes than the User component.</div>
+<div>The route "/" is the index route. By default, it is used in <code>Index.razor</code> component but you can move it to another component.</div>
+<div>If no route matches, Blazor Server will use the route in <code>MapFallbackToPage</code> to select the Razor Page.</div>
+<hr class="my-4" />
+<h1>Getting route information</h1>
+<p>Often, as a user navigates your website, you want to pass information from one component to another. For example, consider a website that displays a list of books. Each book on the list has a unique id. To edit a book, users click the Edit button, which opens a <code>EditBook</code> component. You want that component to retrieve the id for the book so it can display the right information to the user.</p>
+<p>You can use a route to pass this type of information to your website components. To do so, you use the <code>[Parameter]</code> attribute.</p>
+<p>To get information from a route:</p>
+<ol>
+    <li>Determine the type of information from the route. Here is the list of data types from route.</li>
+</ol>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th scope="col">Type in route</th>
+                <th scope="col">Example data</th>
+                <th scope="col">Type in C#</th>
+            </tr>
+            <tr>
+                <td>bool</td>
+                <td><code>true</code>, <code>FALSE</code></td>
+                <td>bool</td>
+            </tr>
+            <tr>
+                <td>datetime</td>
+                <td><code>2021-12-31</code>, <code>2021-12-31 8:40pm</code></td>
+                <td>DateTime</td>
+            </tr>
+            <tr>
+                <td>decimal</td>
+                <td><code>99.99</code>, <code>-1,00</code></td>
+                <td>decimal</td>
+            </tr>
+            <tr>
+                <td>float</td>
+                <td><code>1.234</code>, <code>-1,001.01e8</code></td>
+                <td>float</td>
+            </tr>
+            <tr>
+                <td>guid</td>
+                <td><code>CD2C1638-1638-72D5-1638-DEADBEEF1638</code>, <code>{CD2C1638-1638-72D5-1638-DEADBEEF1638}</code></td>
+                <td>Guid</td>
+            </tr>
+            <tr>
+                <td>int</td>
+                <td><code>123456789</code>, <code>-123456789</code></td>
+                <td>int, Int32</td>
+            </tr>
+            <tr>
+                <td>long</td>
+                <td><code>123456789</code>, <code>-123456789</code></td>
+                <td>long, Int64</td>
+            </tr>
+            <tr>
+                <td>short</td>
+                <td><code>123456789</code>, <code>-123456789</code></td>
+                <td>short, Int16</td>
+            </tr>
+            <tr>
+                <td>double</td>
+                <td><code>1.234</code>, <code>-1,001.01e8</code></td>
+                <td>double, Double</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>BlazorSchool, blazorschool.com</td>
+                <td>string, String</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<ol start="2">
+    <li>Declare a public property in the <code>@code{}</code> section with the matching type in C#. Example:</li>
+</ol>
+<pre class="code" language="razor">@page "/route-parameters/{number:double}"
+
+&lt;h3&gt;Number: @Number&lt;/h3&gt;
+
+@code{
+    [Parameter]
+    public double Number { get; set; }
+}</pre>
+<h3>Optional parameters</h3>
+<p>A route can have multiple parameters with optional parameters, for optional parameters, add question mark (?) after the route type.</p>
+<pre class="code" language="razor">@page "/route-parameters/{number:double}/{firstName?}/{isGraduate:bool?}"</pre>
+<p>The <code>{firstName?}</code> is to indicate that there will be an optional <code>string FirstName</code> property. String is a special type in route parameter that does not have a route type. The <code>{isGraduate:bool?}</code> is to indicate that there will be an optional <code>bool IsGraduate</code> property.</p>
+<p>When there is more than one optional parameter, the former must be provided before the latter. In the previous example, you could not fill <code>IsGraduate</code> without filling <code>FirstName</code> first.</p>
+<p>The optional parameters must be the last parameter specified in the route.</p>
+<h3>Cultured parameters</h3>
+<p>There are several types of numbers, in some cultures, the decimal symbol are different. A common problem is the dot (.) symbol could be a decimal symbol, a file extension symbol or it can appears on string parameter. Blazor Server cannot distinguish between these. By default, Blazor Server will assume the dot symbol is a request for a file and will emit a 404 error. You have to tell Blazor Server that for this specific case, the dot is a part of parameter by going to <code>Startup.cs</code> and modifying the <code>Configure</code> method as follows.</p>
+<pre class="code" language="csharp">app.UseEndpoints(endpoints =&gt;
+{
+    ...
+    endpoints.MapFallbackToPage("/route-parameters/{number:double}/{firstName?}/{isGraduate:bool?}","/_Host");
+    ...
+});</pre>
+<hr class="my-4" />
+<h1>Customizing a 404 page</h1>
+<p>Blazor Server has a pre-built 404 page, and you can customize it. You can see the pre-built 404 page at <code>App.razor</code>.</p>
+<pre class="code" language="razor">&lt;NotFound&gt;
+    &lt;LayoutView Layout="@typeof(MainLayout)"&gt;
+        &lt;p&gt;Sorry, there's nothing at this address.&lt;/p&gt;
+    &lt;/LayoutView&gt;
+&lt;/NotFound&gt;</pre>
+<p>Create a new component in <code>Pages</code> folder called <code>NotFound.razor</code>.</p>
+<pre class="code" language="html">&lt;h1&gt;404 page not found.&lt;/h1&gt;</pre>
+<p>Update the <code>App.razor</code> to use the <code>NotFound</code> component.</p>
+<pre class="code" language="razor">@using RoutingExample.Pages
+
+...
+&lt;NotFound&gt;
+    &lt;LayoutView Layout="@typeof(MainLayout)"&gt;
+        &lt;NotFound&gt;&lt;/NotFound&gt;
+    &lt;/LayoutView&gt;
+&lt;/NotFound&gt;
+...</pre>
+<hr class="my-4" />
+<h1>Control navigation with UI elements</h1>
+<div>Adding links that users can click to navigate between pages is a crucial part of any website. There are 2 ways to create a link in Blazor Server. You can either use <code>&lt;a&gt;</code> tag or use <code>&lt;NavLink&gt;</code> pre-built component.</div>
+<h3>Using <code>&lt;NavLink&gt;</code> component</h3>
+<p><code>&lt;NavLink&gt;</code>, as the name suggested, is usually used in the navigation bar. <code>&lt;NavLink&gt;</code> is a pre-built component that automatically toggling its 'active' class based on whether its <code>href</code> matches the current URL. Refer to <code>Navigation.razor</code> in our example.</p>
+<pre class="code" language="razor">@page "/navigation" 
+
+&lt;NavLink class="page-link" href="navigation"&gt;Link 1&lt;/NavLink&gt;</pre>
+<p>This is a basic nav link example, it will render the following HTML.</p>
+<pre class="code" language="html">&lt;a href="navigation" class="page-link active"&gt;Link 1&lt;/a&gt;</pre>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\routing-and-navigation-574891\41915cd1-e644-4996-b1bb-7b4784bd5150..png" alt="" width="697" height="295" /></p>
+<p>Declare a css style to toggling the <code>&lt;NavLink&gt;</code> in <code>site.css</code>.</p>
+<pre class="code" language="css">.active-link
+{
+    color: white;
+    background-color: #7b3cc3
+}</pre>
+<blockquote>You cannot use isolated CSS for this <code>.active-link</code> class because the rendered HTML has no scope attribute.</blockquote>
+<p>Add a parameter <code>ActiveClass</code> to use the class with the <code>&lt;NavLink&gt;</code> component.</p>
+<pre class="code" language="razor">&lt;NavLink class="page-link" href="navigation" ActiveClass="active-link"&gt;Link 1&lt;/NavLink&gt;</pre>
+<p>The following HTML is rendered.</p>
+<pre class="code" language="html">&lt;a href="navigation" class="page-link active-link"&gt;Link 1&lt;/a&gt;</pre>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\routing-and-navigation-574891\175075af-2f09-4608-9b3d-a2ea93f77ec2..png" alt="" width="700" height="300" /></p>
+<p>The link has now been highlighted because the current URL matches to the <code>href</code> in <code>&lt;NavLink&gt;</code>. Also, the <code>active</code> class in the first rendered HTML has been changed to <code>active-link</code>.</p>
+<p>In some cases, you have a nested route like "host/navigation/link-2" and you want to highlight only the link of this particular route. This is where <code>Matches</code> parameter comes in. Add another link to the example.</p>
+<pre class="code" language="razor">@page "/navigation"
+@page "/navigation/link-2"
+
+&lt;NavLink class="page-link" href="navigation" ActiveClass="active-link"&gt;Link 1&lt;/NavLink&gt;
+&lt;NavLink class="page-link" href="navigation/link-2" ActiveClass="active-link"&gt;Link 2&lt;/NavLink&gt;</pre>
+<p>When you navigate to "/navigation/link-2", you will see that 2 links are activated.</p>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\routing-and-navigation-574891\91e1a483-8294-4b33-a048-a78c7d532702..png" alt="" width="692" height="294" /></p>
+<p>To activate only Link 2, you need to add <code>Match</code> parameter to both <code>&lt;NavLink&gt;</code> components. <code>NavLinkMatch.All</code> is to indicate that the only link to the extractive URL will be highlighted.</p>
+<pre class="code" language="razor">&lt;NavLink class="page-link" href="navigation" ActiveClass="active-link" Match="NavLinkMatch.All"&gt;Link 1&lt;/NavLink&gt;
+&lt;NavLink class="page-link" href="navigation/link-2" ActiveClass="active-link" Match="NavLinkMatch.All"&gt;Link 2&lt;/NavLink&gt;</pre>
+<p>Navigate to "/navigation/link-2" and you will only see Link 2 activated.</p>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\routing-and-navigation-574891\3fe29fb5-f678-4b9f-b4d9-d7385de92dd3..png" alt="" width="692" height="294" /></p>
+<p>Link 1 and Link 2 are siblings so highlighting both Link 1 and Link 2 is something you don't want to. But in some cases, you have parent and child links and you want to highlight the parent whenever a child is selected. Add Link 3, Link 3.1 and Link 3.2 to the example.</p>
+<pre class="code" language="razor">...
+@page "/navigation/link-3"
+@page "/navigation/link-3/child-1"
+@page "/navigation/link-3/child-2"
+
+...
+&lt;NavLink class="page-link" href="navigation/link-3" ActiveClass="active-link" Match="NavLinkMatch.Prefix"&gt;Link 3&lt;/NavLink&gt;
+&lt;NavLink class="page-link" href="navigation/link-3/child-1" ActiveClass="active-link" Match="NavLinkMatch.All"&gt;Link 3.1&lt;/NavLink&gt;
+&lt;NavLink class="page-link" href="navigation/link-3/child-2" ActiveClass="active-link" Match="NavLinkMatch.All"&gt;Link 3.2&lt;/NavLink&gt;</pre>
+<p>Use the <code>NavLinkMatch.Prefix</code> for the parent link and use <code>NavLinkMatch.All</code> for the children. By using <code>NavLinkMatch.Prefix</code> on the parent link you are telling <code>&lt;NavLink&gt;</code> to highlight every URL that starts with "/navigation/link-3", that's including the "/navigation/link-3/child-1" and "/navigation/link-3/child-2".</p>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\routing-and-navigation-574891\375e9eed-898c-4525-a4b0-1f5f0d559044..png" alt="" width="696" height="298" /></p>
+<hr class="my-4" />
+<h1>Control navigation by <code>NavigationManager</code></h1>
+<p><code>NavigationManager</code> is a good way to navigate to a page without user interaction with the UI. For example, if you want to redirect a user to a page in 5 seconds you will need to use <code>NavigationManager</code> because the user will not interact with the UI.</p>
+<p>To use NavigationManager, you need to inject it first. If you are in Razor Component, you can inject NavigationManager like this:</p>
+<pre class="code" language="razor">@inject NavigationManager NavigationManager</pre>
+<p>Or if you are in a service class, you can inject it as follows:</p>
+<pre class="code" language="razor">public class &lt;Class Name&gt;
+{
+    private readonly NavigationManager _navigationManager;
+
+    public &lt;Class Name&gt;(NavigationManager navigationManager)
+    {
+        _navigationManager = navigationManager;
+    }
+}</pre>
+<p><code>NavigationManager</code> can redirect users to other pages inside the website or even outside the website.</p>
+<p>In case of inside redirection, pass a related url to the first parameter, the second parameter indicates Blazor Server should make a reload in between. By default, Blazor Server does not reload page on navigating.</p>
+<pre class="code" language="csharp">NavigationManager.NavigateTo(&quot;/&quot;, false);</pre>
+<p>In case of external redirection, pass an absolute url to the first parameter, the second parameter is useless in this case because you are leaving Blazor Server.</p>
+<pre class="code" language="csharp">NavigationManager.NavigateTo(&quot;https://blazorschool.com&quot;, false);</pre>

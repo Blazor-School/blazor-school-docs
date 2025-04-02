@@ -1,0 +1,189 @@
+<h1>Implementing authentication</h1>
+<p>This tutorial will walk you through step by step on how to authenticate a user and display the user's information once authenticated. In this tutorial:</p>
+<ul>
+    <li>Required NuGet libraries.</li>
+    <li>Building authentication.</li>
+    <li>Access the user information.</li>
+    <li>Common mistakes.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/authentication-authorization-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Required NuGet libraries</h1>
+<p>Before you begin, you need to install <code>Microsoft.AspNetCore.Components.Authorization</code>. You also need to install additional NuGet packages based on your identity platform. For example, if you are using JWT, you will need to install <code>System.IdentityModel.Tokens.Jwt</code>.</p>
+<hr class="my-4" />
+<h1>Building authentication</h1>
+<ol>
+    <li>Install required NuGet libraries. In the example, we are going to use JWT, so we will need to install <code>Microsoft.AspNetCore.Components.Authorization</code> and <code>System.IdentityModel.Tokens.Jwt</code> from the NuGet.</li>
+    <li>Add <code>@using Microsoft.AspNetCore.Components.Authorization</code> to <code>_Imports.razor</code>.</li>
+    <li>Add <code>CascadingAuthenticationState</code> as the root component in <code>App.razor</code>. For example:</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingAuthenticationState&gt;
+    &lt;Router AppAssembly="typeof(App).Assembly"&gt;
+        ...
+    &lt;/Router&gt;
+&lt;/CascadingAuthenticationState&gt;</pre>
+<ol start="4">
+    <li>Add a browser storage for authentication. In this case, we will use memory storage for the sake of simplicity. In the real project, you can use local storage and session storage as you need.</li>
+</ol>
+<pre class="code" language="csharp">public class AuthenticationDataMemoryStorage
+{
+    public string Token { get; set; } = "";
+}
+</pre>
+<ol start="5">
+    <li>Add your authenticate logic to the <code>AuthenticationStateProvider</code> by create a new class that extends the <code>AuthenticationStateProvider</code> class. The following image illustrates the main objective of the <code>GetAuthenticationStateAsync</code> method.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\implementing-authentication-829424\get-authentication-state-async.png" alt="get-authentication-state-async.png" width="1000" height="227" /></p>
+<p>Code sample:</p>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider
+{
+    private readonly HttpClient _httpClient;
+    private readonly AuthenticationDataMemoryStorage _authenticationDataMemoryStorage;
+
+    public BlazorSchoolAuthenticationStateProvider(HttpClient httpClient, AuthenticationDataMemoryStorage authenticationDataMemoryStorage)
+    {
+        _httpClient = httpClient;
+        _authenticationDataMemoryStorage = authenticationDataMemoryStorage;
+    }
+
+    public override Task&lt;AuthenticationState&gt; GetAuthenticationStateAsync()
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var identity = new ClaimsIdentity();
+
+        if (tokenHandler.CanReadToken(_authenticationDataMemoryStorage.Token))
+        {
+            var jwtSecurityToken = tokenHandler.ReadJwtToken(_authenticationDataMemoryStorage.Token);
+            identity = new ClaimsIdentity(jwtSecurityToken.Claims, "Blazor School");
+        }
+
+        var principal = new ClaimsPrincipal(identity);
+        var authenticationState = new AuthenticationState(principal);
+        var authenticationTask = Task.FromResult(authenticationState);
+
+        return authenticationTask;
+    }
+}</pre>
+<ol start="6">
+    <li>Add a method for the user to login. The following image illustrates the login flow:</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\implementing-authentication-829424\login-flow.png" alt="login-flow.png" width="1000" height="159" /></p>
+<p>Code sample:</p>
+<pre class="code" language="csharp">public async Task LoginAsync()
+{
+    string token = await _httpClient.GetStringAsync("example-data/token.json");
+    _authenticationDataMemoryStorage.Token = token;
+    NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+}</pre>
+<ol start="7">
+    <li>Add a method for the user to logout. The following image illustrates the logout flow:</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\implementing-authentication-829424\logout-flow.png" alt="logout-flow.png" width="1000" height="160" /></p>
+<p>For example:</p>
+<pre class="code" language="csharp">public void Logout()
+{
+    _authenticationDataMemoryStorage.Token = "";
+    NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+}</pre>
+<ol start="8">
+    <li>Register the browser storage accessor, the custom <code>AuthenticationStateProvider</code> at <code>Program.cs</code>. For example:</li>
+</ol>
+<pre class="code" langugae="csharp">builder.Services.AddScoped&lt;AuthenticationDataMemoryStorage&gt;();
+builder.Services.AddScoped&lt;BlazorSchoolAuthenticationStateProvider&gt;();
+builder.Services.AddScoped&lt;AuthenticationStateProvider&gt;(sp =&gt; sp.GetRequiredService&lt;BlazorSchoolAuthenticationStateProvider&gt;());
+builder.Services.AddAuthorizationCore();</pre>
+<p>After you have done all the steps, you can use the <code>LoginAsync</code> method to authenticate the users. For example:</p>
+<pre class="code" language="razor">@inject BlazorSchoolAuthenticationStateProvider BlazorSchoolAuthenticationStateProvider
+
+&lt;button @onclick="BlazorSchoolAuthenticationStateProvider.LoginAsync"&gt;Login&lt;/button&gt;</pre>
+<hr class="my-4" />
+<h1>Access the user information</h1>
+<p>The user information is stored at the <code>ClaimPrincipal.Claims</code>. To access to the user information, you need to:</p>
+<ol>
+    <li>In your custom <code>AuthenticationStateProvider</code> class, create a property to store the information that you want to access. For example:</li>
+</ol>
+<pre class="code" language="csharp">public string Username { get; set; } = "";</pre>
+<ol start="2">
+    <li>Create a method to listen to the <code>AuthenticationStateChanged</code> event. In this method, store the user information to the property you have created at the previous step. For example:</li>
+</ol>
+<pre class="code" language="csharp">private async void OnAuthenticationStateChanged(Task&lt;AuthenticationState&gt; task)
+{
+    var authenticationState = await task;
+
+    if (authenticationState is not null)
+    {
+        Username = authenticationState.User.Claims.FirstOrDefault(c =&gt; c.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
+    }
+}</pre>
+<blockquote>In the example, we store the <code>Claim</code> with the type <code>ClaimTypes.NameIdentifier</code>. If you use another claim type, you need to change the code accordingly.</blockquote>
+<ol start="3">
+    <li>In the constructor of the class, subscribe to the <code>AuthenticationStateChanged</code> event. For example:</li>
+</ol>
+<pre class="code" language="csharp">public BlazorSchoolAuthenticationStateProvider(HttpClient httpClient, AuthenticationDataMemoryStorage authenticationDataMemoryStorage)
+{
+    ...
+    AuthenticationStateChanged += OnAuthenticationStateChanged;
+}</pre>
+<ol start="4">
+    <li>Implement the <code>IDisposable</code> interface to unsubscribe the&nbsp;<code>AuthenticationStateChanged</code> event. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
+{
+    ...
+    public void Dispose()
+    {
+        AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+}</pre>
+<p>After you have done all the steps, you can access the user information by the property in your custom <code>AuthenticationStateProvider</code> class. For example:</p>
+<pre class="code" language="razor">@inject BlazorSchoolAuthenticationStateProvider BlazorSchoolAuthenticationStateProvider
+
+&lt;AuthorizeView&gt;
+    &lt;Authorized&gt;
+        &lt;div&gt;User: @BlazorSchoolAuthenticationStateProvider.Username&lt;/div&gt;
+    &lt;/Authorized&gt;
+&lt;/AuthorizeView&gt;</pre>
+<hr class="my-4" />
+<h1>Common mistakes</h1>
+<p>In this section, we have collected some common mistakes from the Blazor School Discord Community.</p>
+<h3>Mistake #1: Create <code>ClaimsIdentity</code> without the <code>authenticationType</code></h3>
+<p>In the <code>GetAuthenticationStateAsync</code> method, you need to create a <code>ClaimsIdentity</code>, and from the <code>ClaimsIdentity</code>, create a <code>ClaimsPrincipal</code>. However, most people created <code>ClaimsIdentity</code> without the <code>authenticationType</code>. For example:</p>
+<pre class="code" language="csharp">// Wrong
+var identity = new ClaimsIdentity(claims);</pre>
+<p>This is the right way to create a <code>ClaimsIdentity</code>:</p>
+<pre class="code" language="csharp">// Correct
+var identity = new ClaimsIdentity(claims, "Blazor School");</pre>
+<p>In the example, the second parameter <code>"Blazor School"</code> is the <code>authenticationType</code>. The <code>authenticationType</code> can be any string you want.</p>
+<h3>What will happen if you don't include the <code>authenticationType</code>?</h3>
+<p>The <code>ClaimsIdentity</code> will mark the user as unauthenticated, the property <code>ClaimsIdentity.IsAuthenticated</code> will be <code>false</code>.</p>
+<h3>Mistake #2: Rely on CORS to do the security</h3>
+<p>CORS (Cross-Origin Resource Sharing) is a technique to prevent the API being accessed by the website from outside the list. However, CORS is enforced by the browser only. The attacker can send a request from outside the browser to access your API.</p>
+<h3>Mistake #3: Call the <code>GetAuthenticationStateAsync</code> from <code>AuthenticationStateProvider</code> to get the user's information</h3>
+<p>The <code>GetAuthenticationStateAsync</code> is not intended to be called in the component by <code>AuthenticationStateProvider</code>. For example, the following code is bad:</p>
+<pre class="code" language="razor">// Bad code
+@inject BlazorSchoolAuthenticationStateProvider BlazorSchoolAuthenticationStateProvider
+
+&lt;div&gt;@Username&lt;/div&gt;
+
+@code {
+    public string Username { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await BlazorSchoolAuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authenticationState is not null)
+        {
+            Username = authenticationState.User.Claims.FirstOrDefault(c =&gt; c.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
+        }
+    }
+}</pre>
+<h3>What will happen if you call the <code>GetAuthenticationStateAsync</code> from <code>AuthenticationStateProvider</code> to get the user's information?</h3>
+<p>The <code>GetAuthenticationStateAsync</code> will be executed whenever a component is rendered. The following video demonstrates this mistake:</p>
+<div class="ratio ratio-21x9">
+    <video controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-wasm\dotnet6\implementing-authentication-829424\mistake-3.mp4" />
+    </video>
+</div>
+<h3>Mistake #4: Use <code>HttpContextAccessor</code> to get the user information</h3>
+<p>The MVC and the Web API use <code>HttpContextAccessor</code> to get the user information. This creates a confusion in Blazor if you don't know how Blazor works. Blazor is an SPA framework, there will be only 1 request and that request cannot contain the user information. To get the information, follow the <strong>Access the user information</strong> in this tutorial.</p>

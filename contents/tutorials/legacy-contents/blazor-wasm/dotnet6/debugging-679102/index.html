@@ -1,0 +1,59 @@
+<h1>Debugging Blazor WebAssembly website</h1>
+<p>Debugging is the very important part in the development process. In this tutorial:</p>
+<ul>
+    <li>Learn how to debug with Google Chrome.</li>
+    <li>Learn how to debug with Microsoft Edge.</li>
+    <li>Good to know about debugging.</li>
+</ul>
+<p>Currently, Mozilla Firefox does not available for debugging. This tutorial uses the project that you had built in the <a href="/tutorial/blazor-wasm/dotnet6/building-a-website-411933" title="Building a website">Building a website</a> tutorial series.</p>
+<hr class="my-4" />
+<h1>Debugging with Google Chrome</h1>
+<ol>
+    <li>Put a breakpoint in your code. For example, in <code>ProductList.razor</code> as follows:</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\debugging-679102\put-breakpoint.png" alt="put-breakpoint.png" width="913" height="135" /></p>
+<ol start="2">
+    <li>Select Google Chrome as the debugging browser. For example:</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\debugging-679102\chrome-debugger.png" alt="chrome-debugger.png" width="517" height="260" /></p>
+<ol start="3">
+    <li>Once you run the website, a new browser will appear. Open the product list page to trigger the breakpoint as follows:</li>
+</ol>
+<div class="ratio ratio-21x9">
+    <video controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-wasm\dotnet6\debugging-679102\chrome-debug-demonstrate.mp4" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Debugging with Microsoft Edge</h1>
+<ol>
+    <li>Put a breakpoint in your code. For example, in <code>ProductList.razor</code> as follows:</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\debugging-679102\put-breakpoint.png" alt="put-breakpoint.png" width="913" height="135" /></p>
+<ol start="2">
+    <li>Select Microsoft Edge as the debugging browser. For example:</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\debugging-679102\edge-debugger.png" alt="edge-debugger.png" width="503" height="259" /></p>
+<ol start="3">
+    <li>Once you run the website, a new browser will appear. Open the product list page to trigger the breakpoint as follows:</li>
+</ol>
+<div class="ratio ratio-21x9">
+    <video controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-wasm\dotnet6\debugging-679102\edge-debug-demonstrate.mp4" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Good to know about debugging Blazor WebAssembly</h1>
+<ul>
+    <li>Debugging with Mozilla Firefox is not supported (yet).</li>
+    <li>You can add arguments when launching the browser. For example, debugging Blazor WebAssembly in Microsoft Edge with a specific profile as follows:</li>
+</ul>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\debugging-679102\how-to-open-browse-with.png" alt="how-to-open-browse-with.png" width="267" height="231" /></p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\debugging-679102\browse-with-windows.png" alt="browse-with-windows.png" width="457" height="446" /></p>
+<ul>
+    <li>You must open a new browser when you want to debug. If your project doesn't launch browser when you run it, open Project properties and select <strong>Debug</strong> &rarr; <strong>General</strong> &rarr; <strong>Open debug launch profiles UI</strong> &rarr; Tick the <strong>Launch browser</strong> check as follows:</li>
+</ul>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\debugging-679102\open-launch-profile.png" alt="open-launch-profile.png" width="1374" height="733" /></p>
+<ul>
+    <li>Using a custom template for Blazor might make your project not able to debug. Always use the default template that Microsoft provided, then add third party extension later.</li>
+</ul>

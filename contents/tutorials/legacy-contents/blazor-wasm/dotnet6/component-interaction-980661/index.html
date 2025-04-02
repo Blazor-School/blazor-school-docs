@@ -1,0 +1,33 @@
+<h1>Component interaction</h1>
+<p>Component interaction is about sharing data between components. This tutorial includes:</p>
+<ul>
+    <li>Comprehensive view.</li>
+    <li>Selecting an appropriate technique.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-interaction-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Comprehensive view</h1>
+<p>In Blazor WebAssembly, there are 3 techniques to share data between components:</p>
+<ul>
+    <li><code>CascadingParameter</code>.</li>
+    <li><code>Parameter</code>.</li>
+    <li>Transfer service.</li>
+</ul>
+<p>For each technique, there are some points of interest you need to understand:</p>
+<ul>
+    <li>How to pass data from source to target.</li>
+    <li>How to get feedback when the target changes data.</li>
+    <li>Some common mistakes.</li>
+</ul>
+<hr class="my-4" />
+<h1>Selecting an appropriate technique</h1>
+<p>As you have seen, there are many techniques available for interacting components, which makes it difficult for people to select the most appropriate technique. In fact, every technique has its own purpose. Selecting an appropriate technique can be guided by understand your component tree.</p>
+<h3><code>CascadingParameter</code> technique</h3>
+<p><code>CascadingParameter</code> is used to pass data from the ancestor component to the descendant components. <code>CascadingParameter</code> can't pass data to sibling components. The following image illustrates the purpose of <code>CascadingParameter</code>:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\component-interaction-980661\cascading-parameter-explain.png" alt="cascading-parameter-explain.png" width="1489" height="1034" /></p>
+<h3><code>Parameter</code> technique</h3>
+<p><code>Parameter</code> is used to pass data from the parent component to its direct child component. As same as <code>CascadingParameter</code>, <code>Parameter</code> can't pass data to sibling components. The following image illustrates the purpose of <code>Parameter</code>.</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\component-interaction-980661\parameter-explain.png" alt="parameter-explain.png" width="1261" height="775" /></p>
+<h3>Transfer service technique</h3>
+<p>Transfer service is a good technique when you want all of your components to have one data source. Transfer service is not limited by the component tree, it can pass the data across all of your components in your website. The following image illustrates the purpose of Transfer service:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\component-interaction-980661\transfer-service-explain.png" alt="transfer-service-explain.png" width="1969" height="977" /></p>

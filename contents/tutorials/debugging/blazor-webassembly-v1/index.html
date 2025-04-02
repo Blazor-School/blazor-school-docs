@@ -1,0 +1,57 @@
+﻿<h1>Debugging Blazor WebAssembly</h1>
+<p>Code doesn't always behave as expected&mdash;sometimes, it does something entirely different! When that happens, the next step is to figure out why. While staring at the code for hours might be tempting, using a debugging tool is a far more efficient approach.</p>
+<p>A debugger isn't a magic solution that instantly exposes every bug. Instead, it allows you to run your code step by step, pinpointing where an issue occurs. Tools like Visual Studio help you track errors, understand necessary fixes, and even make temporary adjustments to keep your program running.</p>
+<p>Mastering debugging takes time and practice, but it&rsquo;s an essential skill for every software developer. In this article, we&rsquo;ll explore how to debug Blazor WebAssembly code in Visual Studio.</p>
+<ul>
+    <li>Setting up your project before debugging</li>
+    <li>Debugging with Google Chrome</li>
+    <li>Debugging with Microsoft Edge</li>
+    <li>What should you do if your breakpoint does not hit?</li>
+</ul>
+<p><strong>Note:</strong> Currently, Mozilla Firefox does not support debugging for Blazor WebAssembly.</p>
+<hr class="my-4" />
+<h1>Setting up your project before debugging</h1>
+<p>Using a custom template for a new project may hinder debugging. It&rsquo;s best to start with Microsoft&rsquo;s default template and add third-party extensions later to ensure debugging works properly.</p>
+<p>When running your project, make sure to check the <strong>Launch browser</strong> option to enable debugging.</p>
+<p><img src="tutorials/debugging/blazor-webassembly-v1/open-launch-profile.webp" alt="open-launch-profile.webp" width="1374" height="733" /></p>
+<p><strong>Tip:</strong> You can set up the same browser multiple times with different arguments for debugging.</p>
+<p><img src="tutorials/debugging/blazor-webassembly-v1/add-arguments.webp" alt="add-arguments.webp" width="369" height="224" /></p>
+<p><img src="tutorials/debugging/blazor-webassembly-v1/add-arguments-2.webp" alt="add-arguments-2.webp" width="457" height="446" /></p>
+<p><img src="tutorials/debugging/blazor-webassembly-v1/add-arguments-3.webp" alt="add-arguments-3.webp" width="410" height="197" /></p>
+<p><img src="tutorials/debugging/blazor-webassembly-v1/add-arguments-4.webp" alt="add-arguments-4.webp" width="457" height="446" /></p>
+<hr class="my-4" />
+<h1>Debug with Google Chrome</h1>
+<ol>
+    <li>Put a breakpoint in your code.</li>
+</ol>
+<p><img src="tutorials/debugging/blazor-webassembly-v1/put-breakpoint.webp" alt="put-breakpoint.webp" width="606" height="161" /></p>
+<ol start="2">
+    <li>Select Google Chrome as your browser.</li>
+</ol>
+<p><img src="tutorials/debugging/blazor-webassembly-v1/select-browser-chrome.webp" alt="select-browser-chrome.webp" width="603" height="256" /></p>
+<ol start="3">
+    <li>Run your project, and a new window of Google Chrome will appear. Visual Studio will pause at the breakpoint you set in step 1, allowing you to debug your code.</li>
+</ol>
+<div class="ratio ratio-16x9"><iframe src="https://www.youtube.com/embed/ocWdLgd6fcQ?si=HpSzr-CjhP1OStck" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<hr class="my-4" />
+<h1>Debug with Microsoft Edge</h1>
+<ol>
+    <li>Put a breakpoint in your code.</li>
+</ol>
+<p><img src="tutorials/debugging/blazor-webassembly-v1/put-breakpoint.webp" alt="put-breakpoint.webp" width="606" height="161" /></p>
+<ol start="2">
+    <li>Select Microsoft Edge as your browser.</li>
+</ol>
+<p><img src="tutorials/debugging/blazor-webassembly-v1/select-browser-edge.webp" alt="select-browser-edge.webp" width="601" height="261" /></p>
+<ol start="3">
+    <li>Run your project, and a new window of Microsoft Edge will appear. Visual Studio will pause at the breakpoint you set in step 1, allowing you to debug your code.</li>
+</ol>
+<div class="ratio ratio-16x9"><iframe src="https://www.youtube.com/embed/hBiEYy7wtac?si=EZiTlMOgtcAZUd3v" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<hr class="my-4" />
+<h1>What should you do if your breakpoint does not hit?</h1>
+<ol>
+    <li>Ensure you are using the project template provided by Microsoft.</li>
+    <li>Ensure that the breakpoint is set before hitting run.</li>
+    <li>Once the browser starts, open the Developer Tools immediately (F12) and check in the <strong>Application</strong> tab if any new version is not installed.</li>
+</ol>
+<p><img src="tutorials/debugging/blazor-webassembly-v1/determine-latest-version.webp" alt="determine-latest-version.webp" width="1920" height="484" /></p>

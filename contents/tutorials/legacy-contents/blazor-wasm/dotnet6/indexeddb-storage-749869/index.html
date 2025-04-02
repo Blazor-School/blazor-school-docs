@@ -1,0 +1,203 @@
+<h1>IndexedDB storage</h1>
+<p>IndexedDB is a powerful NoSQL database embedded in the modern browsers. Using IndexedDB can improve your website performance vastly. In this tutorial, you will discover:</p>
+<ul>
+    <li>What is IndexedDB storage?</li>
+    <li>Set up the base code.</li>
+    <li>Add common operations.</li>
+    <li>Use the IndexedDB storage.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/browser-storage-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is IndexedDB storage?</h1>
+<p>IndexedDB as its name suggested, uses indexes to enable high performance queries. IndexedDB also allows you to store various data type as key and value. IndexedDB provides many useful features:</p>
+<ul>
+    <li>Transaction.</li>
+    <li>Data migration.</li>
+    <li>Data versioning.</li>
+    <li>Indexing.</li>
+    <li>Asynchronous.</li>
+</ul>
+<p>IndexedDB can also help you to improve your website performance by caching files, large set of data and so on.</p>
+<h3>Understanding IndexedDB</h3>
+<p>IndexedDB isolates data by the domain. That being said, one domain cannot access another domain's resources. For example, data created by blazorschool.com cannot be accessed by google.com and vice versa.</p>
+<p>IndexedDB manages data like folders, but with a fixed level. There are 3 levels in IndexedDB:</p>
+<ol>
+    <li>Domain: A domain can contain one or more database.</li>
+    <li>Database: A database can contain one or more Object Store.</li>
+    <li>Object Store: An Object Store is where your data is actually stored under key and value pair.</li>
+</ol>
+<p>In this tutorial, we only provide a basic example on how to store and get the value from the IndexedDB and the example will not demonstrate all the possibilities of the IndexedDB.</p>
+<h3>How to access the IndexedDB storage in the browser?</h3>
+<p>You can access the IndexedDB storage in the browser by opening the Developer Tools (F12 for most browsers).</p>
+<p>For Firefox, the IndexedDB storage is located at the <strong>Storage</strong> tab as the following image:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\indexeddb-storage-749869\firefox-indexeddb-storage.png" alt="firefox-indexeddb-storage.png" width="861" height="238" /></p>
+<p>For Chrome and Edge, the IndexedDB storage is located at the <strong>Application</strong> tab as the following images:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\indexeddb-storage-749869\chrome-indexeddb-storage.png" alt="chrome-indexeddb-storage.png" width="588" height="686" /></p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\indexeddb-storage-749869\edge-indexeddb-storage.png" alt="edge-indexeddb-storage.png" width="588" height="686" /></p>
+<hr class="my-4" />
+<h1>Set up the base code</h1>
+<p>To use the IndexedDB storage, you first need to create a JavaScript module, then you will use C# code to call the exported functions of this module.</p>
+<ol>
+    <li>Create a new JavaScript file under the <strong>wwwroot</strong> folder. In this example, we will create a <strong>/js/IndexedDbAccessor.js</strong> file.</li>
+    <li>Add some base methods:</li>
+</ol>
+<pre class="code" language="javascript">export function initialize()
+{
+    let blazorSchoolIndexedDb = indexedDB.open(DATABASE_NAME, CURRENT_VERSION);
+    blazorSchoolIndexedDb.onupgradeneeded = function ()
+    {
+        let db = blazorSchoolIndexedDb.result;
+        db.createObjectStore("books", { keyPath: "id" });
+    }
+}
+
+let CURRENT_VERSION = 1;
+let DATABASE_NAME = "Blazor School";</pre>
+<blockquote>You can change the value of <code>DATABASE_NAME</code>, you need to increase the <code>CURRENT_VERSION</code> whenever you change your data structure, you can create one or more Object Store with different names than "books" as in the example.</blockquote>
+<ol start="3">
+    <li>Create a C# class with the following base implementation:</li>
+</ol>
+<pre class="code" language="csharp">public class IndexedDbAccessor : IAsyncDisposable
+{
+    private Lazy&lt;IJSObjectReference&gt; _accessorJsRef = new();
+    private readonly IJSRuntime _jsRuntime;
+
+    public IndexedDbAccessor(IJSRuntime jsRuntime)
+    {
+        _jsRuntime = jsRuntime;
+    }
+
+    public async Task InitializeAsync()
+    {
+        await WaitForReference();
+        await _accessorJsRef.Value.InvokeVoidAsync("initialize");
+    }
+
+    private async Task WaitForReference()
+    {
+        if (_accessorJsRef.IsValueCreated is false)
+        {
+            _accessorJsRef = new(await _jsRuntime.InvokeAsync&lt;IJSObjectReference&gt;("import", "/js/IndexedDbAccessor.js"));
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_accessorJsRef.IsValueCreated)
+        {
+            await _accessorJsRef.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<blockquote>Always remember to dispose the JavaScript module.</blockquote>
+<ol start="4">
+    <li>Register the C# class at <code>Program.cs</code></li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;IndexedDbAccessor&gt;();
+
+var host = builder.Build();
+using var scope = host.Services.CreateScope();
+await using var indexedDB = scope.ServiceProvider.GetService&lt;IndexedDbAccessor&gt;();
+
+if (indexedDB is not null)
+{
+    await indexedDB.InitializeAsync();
+}
+
+await host.RunAsync();</pre>
+<hr class="my-4" />
+<h1>Add common operations</h1>
+<p>In this section, we will demonstrate how to add some basic operations with the IndexedDB storage. You can also add your own operations with this method too.</p>
+<ol>
+    <li>In your JavaScript module, add functions to store and get the data:</li>
+</ol>
+<pre class="code" language="javascript">export function set(collectionName, value)
+{
+    let blazorSchoolIndexedDb = indexedDB.open(DATABASE_NAME, CURRENT_VERSION);
+
+    blazorSchoolIndexedDb.onsuccess = function ()
+    {
+        let transaction = blazorSchoolIndexedDb.result.transaction(collectionName, "readwrite");
+        let collection = transaction.objectStore(collectionName)
+        collection.put(value);
+    }
+}
+
+export async function get(collectionName, id)
+{
+    let request = new Promise((resolve) =&gt;
+    {
+        let blazorSchoolIndexedDb = indexedDB.open(DATABASE_NAME, CURRENT_VERSION);
+        blazorSchoolIndexedDb.onsuccess = function ()
+        {
+            let transaction = blazorSchoolIndexedDb.result.transaction(collectionName, "readonly");
+            let collection = transaction.objectStore(collectionName);
+            let result = collection.get(id);
+
+            result.onsuccess = function (e)
+            {
+                resolve(result.result);
+            }
+        }
+    });
+
+    let result = await request;
+
+    return result;
+}</pre>
+<ol start="2">
+    <li>In your C# class, create a new method for each operation. You will need to call <code>WaitForReference()</code> in all methods.</li>
+</ol>
+<pre class="code" language="csharp">public class IndexedDbAccessor : IAsyncDisposable
+{
+    ...
+    public async Task&lt;T&gt; GetValueAsync&lt;T&gt;(string collectionName, int id)
+    {
+        await WaitForReference();
+        var result = await _accessorJsRef.Value.InvokeAsync&lt;T&gt;("get", collectionName, id);
+
+        return result;
+    }
+
+    public async Task SetValueAsync&lt;T&gt;(string collectionName, T value)
+    {
+        await WaitForReference();
+        await _accessorJsRef.Value.InvokeVoidAsync("set", collectionName, value);
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Use the IndexedDB storage</h1>
+<p>Once you have the complete all the previous steps, you can use it as follows:</p>
+<pre class="code" language="razor">@using System.Text.Json
+@inject IndexedDbAccessor IndexedDbAccessor
+
+&lt;form&gt;
+    &lt;label class="form-label"&gt;
+        Book ID:
+        &lt;input class="form-control" type="text" @bind-value="BookId" /&gt;
+    &lt;/label&gt;
+    &lt;label class="form-label"&gt;
+        Book Name:
+        &lt;input class="form-control" type="text" @bind-value="BookName" /&gt;
+    &lt;/label&gt;
+    &lt;button class="btn btn-primary" type="button" @onclick="SetValueAsync"&gt;Set Value&lt;/button&gt;
+&lt;/form&gt;
+&lt;div&gt;Stored Value: @StoredValue&lt;/div&gt;
+&lt;button class="btn btn-primary" type="button" @onclick="GetValueAsync"&gt;Get Value&lt;/button&gt;
+
+@code {
+    public string BookId { get; set; } = "";
+    public string BookName { get; set; } = "";
+    public string StoredValue { get; set; } = "";
+
+    public async Task SetValueAsync()
+    {
+        await IndexedDbAccessor.SetValueAsync("books", new { Id = Convert.ToInt32(BookId), Name = BookName });
+    }
+
+    public async Task GetValueAsync()
+    {
+        JsonDocument storedBook = await IndexedDbAccessor.GetValueAsync&lt;JsonDocument&gt;("books", Convert.ToInt32(BookId));
+        StoredValue = storedBook.RootElement.GetProperty("name").GetString() ?? "";
+    }
+}</pre>

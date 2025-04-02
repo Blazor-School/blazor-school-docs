@@ -1,0 +1,83 @@
+{
+    "DotNetVersion": "dotnet9",
+    "TechnicalCategory": "blazor-webassembly-standalone",
+    "Nodes":
+    [
+        {
+            "CategorySlug": "concept",
+            "Tutorials":
+            [
+                {
+                    "ContentPath": "introduction/blazor-webassembly-v1",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "setup-development-machine/blazor-webassembly-v1",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "project-template/blazor-webassembly-v1",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "debugging/blazor-webassembly-v1",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "component-overview/v1",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "component-directives/v1",
+                            "GitHubLink": "https://github.com/Blazor-School/blazor-school-free-course-dotnet9-wasm/tree/master/Directives",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "event-handling/v1",
+                            "GitHubLink": "https://github.com/Blazor-School/blazor-school-free-course-dotnet9-wasm/tree/master/EventHandling",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "lifecycle-methods/v1",
+                            "GitHubLink": "https://github.com/Blazor-School/blazor-school-free-course-dotnet9-wasm/tree/master/LifecycleMethods",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "component-rendering/v1",
+                            "GitHubLink": "https://github.com/Blazor-School/blazor-school-free-course-dotnet9-wasm/tree/master/RazorComponentRendering",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "component-reusability/v1",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+﻿<h1>Project Template</h1>
+<p>In this tutorial, we will discuss the <strong>Blazor WebAssembly Standalone App</strong> template provided by Microsoft and compare it to the <strong>Blazor WebAssembly App Empty</strong> template. Additionally, we will explore <strong>project template settings</strong>, including authentication types, HTTPS configuration, and other essential options.</p>
+<p>The purpose of this tutorial is not to clear up all confusion regarding the many project templates for Blazor WebAssembly. Instead, we aim to help learners understand the <strong>Blazor WebAssembly Standalone App</strong> template and its settings. Many beginners feel overwhelmed by the numerous project settings, unsure of their functions and the consequences of selecting or unselecting them. This tutorial will guide you through these settings to help you make informed decisions when creating a new Blazor WebAssembly project.</p>
+<ul>
+    <li>Blazor WebAssembly Standalone App vs Blazor WebAssembly App Empty.</li>
+    <li>Template settings.</li>
+</ul>
+<hr class="my-4" />
+<h1>Blazor WebAssembly Standalone App vs Blazor WebAssembly App Empty</h1>
+<p>Both are project templates for creating a Blazor WebAssembly project. Starting from .NET 8 onward, you should choose the <strong>Blazor WebAssembly Standalone App</strong> instead of the <strong>Blazor WebAssembly App Empty</strong>.</p>
+<p>Projects created using the <strong>Blazor WebAssembly App Empty</strong> template can still be upgraded to the latest .NET version, but this requires some additional steps.</p>
+<hr class="my-4" />
+<h1>Template settings</h1>
+<p>Once you have selected the <strong>Blazor WebAssembly Standalone App</strong> template, Visual Studio will ask for several settings. These settings are <strong>not permanent</strong> - everything can be modified later by manually adding or changing code.</p>
+<ul>
+    <li><strong>Framework:</strong> Set to the latest version.</li>
+    <li><strong>Authentication type:</strong> Visual Studio will generate some default code. Choosing <strong>None</strong> does not mean your app will remain unauthenticated forever - you can add authentication later. We recommend selecting <strong>None</strong>.</li>
+    <li><strong>Configure for HTTPS:</strong> Visual Studio will add code in <code>Program.cs</code> to redirect HTTP to HTTPS. We recommend keeping this <strong>checked</strong>.</li>
+    <li><strong>Progressive Web Application:</strong> Allows your website to run offline. Visual Studio will generate <code>service-worker.js</code> and other related files. We recommend keeping this <strong>checked</strong>.</li>
+    <li><strong>Include sample pages:</strong> Visual Studio will generate some sample code for you.</li>
+    <li><strong>Do not use top-level statements:</strong> When checked, Visual Studio will generate old-style code with <code>namespace</code> and <code>class</code> declarations. We recommend keeping this <strong>unchecked</strong>.</li>
+    <li><strong>Enlist in .NET Aspire orchestration:</strong> Visual Studio will generate a .NET Aspire project and add the Blazor WebAssembly app to it. For simplicity, we recommend keeping this <strong>unchecked</strong>.</li>
+</ul>

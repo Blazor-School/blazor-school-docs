@@ -1,0 +1,52 @@
+<h1>Internationalization and Localization</h1>
+<p>There are many ways to make your website more appealing to the users, internationalization (i18n) and localization (L10n) is one of the methods. I18n is the process of enabling your website to display in different languages and different formats like date format and number format. L10n is the process of translating from one language to another with its national formats like date format and number format.</p>
+<p>A <code>CultureInfo</code> identifies a region (such as a country) in which people speak a particular language or language variant. The <code>CultureInfo</code> determines the formatting and parsing of dates, times, numbers and currencies as well as measurement units and the translated names for time zones, language and countries.</p>
+<p>In Blazor Server, there are 2 types of i18n:</p>
+<ul>
+    <li>Passive translation.</li>
+    <li>Reactive translation.</li>
+</ul>
+<p>For each type, we have 3 methodologies for detecting users' preferred languages.</p>
+<ul>
+    <li>Language in URL.</li>
+    <li>Language in <code>Accept-Language</code> of the request header.</li>
+    <li>Language in cookies.</li>
+</ul>
+<p>This guide provides information to help you decide which type of i18n works best for your situation and walks you through how to L10n your website.</p>
+<hr class="my-4" />
+<h1>Choosing an approach</h1>
+<p>Passive and reactive i18n manage the translation process differently. Each approach offers different advantages.</p>
+<ul>
+    <li><strong>Passive translation</strong> delegates the process of switching language to a controller, providing you more access but also requires the user to reload the page to see the selected language.</li>
+    <li><strong>Reactive translation</strong> delegates the process of switching language to a service, it fast and does not require the user to reload the page.</li>
+</ul>
+<hr class="my-4" />
+<h1>Localization</h1>
+<p>Before diving in on how to i18n your website, you first need to know how to L10n first. In other words, you first need to understand how Blazor Server is looking for a translation of a text.</p>
+<p>For each available language on your website, there will be a language file. The language files have <code>.resx</code> as the file extension, those files are called <strong>Resources File</strong>. The folder structure must be the same as the component/page folder. The following image will give you an idea about resources folder structure.</p>
+<h3>Setting up localization</h3>
+<ol>
+        <li>Create a new folder to contain all the resource files. In the above example, it is the <strong>Resources</strong> folder.</li>
+        <li>The resource file must have the same folder structure as the component you are going to translate. In this example, you are going to translate the <code>I18N.razor</code> and <code>NavMenu.razor</code> so you will need to create a <code>Pages</code> folder inside the <strong>Resources</strong> folder for the <code>I18N.razor</code> component and a <code>Shared</code> folder inside the <strong>Resources</strong> folder for the <code>NavMenu.razor</code> component.</li>
+</ol>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\internationalization-and-localization-611149\aecd5dc7-4300-4c14-87b0-5f6a0cdfdbb3..png" alt="" width="872" height="859" /></p>
+<ol start="3">
+    <li>Create a default language file with the name exactly the same as your component. For example, if you are going to translate <code>I18N.razor</code> component you will name your default language file as <code>I18N.resx</code>. Right click on the <code>Pages</code> folder inside the <strong>Resources</strong> folder, select <strong>Add</strong> =&gt; <strong>New Item...</strong>. Look for the <strong>Resources File</strong> as the following picture.</li>
+</ol>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\internationalization-and-localization-611149\b25045a0-6723-4002-b664-3e02bdff7550..png" alt="" width="941" height="620" /></p>
+<ol start="4">
+    <li>For each language you want to translate, add the respective file for the language with the file name pattern: <code>&lt;ComponentName&gt;.&lt;LanguageCode&gt;.resx</code>. You can check <a href="http://www.lingoes.net/en/translator/langcode.htm" title="Language Code" target="_blank" rel="noopener">http://www.lingoes.net/en/translator/langcode.htm</a> for language codes. In this example, the component will have 2 languages: English and French, so you will need to create a <code>I18N.fr.resx</code> file.</li>
+    <li>The language file will be stored as a key value pair. The next step you need to do is declare the language key and its value for each specific language. For example, in the default language file <code>I18N.resx</code> you have a key with the name <strong>"Name"</strong> and it's value is <strong>"First name"</strong> so later on, when you use the key <strong>"Name"</strong> it will be translated to <strong>"First name"</strong> when the user selects English. You also want to use <strong>"No code generation"</strong> as the Access Modifier for all language files.</li>
+</ol>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\internationalization-and-localization-611149\996b7d36-c118-46a2-af0d-2020d6b843cd..png" alt="" width="566" height="248" /></p>
+<h3>Localizing a component</h3>
+<p>Blazor Server support <code>IStringLocalizer</code> for localize your website.</p>
+<ol>
+    <li>Inject <code>IStringLocalizer</code> with the current component as a generic parameter. You are currently in <code>I18N.razor</code> so the generic would be <code>I18N</code>.</li>
+</ol>
+<pre class="code" language="razor">@using Microsoft.Extensions.Localization
+@inject IStringLocalizer&lt;I18N&gt; Localizer</pre>
+<ol start="2">
+    <li>Use <code>Localizer</code> with the key you have created in the resource file. For example, <code>@Localizer["Name"]</code>. The following picture will elaborate on how to use the <code>Localizer</code>.</li>
+</ol>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\internationalization-and-localization-611149\aa16f82b-563b-41c7-a511-e6431fc754a7..png" alt="" width="494" height="300" /></p>

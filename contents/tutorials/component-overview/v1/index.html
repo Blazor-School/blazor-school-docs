@@ -1,0 +1,30 @@
+﻿<h1>Components at a Glance</h1>
+<p>On the surface, a website created with Blazor is fast, reliable, and capable of performing complex tasks directly in the browser. Breaking it down, a Blazor website consists of multiple components, each serving a specific role - some display the login area, some handle user interactions, and so on. This tutorial will provide you with an overview of Razor components:</p>
+<ul>
+    <li>What is a component?</li>
+    <li>Basic structure.</li>
+    <li>Types of components.</li>
+</ul>
+<hr class="my-4" />
+<h1>What is a Component?</h1>
+<p>A component in Blazor is a reusable building block that defines a part of a webpage's UI and behavior. It is written using Razor syntax, which combines C# and HTML. Each component can have its own logic, styling, and interactions, making it an essential unit for developing Blazor applications. Components can be as simple as a button or as complex as an entire form. They can also communicate with each other and manage data efficiently, allowing for a modular and maintainable architecture.</p>
+<p>You can see in the image below that we have broken down the UI of Blazor School's homepage into individual components.</p>
+<p><img src="tutorials/component-overview/blazor-school-breakdown.webp" alt="blazor-school-breakdown.webp" width="1000" height="427" /></p>
+<blockquote>A Razor Component (.razor) is different from a Razor Page (.cshtml). While both use Razor syntax, they serve distinct purposes in different contexts. A Razor Page is used in ASP.NET MVC, whereas a Razor Component is designed for building reusable UI elements in Blazor. Additionally, Blazor does not use Razor Pages as components.</blockquote>
+<hr class="my-4" />
+<h1>Basic Structure</h1>
+<p>A component typically consists of three sections:</p>
+<ul>
+    <li><strong>Directive Section</strong>: Used for dependency injection, implementing interfaces, and importing .NET libraries.</li>
+    <li><strong>UI Section</strong>: Defines the user interface of the component, containing both C# code and HTML.</li>
+    <li><strong>Code Section</strong>: Contains methods, properties, and other logic for the component.</li>
+</ul>
+<p><img src="tutorials/component-overview/blazor-component-structure.webp" alt="blazor-component-structure.webp" width="1332" height="727" /></p>
+<hr class="my-4" />
+<h1>Types of Components</h1>
+<p>There are 3 types of components:</p>
+<ul>
+    <li><strong>Paging Component</strong>: Includes the <code>@page</code> directive and allows URL parameters to be passed. It is designed to function as a standalone page rather than being used within another component. Those components are not designed to be reused.</li>
+    <li><strong>Reusable Component</strong>: Does not include the <code>@page</code> directive and is meant to be used inside another component to solve specific problems. Those components are design to be reused.</li>
+    <li><strong>Layout Component</strong>: Inherits from <code>LayoutComponentBase</code> and defines the layout structure of a page or website.</li>
+</ul>

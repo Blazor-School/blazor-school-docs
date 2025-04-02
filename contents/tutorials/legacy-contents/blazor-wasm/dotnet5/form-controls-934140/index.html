@@ -1,0 +1,44 @@
+<h1>Form Controls</h1>
+<p>Using form controls is a visual way to collect data of the users. For example, you want to collect a person's data like name, date of birth, etc... Your form should have a textbox to collect the name, a date selector to collect the date of birth and a button for the user to submit the form.</p>
+<p>There are 2 types of form controls. Blazor form controls and HTML form controls. This guide will give you an idea to choose an approach.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/form-controls-blazor-wasm" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Blazor form controls</h1>
+<p>Blazor has a lot of built-in form controls for you to use. All of Blazor controls are required to use within an <code>EditForm</code>. A Blazor form control binds its value with a property by <code>@bind-Value</code>, that means whenever a form control changes, the property is updated as well. Blazor form control only support <code>onchange</code> event. The following code is an example of a basic form with Blazor form controls:</p>
+<pre class="code" language="razor">&lt;EditForm Model="Person"&gt;
+    &lt;label&gt;
+        Name:
+        &lt;InputText @bind-Value="Person.Name"&gt;&lt;/InputText&gt;
+    &lt;/label&gt;
+&lt;/EditForm&gt;
+
+&lt;div&gt;Person name: @Person.Name&lt;/div&gt;
+
+@code {
+    public Person Person { get; set; } = new();
+}</pre>
+<div class="ratio ratio-21x9">
+    <video controls="controls">
+        <source src="\tutorials\legacy-\tutorials\legacy-contents\blazor-wasm\dotnet5\form-controls-934140\d93a1afa-e04e-42d9-8ccc-870d47fd7b3c..mp4" type="video/mp4" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>HTML form controls</h1>
+<p>Blazor also support HTML form controls. The HTML form controls can be used with or without <code>EditForm</code>. An HTML form control binds its value with a property by <code>@bind</code>, you can also specify the update event for the HTML form control by <code>@bind:event</code>. The following code is an example of a basic form with HTML form controls:</p>
+<pre class="code" language="razor">&lt;EditForm Model="Person"&gt;
+    &lt;label&gt;Name:
+        &lt;input type="text" @bind="Person.Name" @bind:event="oninput"/&gt;
+    &lt;/label&gt;
+
+&lt;/EditForm&gt;
+
+&lt;div&gt;Person name: @Person.Name&lt;/div&gt;
+
+@code {
+    public Person Person { get; set; } = new();
+}</pre>
+<div class="ratio ratio-21x9">
+    <video controls="controls">
+        <source src="\tutorials\legacy-\tutorials\legacy-contents\blazor-wasm\dotnet5\form-controls-934140\7a15e559-8dc8-4d2d-b299-ba7c43430cae..mp4" type="video/mp4" />
+    </video>
+</div>

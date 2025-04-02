@@ -1,0 +1,203 @@
+﻿<h1>Component lifecycle</h1>
+<p>✅ Similar to Blazor Server</p>
+<p>Blazor web applications are composed of individual, independent components that respond to user interactions, similarly to Blazor Server. Each component has its own unique lifecycle, which refers to the series of methods that are executed during various stages of the component's existence. Understanding the component lifecycle is crucial for effectively managing the state and behaviour of a component, as well as optimizing performance. In this tutorial, we will thoroughly examine each of the Blazor component lifecycle methods to ensure a clear understanding of their purpose and usage. Specifically, we will cover:</p>
+<ul>
+    <li>Blazor component stages.</li>
+    <li>Initialized and Dispose stage.</li>
+    <li>ParametersSet stage.</li>
+    <li>AfterRender stage.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-lifecycle-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Blazor component stages</h1>
+<p>A Blazor component can go through five stages:</p>
+<ul>
+    <li>SetParameters: This stage is triggered when the component is initially constructed (the parameters still not be set) or whenever the component's parameters updated from the URL or from the parent component. If the <code>SetParametersAsync</code> method is overridden, the <code>OnParametersSet</code> and <code>OnParametersSetAsync</code> methods should not be used.</li>
+    <li>Initialized: This is the stage where the component is fully constructed and the parameters are set.</li>
+    <li>ParametersSet: As the name implies, this stage is triggered whenever the component's parameters are updated from the URL or from the parent component.</li>
+    <li>AfterRender: triggered when the component passes the initialize stage or <code>StateHasChanged</code> called.</li>
+    <li>Dispose: This is the final step where the component is removed from the UI. Developers should clean up resources to prevent memory leaks or unexpected behaviours.</li>
+</ul>
+<p>The stages will have the following order:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\component-lifecycle-923500\blazor-component-lifecycle-methods.png" alt="blazor-component-lifecycle-methods.png" width="1000" height="777" /></p>
+<blockquote>To properly dispose of a component, it should implement the <code>IDisposable/IAsyncDisposable</code> interface, as the <code>Dispose/DisposeAsync</code> method is not a default feature.</blockquote>
+<p>You can customize each stage of the component lifecycle by overriding the corresponding method. Each stage has at least one method that can be overridden. In cases where a stage has two methods, one synchronous and one asynchronous, the synchronous method will execute first, followed by the asynchronous method. The table below shows the methods associated with each stage and their order of execution:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered" style="width: 875px;">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Stage</th>
+                <th class="text-center" scope="col">Method</th>
+                <th class="text-center" scope="col">Executing order</th>
+            </tr>
+            <tr>
+                <td>SetParameters</td>
+                <td><code>SetParametersAsync</code></td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>Initialized</td>
+                <td><code>OnInitialized</code></td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>Initialized</td>
+                <td><code>OnInitializedAsync</code></td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td>ParametersSet</td>
+                <td><code>OnParametersSet</code></td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td>ParametersSet</td>
+                <td><code>OnParametersSetAsync</code></td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>AfterRender</td>
+                <td><code>OnAfterRender</code></td>
+                <td>6</td>
+            </tr>
+            <tr>
+                <td>AfterRender</td>
+                <td><code>OnAfterRenderAsync</code></td>
+                <td>7</td>
+            </tr>
+            <tr>
+                <td>Dispose</td>
+                <td><code>Dispose</code></td>
+                <td>8</td>
+            </tr>
+            <tr>
+                <td>Dispose</td>
+                <td><code>DisposeAsync</code></td>
+                <td>9</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>The following video demonstrates the Blazor component lifecycle:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-wasm\dotnet7\component-lifecycle-923500\lifecycle-demonstrate.webm" />
+    </video>
+</div>
+<p>Initially, the component is not rendered and the lifecycle does not begin. Once the component is rendered, the lifecycle starts and progresses through the following stages: <strong>SetParameters</strong>, <strong>Initialized</strong>, <strong>ParametersSet</strong>, and <strong>AfterRender</strong>. Finally, when the component is removed from the user interface, the <code>Dispose</code> method is called, indicating that the component is being disposed.</p>
+<hr class="my-4" />
+<h1>Initialized and Dispose stage</h1>
+<p>The component lifecycle starts with the Initialize phase and ends with the Dispose phase. During the Initialize phase, you can perform tasks such as:</p>
+<ul>
+    <li>Fetching data from an API</li>
+    <li>Subscribing to events</li>
+    <li>Setting default values for properties</li>
+    <li>Executing JavaScript</li>
+</ul>
+<h3>Free resources after use</h3>
+<p>It is important to free resources after use, as not doing so can greatly impact performance and cause unwanted results. Some resources can be automatically collected by the garbage collector, but others may not. To free resources, you should:</p>
+<ul>
+    <li>Unsubscribe from events</li>
+    <li>Stop working tasks</li>
+    <li>Close open streams</li>
+</ul>
+<p>To properly dispose of a component, you should use the <code>@implements</code> directive to implement the <code>IDisposable</code> interface and declare a <code>public void Dispose()</code> method to free resources. Here is an example code for the <strong>Initialize</strong> and <strong>Dispose</strong> phases:</p>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+&lt;h3&gt;InitializeAndDispose&lt;/h3&gt;
+&lt;div&gt;Sample Text: @SampleText&lt;/div&gt;
+
+@code {
+    public string SampleText { get; set; } = "";
+
+    protected override void OnInitialized()
+    {
+        SampleText = "Blazor School";
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    public void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs) =&gt; JSRuntime.InvokeVoidAsync("alert", "Hello Navigator");
+    public void Dispose() =&gt; NavigationManager.LocationChanged -= OnLocationChanged;
+}</pre>
+<p>When you are disposing a resource in asynchronous, you can implement the <code>IAsyncDisposable</code> as well. For example:</p>
+<pre class="code" language="razor">@implements IAsyncDisposable
+
+...
+
+@code {
+    public async ValueTask DisposeAsync()
+    {
+    }
+}</pre>
+<hr class="my-4" />
+<h1>ParametersSet stage</h1>
+<p>In this phase, you can respond to changes in the parameters, which may originate from the parent component or the URL. However, if you have overridden the <code>SetParametersAsync</code> method, then you should skip this stage entirely.</p>
+<p>The image below shows how the ParametersSet phase is triggered.</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\component-lifecycle-923500\paramters-set-phase.png" alt="paramters-set-phase.png" width="1000" height="503" /></p>
+<h3>React to parent component changes</h3>
+<p><strong>ParametersSet</strong> phase can be used to react to the changes from the parent component. For example:</p>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+
+&lt;div class="border border-primary border-3 m-3"&gt;
+    &lt;h3&gt;ChildComponent&lt;/h3&gt;
+    Component Parameter: @ComponentParameter
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public string ComponentParameter { get; set; } = "";
+
+    protected override void OnParametersSet() =&gt; JSRuntime.InvokeVoidAsync("alert", "ParametersSet phase of the CHILD component triggered.");
+}</pre>
+<p>In this example, <code>ComponentParameter</code> is a parameter passed from the parent component. If the value of this parameter changes in the parent component, the child component will activate the ParametersSet phase.</p>
+<h3>React to parameters from URL changes</h3>
+<p><strong>ParametersSet</strong> phase can be used to react to the changes from the URL parameters. For example:</p>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+
+&lt;div&gt;
+    Url Parameter: @UrlParameter
+    &lt;a href="/parameters-set?UrlParameter=@RandomString()"&gt;Update UrlParameter&lt;/a&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? UrlParameter { get; set; } = "";
+
+    protected override void OnParametersSet() =&gt; JSRuntime.InvokeVoidAsync("alert", "ParametersSet phase of the PARENT component triggered.");
+
+    private string RandomString()
+    {
+        ...
+    }
+}</pre>
+<p>The following video demonstrates the <strong>ParametersSet</strong> phase:</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-wasm\dotnet7\component-lifecycle-923500\parameters-set-demomstrate.webm" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>AfterRender stage</h1>
+<p>Each time Blazor renders the UI, the AfterRender phase is triggered. During this phase, there are a number of actions that can be taken, such as:</p>
+<ul>
+    <li>Utilizing a third-party library to format the UI.</li>
+    <li>Gathering data on user behavior for analytics purposes.</li>
+</ul>
+<p>It's important to note that these are just a few examples of the types of actions that can be performed in the AfterRender phase. The specific actions taken will depend on the requirements of the application.</p>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+
+&lt;h3&gt;AfterRender&lt;/h3&gt;
+&lt;button @onclick="StateHasChanged"&gt;Trigger AfterRender&lt;/button&gt;
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender) =&gt; await JSRuntime.InvokeVoidAsync("alert", $"AfterRender phase triggered with firstRender is {firstRender}");
+}</pre>
+<p>The following video demonstrates the <strong>AfterRender</strong> phase:</p>
+<div class="ratio ratio-21x9">
+    <video controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-wasm\dotnet7\component-lifecycle-923500\after-render-demonstrate.webm" />
+    </video>
+</div>

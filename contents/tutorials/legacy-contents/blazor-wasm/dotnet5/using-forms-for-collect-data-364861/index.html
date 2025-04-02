@@ -1,0 +1,71 @@
+<h1>Using forms to collect data</h1>
+<p>This guide builds on the previous steps in <a href="/tutorial/blazor-wasm/dotnet5/creating-navigation-647263">Creating Navigation</a> guide. At this stage, your website should have a product list page that displays all the products, each product has its own <strong>Buy</strong> button. There is also a link to the checkout page.</p>
+<p>This guide will walk you through on how to create a form for users to input their information.</p>
+<hr class="my-4" />
+<h1>Creating the form model</h1>
+<p>To have a form in Blazor WebAssembly, you will need a model for it. Add a <code>CheckoutInfo.cs</code> class to the <code>Data</code> folder.</p>
+<pre class="code" language="csharp">public class CheckoutInfo
+{
+    [Required(ErrorMessage = "Name is required.")]
+    public string Name { get; set; }
+    [Required(ErrorMessage = "We need the address to deliver the product.")]
+    public string Address { get; set; }
+}</pre>
+<p>In the <code>Checkout.razor</code>, initialize <code>CheckoutInfo</code> at the <code>@code</code> section:</p>
+<pre class="code" language="razor">...
+@code {
+    private CheckoutInfo CheckoutInfo = new();
+}</pre>
+<hr class="my-4" />
+<h1>Creating the form</h1>
+<p>Once you have the form model and initialized it, you can use <code>EditForm</code> pre-built component to create the form.</p>
+<pre class="code" language="razor">&lt;EditForm Model="CheckoutInfo" OnValidSubmit="SubmitAsync"&gt;
+    &lt;DataAnnotationsValidator&gt;&lt;/DataAnnotationsValidator&gt;
+    &lt;div&gt;
+        &lt;label class="col-form-label" for="name"&gt;Name:&lt;/label&gt;
+        &lt;InputText id="name" class="form-control" @bind-Value="CheckoutInfo.Name"&gt;&lt;/InputText&gt;
+        &lt;ValidationMessage class="form-control" For="()=&gt;CheckoutInfo.Name"&gt;&lt;/ValidationMessage&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;label class="col-form-label" for="address"&gt;Address:&lt;/label&gt;
+        &lt;InputText id="address" class="form-control" @bind-Value="CheckoutInfo.Address"&gt;&lt;/InputText&gt;
+        &lt;ValidationMessage class="form-control" For="()=&gt;CheckoutInfo.Address"&gt;&lt;/ValidationMessage&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;button class="btn btn-primary" type="submit"&gt;Submit&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/EditForm&gt;</pre>
+<p>This form has some validation and also, shows validation message if any validation fails.</p>
+<hr class="my-4" />
+<h1>Submitting data to the API</h1>
+<p>The final step would be submitting the data to the API after validating is done.</p>
+<ol>
+    <li>Inject <code>IJSRuntime</code> and <code>HttpClient</code> at the top of the component:</li>
+</ol>
+<pre class="code" language="razor">@using System.Net
+@inject HttpClient HttpClient
+@inject IJSRuntime JsRuntime</pre>
+<p>The <code>HttpClient</code> will help you to send requests to the API and the <code>IJSRuntime</code> will help you to call the <code>alert</code> function of JavaScript to notify messages.</p>
+<ol start="2">
+    <li>Create a new method with the <code>SubmitAsync</code>:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    private async Task SubmitAsync()
+    {
+        var response = await HttpClient.PostAsJsonAsync&lt;CheckoutInfo&gt;("api/Checkout/Checkout", CheckoutInfo);
+        string message = await response.Content.ReadAsStringAsync();
+
+        if (response.StatusCode is HttpStatusCode.OK)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", message);
+        }
+    }
+}</pre>
+<p>Your first Blazor WebAssembly now looks like this:</p>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-wasm\dotnet5\using-forms-for-collect-data-364861\feb557a7-3876-485b-9c7f-e8b5b1c25c54..png" alt="" width="453" height="860" /></p>
+<hr class="my-4" />
+<h1>What's next</h1>
+<div>You have completed development for the online shop website. Continue with the <a href="/tutorial/blazor-wasm/dotnet5/deploying-726802">Deploying</a> guide to move to a local server, or a cloud service.</div>

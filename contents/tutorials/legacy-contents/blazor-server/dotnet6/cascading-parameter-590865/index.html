@@ -1,0 +1,131 @@
+<h1>Cascading parameter</h1>
+<p>Cascading parameter is a technique that let you pass a parameter from an ancestor component to its descendant components. In this tutorial, you will discover:</p>
+<ul>
+    <li>How to use <code>CascadingParameter</code>.</li>
+    <li>Common mistake.</li>
+    <li>Detect changes.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-interaction-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Passing a parameter using <code>CascadingParameter</code></h1>
+<p>The following steps will help you to pass a parameter from an ancestor component to the descendant components.</p>
+<ol>
+    <li><strong>In your ancestor component</strong>, declare a public property in the code section. This public property is the data you want to pass to the descendant components.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    public string Data { get; set; } = "Data from grand parent component.";
+}</pre>
+<ol start="2">
+    <li>Use the <code>CascadingValue</code> component to wrap the descendant components.</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingValue Value="Data"&gt;
+    &lt;Parent /&gt;
+&lt;/CascadingValue&gt;</pre>
+<ol start="3">
+    <li><strong>In your descendant component</strong>, declare a property with the same type from the ancestor component (<code>string</code> in this example) and use the <code>CascadingParameter</code> attribute in the code section.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [CascadingParameter]
+    public string ReceivedValue { get; set; } = "";
+}</pre>
+<hr class="my-4" />
+<h1>Passing multiple parameters using <code>CascadingParameter</code></h1>
+<p>In the above example, Blazor Server will recognize the parameter from the ancestor component and the descendant components by the type of the parameter. For example, you can pass a <code>string</code>, an <code>int</code> from the ancestor component to the descendant components. Sometimes, you want to pass multiple parameters, regardless of their types.</p>
+<ol>
+    <li><strong>In your ancestor component</strong>, declare properties in the code section.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    public string Data1 { get; set; } = "First data.";
+    public string Data2 { get; set; } = "Second data.";
+}</pre>
+<ol start="2">
+    <li>Use multiple nested <code>CascadingValue</code> components to pass data. The order is irrelevant. By passing multiple parameters, the type is not considered as a factor to differentiate parameters. Instead, you have to name each passing parameter. By default, the passing parameter name is the name of the property in the ancestor component. You can rename your passing parameter by using <code>Name</code> parameter in <code>CascadingValue</code> component.</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingValue Value="Data1"&gt;
+    &lt;CascadingValue Value="Data2" Name="CascadeParam2"&gt;
+        &lt;Parent /&gt;
+    &lt;/CascadingValue&gt;
+&lt;/CascadingValue&gt;</pre>
+<p>In the code sample, the <code>Data1</code> is a cascading parameter with the name <code>Data1</code> and <code>Data2</code> is a cascading parameter with the name <code>CascadeParam2</code>. We will use <code>Data1</code> and <code>CascadeParam2</code> in the descendant components to catch the parameter.</p>
+<ol start="3">
+    <li><strong>In your descendant component</strong>, declare properties and use the <code>CascadingParameter</code> attribute in the code section.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [CascadingParameter]
+    public string Data1 { get; set; } = "";
+    [CascadingParameter(Name = "CascadeParam2")]
+    public string ReceivedValue2AtParent { get; set; } = "";
+}</pre>
+<p>You don't need to specify the passing parameter name (<code>Data1</code>) when the name of the property matches with the passing parameter. When the passing parameter name (<code>CascadeParam2</code>) doesn't match the property name (<code>ReceivedValue2AtParent</code>) then you need to specify the parameter name in the attribute. For example: <code>[CascadingParameter(Name = "CascadeParam2")]</code>.</p>
+<hr class="my-4" />
+<h1>Common mistake</h1>
+<p>When using the Cascading parameter technique, don't change the reference of a passed parameter in any descendant component. The following code in the descendant component illustrates this mistake:</p>
+<pre class="code" language="razor">@code {
+    [CascadingParameter]
+    public ExampleClass ReceivedValueAtParent { get; set; } = new();
+
+    public void Correct()
+    {
+        ReceivedValueAtParent.Data = "Value changed";
+    }
+
+    public void Mistake()
+    {
+        ReceivedValueAtParent = new()
+        {
+            Data = "Reference changed"
+        };
+    }
+}</pre>
+<h3>What will happen if you change the reference of a passed parameter?</h3>
+<p>The changed value only affects in the descendant component and not in another descendant nor ancestor component as the following video illustrates:</p>
+<div class="ratio ratio-21x9">
+    <video controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-server\dotnet6\cascading-parameter-590865\mistake.mp4" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Detect changes</h1>
+<p>You can change the passed parameter value in the ancestor component and the descendant components. In this section, you will learn:</p>
+<ul>
+    <li>Detect changes from the ancestor component.</li>
+    <li>Detect changes from the descendant components.</li>
+</ul>
+<h3>Detect changes from the ancestor component</h3>
+<p>Anytime the ancestor component changes the value of a cascading parameter, the descendant components will be re-rendered. You can also listen to these changes by override the <code>OnParametersSet()</code> method of your descendant component. See <a href="/tutorial/blazor-server/dotnet6/component-lifecycle-431616" title="Component Lifecycle">Component Lifecycle</a> tutorial.</p>
+<h3>Detect changes from the descendant components</h3>
+<p>Whenever a descendant component changes the value of a cascading parameter, the ancestor will not be re-rendered, unlike changes from the ancestor component. To make the ancestor component reacts to the changes, you need to notify the ancestor component whenever you made a change in the descendant component.</p>
+<ol>
+    <li><strong>In your ancestor component</strong>, declare a notify method in the code section.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    ...
+    public void NotifyChange()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+}</pre>
+<ol start="2">
+    <li>Pass <code>this</code> to the descendant components.</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingValue Value="this"&gt;
+    &lt;CascadingValue Value="ExampleInstance"&gt;
+        &lt;Parent /&gt;
+    &lt;/CascadingValue&gt;
+&lt;/CascadingValue&gt;</pre>
+<ol start="3">
+    <li>In your descendant components, whenever you made a change to the cascading parameter, call the notify method of the ancestor component.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [CascadingParameter]
+    public ExampleClass ReceivedValueAtParent { get; set; } = new();
+
+    [CascadingParameter]
+    public GrandParent? Ancestor { get; set; }
+
+    public void UpdateValue()
+    {
+        ReceivedValueAtParent.Data = &quot;Value changed at parent&quot;;
+        Ancestor?.NotifyChange();
+    }
+}</pre>

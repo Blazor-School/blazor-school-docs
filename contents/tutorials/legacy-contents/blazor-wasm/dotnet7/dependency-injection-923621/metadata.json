@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Dependency Injection",
+    "Slug": "dependency-injection-923621",
+    "Description": "Introduces the basics of dependency injection in Blazor, explaining its importance in software development and how to use it effectively in your code, allowing you to build more modular and testable applications."
+}

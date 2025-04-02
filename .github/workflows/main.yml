@@ -6,7 +6,7 @@ on:
     - master
 env:
   WORKING_DIRECTORY: BlazorSchoolDocs
-  VPS_WEB_DIRECTORY: /home/blazorschool_redesign/wwwroot/contents
+  VPS_WEB_DIRECTORY: /home/blazorschool3/client/wwwroot
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -18,5 +18,15 @@ jobs:
         local: contents
         remote: ${{ env.VPS_WEB_DIRECTORY }}
         host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+
+    - name: Restart BlazorSchool Server service
+      uses: garygrossgarten/github-action-ssh@master
+      with:
+        host: ${{ secrets.HOST }}
+        command: |
+                systemctl daemon-reload
+                systemctl restart BlazorSchool3Server
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}

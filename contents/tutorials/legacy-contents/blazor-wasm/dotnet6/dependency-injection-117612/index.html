@@ -1,0 +1,97 @@
+<h1>Dependency Injection</h1>
+<p>Dependency Injection is an important technique in Blazor WebAssembly .NET 6. In this tutorial, you will learn:</p>
+<ul>
+    <li>What is Dependency Injection?</li>
+    <li>Why do you need the Dependency Injection?</li>
+    <li>How to register a service?</li>
+    <li>How to inject a service?</li>
+    <li>Comparing between service scopes.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/dependency-injection-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is Dependency Injection?</h1>
+<p>Dependency Injection will help you to create register a class/interface to the Service Provider, then the class/interface became a service. Whenever a service is required, the Service Provider will select the appropriated service in the pool and injecting it to the requesting class or component. The following image illustrates the Dependency Injection technique:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\dependency-injection-117612\dependency-injection-blazor-wasm.png" alt="dependency-injection-blazor-wasm.png" width="929" height="500" /></p>
+<hr class="my-4" />
+<h1>Why do you need to use Dependency Injection?</h1>
+<p>By using Dependency Injection technique, you will not worry about taking care of a service lifetime nor how to initialize the service. Your project will have decoupled classes that incredibly easy to maintain, testable, clean.</p>
+<hr class="my-4" />
+<h1>How to register a service?</h1>
+<p>Before you can inject a service to a component, you first need to register the instance. There are several ways to register a service, you can register a service by its class or interface name. All services are registered at <code>Program.cs</code>, the register process must be placed between <code>WebApplication.CreateBuilder(args)</code> and <code>builder.Build()</code>.</p>
+<h3>Register a service with class name</h3>
+<p>Assuming you have the following class:</p>
+<pre class="code" language="csharp">public class ProcessService
+{
+    public Guid ExampleId { get; set; } = Guid.NewGuid();
+
+    public void Process()
+    {
+    }
+}</pre>
+<p>Then you can register this class to become a service at <code>Program.cs</code>. For example:</p>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;ProcessService&gt;();</pre>
+<p>In the above example, transient is the scope of the service. You will learn about service scope later in this tutorial.</p>
+<h3>Register a service with interface name</h3>
+<p>Assuming you have the following interface:</p>
+<pre class="code" language="csharp">public interface IServiceInterface
+{
+    string ExampleString { get; set; }
+}</pre>
+<p>And the following class:</p>
+<pre class="code" language="csharp">public class ServiceWithInterface : IServiceInterface
+{
+    public string ExampleString { get; set; } = "Blazor School";
+}
+</pre>
+<p>Then you can register this class to become a service at <code>Program.cs</code>. For example:</p>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;IServiceInterface, ServiceWithInterface&gt;();</pre>
+<h3>Service with primitive parameter</h3>
+<p>A service can have one or more parameter. Assuming you have the following class:</p>
+<pre class="code" language="csharp">public class ServiceWithCustomData
+{
+    public string ExampleString { get; set; } = "";
+
+    public ServiceWithCustomData(string exampleString)
+    {
+        ExampleString = exampleString;
+    }
+}</pre>
+<p>Then you can pass the parameter when registering the service. For example:</p>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;ServiceWithCustomData&gt;(serviceProvider =&gt; new ("Blazor School"));</pre>
+<h3>Dependent service</h3>
+<p>A service can depend on another service. Assuming you have the following class:</p>
+<pre class="code" language="csharp">public class DependentService
+{
+    public ServiceWithCustomData ServiceWithCustomData { get; set; }
+
+    public DependentService(ServiceWithCustomData serviceWithCustomData)
+    {
+        ServiceWithCustomData = serviceWithCustomData;
+    }
+}</pre>
+<p>In this case, you must register the dependency service must. In this case, the <code>DependentService</code> service depends on the <code>ServiceWithCustomData</code> service so the <code>ServiceWithCustomData</code> must be registered first. Once the <code>ServiceWithCustomData</code> is register, you can proceed to register the <code>DependentService</code> as follows:</p>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;DependentService&gt;(serviceProvider =&gt; new(serviceProvider.GetRequiredService&lt;ServiceWithCustomData&gt;()));</pre>
+<blockquote>You can also register the <code>DependentService</code> with its interface name. It is irrelevant to the service is parameterized or not.</blockquote>
+<hr class="my-4" />
+<h1>How to inject a service?</h1>
+<p>Once you have your service registered to the Service Provider, you can inject your service to a component or another service. If you registered your service with the class name, then you can inject the service to your component as follows:</p>
+<pre class="code" language="razor">@inject DependentService DependentService</pre>
+<p>Where:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\dependency-injection-117612\inject-with-class-name.png" alt="inject-with-class-name.png" width="1843" height="1213" /></p>
+<p>If you registered your service with the interface name, you must use that interface to inject the service. For example:</p>
+<pre class="code" language="razor">@inject IServiceInterface ServiceWithInterface</pre>
+<blockquote>Keep in mind that if you registered your service with class name and you use your interface name to inject the service, you will encounter the following error: <code>Error: System.InvalidOperationException: Cannot provide a value for property '&lt;Your Instance Name&gt;' on type '&lt;Your Class/Interface Name&gt;'. There is no registered service of type '&lt;Your Class/Interface Name&gt;'</code></blockquote>
+<hr class="my-4" />
+<h1>Comparing between service scopes</h1>
+<p>When you register a service, you will need to specify its scope. There are 3 scopes for you to specify:</p>
+<ol>
+    <li>Singleton.</li>
+    <li>Scoped.</li>
+    <li>Transient.</li>
+</ol>
+<h3>Singleton and scoped service scope</h3>
+<p>Despite having a different scope but the services with singleton scope and scoped scope are having the same lifetime, they will always have an instance for each browser tab in the Service Provider. The following image illustrates the singleton and scoped service scope:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\dependency-injection-117612\singleton-scoped-service.png" alt="singleton-scoped-service.png" width="3861" height="3694" /></p>
+<h3>Transient service scope</h3>
+<p>For transient services, the Service Provider will always create a new instance whenever it is injected. The following image illustrates the transient service:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\dependency-injection-117612\transient-scope.png" alt="transient-scope.png" width="540" height="500" /></p>

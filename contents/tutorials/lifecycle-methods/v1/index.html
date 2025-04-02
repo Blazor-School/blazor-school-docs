@@ -1,0 +1,208 @@
+﻿<h1>Lifecycle Methods</h1>
+<p>In Blazor, the lifecycle refers to the various stages a component goes through. These stages allow developers to run specific code at key moments, such as when the component is created, updated, or removed. By understanding the component lifecycle, you can better manage resources, side effects, and performance. In this tutorial, we will cover:</p>
+<ul>
+    <li>Component stages overview.</li>
+    <li>Initialized and Dispose stages.</li>
+    <li>ParametersSet stage.</li>
+    <li>SetParameters stage.</li>
+    <li>AfterRender stage.</li>
+</ul>
+<hr class="my-4" />
+<h1>Component stages overview</h1>
+<p>A component goes through 5 stages:</p>
+<ul>
+    <li><strong>SetParameters</strong>: This stage is triggered when the component is initially constructed (the parameters still not set) or whenever the component&rsquo;s parameters are updated from the URL or from the parent component.</li>
+    <li><strong>Initialized</strong>: This is the stage where the component is fully constructed and the parameters are set.</li>
+    <li><strong>ParametersSet</strong>: As the name implies, this stage is triggered whenever the component&rsquo;s parameters are updated from the URL or from the parent component.</li>
+    <li><strong>AfterRender</strong>: Triggered when the component passes the initialize stage or <code>StateHasChanged</code> is called.</li>
+    <li><strong>Dispose</strong>: This is the final step where the component is removed from the UI. Developers should clean up resources to prevent memory leaks or unexpected behaviours.</li>
+</ul>
+<p>The stages will have the following order:</p>
+<p><img src="tutorials/lifecycle-methods/v1/blazor-component-lifecycle-methods.png" alt="blazor-component-lifecycle-methods.png" width="1000" height="859" /></p>
+<blockquote>For proper component disposal, implement <code>IDisposable</code> or <code>IAsyncDisposable</code>, since <code>Dispose</code> and <code>DisposeAsync</code> aren&rsquo;t built into components by default.</blockquote>
+<p>You can run your code in each stage of the component lifecycle by overriding the corresponding method. Each stage has at least 1 method that can be overridden. In cases where a stage has 2 methods, 1 synchronous and 1 asynchronous, the synchronous method will execute first, followed by the asynchronous method. Check the execution order in this table:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered" style="width: 875px;">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Stage</th>
+                <th class="text-center" scope="col">Method</th>
+                <th class="text-center" scope="col">Executing order</th>
+            </tr>
+            <tr>
+                <td>SetParameters</td>
+                <td><code>SetParametersAsync</code></td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>Initialized</td>
+                <td><code>OnInitialized</code></td>
+                <td>2</td>
+            </tr>
+            <tr>
+                <td>Initialized</td>
+                <td><code>OnInitializedAsync</code></td>
+                <td>3</td>
+            </tr>
+            <tr>
+                <td>ParametersSet</td>
+                <td><code>OnParametersSet</code></td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td>ParametersSet</td>
+                <td><code>OnParametersSetAsync</code></td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>AfterRender</td>
+                <td><code>OnAfterRender</code></td>
+                <td>6</td>
+            </tr>
+            <tr>
+                <td>AfterRender</td>
+                <td><code>OnAfterRenderAsync</code></td>
+                <td>7</td>
+            </tr>
+            <tr>
+                <td>Dispose</td>
+                <td><code>Dispose</code></td>
+                <td>8</td>
+            </tr>
+            <tr>
+                <td>Dispose</td>
+                <td><code>DisposeAsync</code></td>
+                <td>9</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>Here&rsquo;s a video showing the lifecycle in action:</p>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/xsygbJbTV6A?si=WS3EK7RTEyhARYmd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<div>Before rendering, the component remains inactive and its lifecycle has not started. Once rendered, the lifecycle begins and advances through SetParameters, Initialized, ParametersSet, and AfterRender stages in sequence. Upon removal from the user interface, the <code>Dispose</code> method is invoked, signalling the component&rsquo;s disposal.</div>
+<hr class="my-4" />
+<h1>Initialized and Dispose stages</h1>
+<p>The Initialized stage occurs after the component&rsquo;s parameters are set, marking the point where it&rsquo;s fully constructed and ready for use. During this stage, you can perform tasks such as:</p>
+<ul>
+    <li>Fetching data from an API</li>
+    <li>Subscribing to events</li>
+    <li>Setting default values for properties</li>
+    <li>Running JavaScript code</li>
+</ul>
+<h3>Free resources after use</h3>
+<p>Releasing resources after use is critical to maintain performance and prevent unintended behaviours. While the garbage collector handles some resources automatically, others require explicit cleanup. Examples of resources needing manual release include:</p>
+<ul>
+    <li>Unsubscribe from events</li>
+    <li>Stop working tasks</li>
+    <li>Close open streams</li>
+</ul>
+<p>To write your disposing code for a component, you need to implement <code>IDisposable</code> in the component by using the <code>@implements</code> directive and then declare a <code>public void Dispose()</code> method. Here is an example:</p>
+<pre language="razor">@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@implements IDisposable
+
+&lt;div&gt;Sample Text: @SampleText&lt;/div&gt;
+
+@code {
+    public string SampleText { get; set; } = "";
+
+    protected override void OnInitialized()
+    {
+        SampleText = "Blazor School";
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    public void OnLocationChanged(object? sender, LocationChangedEventArgs eventArgs) =&gt; JSRuntime.InvokeVoidAsync("alert", "Hello Navigator");
+    public void Dispose() =&gt; NavigationManager.LocationChanged -= OnLocationChanged;
+}</pre>
+<p>In the example, we have set the default value for <code>SampleText</code> and subscribed to the <code>NavigationManager.LocationChanged</code> event, and as good practice, we have unsubscribed from the <code>NavigationManager.LocationChanged</code> event in the <code>Dispose</code> method.</p>
+<p>Some resources can only be disposed of asynchronously. To dispose of such resources, you need to implement <code>IAsyncDisposable</code>:</p>
+<pre language="razor">@implements IAsyncDisposable
+
+...
+
+@code {
+    public async ValueTask DisposeAsync()
+    {
+    }
+}</pre>
+<hr class="my-4" />
+<h1>ParametersSet stage</h1>
+<p>The ParametersSet stage activates each time a component&rsquo;s parameters are modified, whether from a URL update or a parent component adjustment, occurring after the Initialized stage. During this stage, you can override the <code>OnParametersSet</code> or <code>OnParametersSetAsync</code> methods to react to parameter changes&mdash;useful for tasks like refreshing displayed data or adjusting component state based on new inputs. This ensures the component stays in sync.</p>
+<p><img src="tutorials/lifecycle-methods/v1/paramters-set-phase.png" alt="paramters-set-phase.png" width="1000" height="503" /></p>
+<p>Consider this code sample:</p>
+<pre language="razor">@inject IJSRuntime JSRuntime
+
+&lt;p&gt;Component Parameter: @ComponentParameter&lt;/p&gt;
+
+@code {
+    [Parameter]
+    public string ComponentParameter { get; set; } = "";
+
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? UrlParameter { get; set; } = "";
+
+    protected override void OnParametersSet()
+    {
+        JSRuntime.InvokeVoidAsync("alert", "ParametersSet called in CHILD component.");
+    }
+}</pre>
+<p>In this example, the component defines 2 parameters: <code>ComponentParameter</code>, supplied by a parent component, and <code>UrlParameter</code>, sourced from the URL query string via the <code>[SupplyParameterFromQuery]</code> attribute. By overriding the <code>OnParametersSet</code> or <code>OnParametersSetAsync</code> method, you can respond to updates in either parameter.</p>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/EG2KQaedC28?si=H8dh-TTf5k7O9Egj" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<hr class="my-4" />
+<h1>SetParameters stage</h1>
+<p>The SetParameters stage is a combination of the OnInitialized stage and OnParametersSet stage. This means it is triggered when the component is initially constructed or when its parameters are updated, before the parameters are set. Also, the OnInitialized stage and OnParametersSet stage are both triggered by the SetParameters stage; as a result, you can completely skip those 2 stages. During this stage, you can override the <code>SetParametersAsync</code> method to handle parameters early or create more stages.</p>
+<blockquote>We do not recommend you modify this stage due to many pitfalls in this stage unless you are building a component library and don&rsquo;t want the developers who use your component to mandatory call <code>base.OnInitialized()</code>/<code>base.OnParametersSet()</code>... and so on.</blockquote>
+<p>Consider the following example:</p>
+<pre language="razor">@inject IJSRuntime JSRuntime
+
+&lt;h3&gt;SetParametersStage&lt;/h3&gt;
+
+@code {
+    public async Task CustomLifecycleMethodAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("alert", "This is a custom lifecycle method");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await JSRuntime.InvokeVoidAsync("alert", "OnInitializedAsync stage called");
+    }
+
+    protected override void OnParametersSet()
+    {
+        JSRuntime.InvokeVoidAsync("alert", "OnParametersSet stage called");
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        // To enable initialize and parameter set stages, uncomment the following line
+        // await base.SetParametersAsync(parameters);
+
+        // Because we skipped the base method, we need to manually set the parameters and update the UI
+        parameters.SetParameterProperties(this);
+        StateHasChanged();
+
+        await CustomLifecycleMethodAsync();
+    }
+}</pre>
+<p>In this example, overriding <code>SetParametersAsync</code> introduces a custom stage through the <code>CustomLifecycleMethodAsync</code> method, which displays an alert. By leaving the <code>await base.SetParametersAsync(parameters)</code> call commented out, the Initialized and ParametersSet stages are skipped entirely. To compensate, the code manually applies the parameters using <code>SetParameterProperties</code> and updates the UI with <code>StateHasChanged</code>, ensuring the component reflects the new state before proceeding to the custom logic.</p>
+<hr class="my-4" />
+<h1>AfterRender stage</h1>
+<p>Once all preparations for rendering are complete (initialization finished and parameters assigned), Blazor initiates the rendering process, triggering the AfterRender stage. This stage is ideal for tasks such as:</p>
+<ul>
+    <li>Interact with JavaScript libraries.</li>
+    <li>Collect user behaviour data for analytics purposes.</li>
+</ul>
+<p>These examples highlight just some of the possibilities for this stage; other tasks may also align well with its timing.</p>
+<p>Here's an example to illustrate the AfterRender stage:</p>
+<pre language="razor">@inject IJSRuntime JSRuntime
+
+&lt;button @onclick="StateHasChanged"&gt;Trigger AfterRender&lt;/button&gt;
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender) =&gt; await JSRuntime.InvokeVoidAsync("alert", $"AfterRender stage triggered with firstRender is {firstRender}");
+}</pre>
+<p>In the code, we demonstrate how <code>bool firstRender</code> changes during the AfterRender stage. The following video will show how this example looks:</p>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/2LuTeiICyiY?si=_uL-w828-gOUcO33" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>

@@ -1,0 +1,222 @@
+<h1>Linux VPS hosting with deployment pipeline</h1>
+<p>Linux VPS is a complicated method to get a live website, but it is also extremely effective and is one of cheapest method. In this tutorial, you will discover:</p>
+<ul>
+    <li>Required tools.</li>
+    <li>Publishing a Blazor WebAssembly website.</li>
+    <li>Set up the Linux VPS.</li>
+    <li>Speed up Blazor WebAssembly website.</li>
+    <li>Setup GitHub action.</li>
+    <li>Common mistakes.</li>
+</ul>
+<p>Thanks to Discord user <em>Grimston#0001</em> at <a href="https://npipes.net/aff.php?aff=4" target="_blank" rel="noopener">NPipes</a> for sponsoring a VPS machine that used to make this tutorial. You can <a href="https://fundrazr.com/blazor-school-campaign" target="_blank" rel="noopener" title="Donate money">contribute to the community</a> too.</p>
+<p>Deploying the website API is not included in this tutorial. However, you can use the same VPS to host the website API.</p>
+<hr class="my-4" />
+<h1>Require tools</h1>
+<p>To manage the Linux VPS, you need a tool to execute commands and a tool to transfer file between your computer and the VPS machine. Bitvise SSH Client is a recommended tool.</p>
+<hr class="my-4" />
+<h1>Publishing a Blazor WebAssembly website</h1>
+<p>Before deploying your website to a Linux VPS, you need to publish your website to a folder first. Then we will make the website working and then set up a GitHub action for automated deployment later. To publishing your website to a folder:</p>
+<ol>
+    <li>Right-click your Blazor WebAssembly project and select <strong>Publish&hellip;</strong></li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\publishing-blazor-webassembly-1.png" alt="publishing-blazor-webassembly-1.png" width="426" height="366" /></p>
+<ol start="2">
+    <li>Select <strong>Folder</strong> in the next step.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\publishing-blazor-webassembly-2.png" alt="publishing-blazor-webassembly-2.png" width="804" height="564" /></p>
+<ol start="3">
+    <li>Select the folder location.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\publishing-blazor-webassembly-3.png" alt="publishing-blazor-webassembly-3.png" width="804" height="564" /></p>
+<ol start="4">
+    <li>Click <strong>Publish</strong> to start publishing your website to a folder.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\publishing-blazor-webassembly-4.png" alt="publishing-blazor-webassembly-4.png" width="1073" height="379" /></p>
+<hr class="my-4" />
+<h1>Set up the Linux VPS</h1>
+<p>When you bought a Linux VPS service, you will receive an IP, the username, and password to access the VPS. Use these information in Bitvise SSH Client to connect to the VPS machine.</p>
+<ol>
+    <li>Run Bitvise SSH Client and connect to the VPS machine.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-linux-vps-1.png" alt="set-up-linux-vps-1.png" width="632" height="643" /></p>
+<ol start="2">
+    <li>Click <strong>New terminal console</strong> to open a terminal console.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-linux-vps-2.png" alt="set-up-linux-vps-2.png" width="632" height="643" /></p>
+<ol start="3">
+    <li>Install the .NET runtime. In the terminal console, run <code>sudo apt-get update &amp;&amp; sudo apt-get install -y aspnetcore-runtime-6.0</code>:</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-linux-vps-3.png" alt="set-up-linux-vps-3.png" width="919" height="697" /></p>
+<ol start="4">
+    <li>Back to the Bitvise SSH Client and click <strong>New SFTP window</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-linux-vps-4.png" alt="set-up-linux-vps-4.png" width="632" height="643" /></p>
+<ol start="5">
+    <li>Copy the <strong>wwwroot</strong> folder from the published folder to the VPS machine. Recommended path in the VPS machine: <strong>/home/&lt;your_website&gt;</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-linux-vps-5.png" alt="set-up-linux-vps-5.png" width="806" height="384" /></p>
+<ol start="6">
+    <li>Install NGINX. Back to the terminal console and run <code>sudo apt install nginx</code>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-linux-vps-6.png" alt="set-up-linux-vps-6.png" width="919" height="697" /></p>
+<ol start="7">
+    <li>Make NGINX autostart. Run command <code>sudo systemctl enable nginx</code>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-linux-vps-7.png" alt="set-up-linux-vps-7.png" width="919" height="697" /></p>
+<ol start="8">
+    <li>Back to the SFTP window. Rename the <strong>/etc/nginx/sites-enabled/default</strong> file. Update the file content:</li>
+</ol>
+<pre class="code" language="yml">server {
+	listen 443 ssl http2;
+	listen [::]:443 ssl http2;
+	server_name &lt;your_domain&gt;;
+	ssl_certificate '&lt;your_path_to_pem_file&gt;';
+        ssl_certificate_key '&lt;your_path_to_pem_file&gt;';
+	
+	root "&lt;path_to_wwwroot_folder&gt;";
+	
+	location / {
+             try_files $uri $uri/ /index.html;
+	}
+}
+
+server {
+	listen 80;
+	listen [::]:80;
+	server_name &lt;your_domain&gt;;
+	
+	return 301 https://$host$request_uri;
+}</pre>
+<p>For <code>ssl_certificate</code> and <code>ssl_certificate_key</code> you can get from an SSL certificate provider service. The same with <code>server_name</code>, you can get from a domain provider service.</p>
+<p>The first server block is to serve the website with the HTTPS protocol. The second server block redirects all HTTP request to HTTPS request.</p>
+<ol start="9">
+    <li>If your website has dynamic file data. For example, user avatar, user uploaded files, etc. You should not put the dynamic file data into the folder of the website. Instead, put the dynamic file data into another location and then redirect them in the config file as follows:</li>
+</ol>
+<pre class="code" language="yml">location /images/ 
+{
+    root "&lt;path_to_images_folder&gt;"; 
+}</pre>
+<blockquote><a href="https://github.com/Blazor-School/online-shop-blazor-wasm-dotnet6/blob/master/OnlineShop/Deployment%20files/nginx_site_enabled_file_sample" target="_blank" rel="noopener">See the sample file in GitHub</a></blockquote>
+<ol start="10">
+    <li>Whenever you change the setting, you need to reload NGINX to take effect. Back to the terminal console and run <code>sudo systemctl reload nginx</code>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-linux-vps-8.png" alt="set-up-linux-vps-8.png" width="919" height="697" /></p>
+<hr class="my-4" />
+<h1>Speed up Blazor WebAssembly website</h1>
+<p>The following actions can help you to speed up the website you are hosting:</p>
+<ul>
+    <li>Redirect HTTP to HTTPS. Make sure you also have an SSL certificate up and running.</li>
+    <li>Check if MIME type is handled correctly.</li>
+    <li>Enable gzip.</li>
+</ul>
+<h3>Redirect HTTP to HTTPS</h3>
+<p>If you follow the tutorial, you need not worry about this. The second block of server in the example redirects all HTTP to HTTPS protocol.</p>
+<h3>Check if MIME type is handled correctly</h3>
+<p>Handle MIME type is just about telling which file extension belongs to which group. For example, any file that ends with <code>.css</code> should be treated as <code>text/css</code>. There are many MIME type out there, and they need to be recognized differently. You can see the full list of MIME type in <a href="https://www.iana.org/assignments/media-types/media-types.xhtml" target="_blank" rel="noopener">IANA Media Types</a>.</p>
+<p>To check if all of your file is handled correctly, open the <strong>/etc/nginx/mime.types</strong> file in the VPS server. If the MIME type you are using is not there, you need to add it and reload the NGINX server.</p>
+<h3>Enable gzip</h3>
+<p>Enabling gzip will help your website loads faster. Your website loads faster when it is lighter. When you are enabling gzip, NGINX will use some CPU to compress your website, then send it over to the browser. The browser then uncompress your website and display it accordingly. Because the process of compressing and uncompressing are cheaper than the transportation cost, so it will increase the website loading speed.</p>
+<p>Gzip is also a razor blade, you can hurt yourself if you don't know what you are doing. To effectively gzip your website, you need to monitor and determine when to compress and when is not to. Gzip is enabled by default NGINX settings, you can find the setting in <strong>/etc/nginxnginx.conf</strong>. Look for the <code># Gzip Settings</code>. To turn on advanced settings, you need to uncomment all other settings. Your Gzip settings should look like:</p>
+<pre class="code" language="yml">gzip on;
+gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_buffers 16 8k;
+gzip_http_version 1.1;
+gzip_types
+    text/plain
+    text/css
+    application/json
+    application/javascript
+    text/xml
+    application/xml
+    application/xml+rss
+    text/javascript;</pre>
+<p>The <code>gzip_types</code> is the list of MIME types which will be compressed to smaller size, you can add some more to this list.</p>
+<p>The <code>gzip_comp_level</code> is the level of compressing, ranging from 1 to 9 which 1 is least compressed and 9 is the most compressed. Higher compressing level compensate your CPU usage, and sometimes it becomes bigger than the original.</p>
+<p>Some files, as mentioned above, after being compressed it becomes bigger. You need to add <code>gzip_min_length X</code> to tell NGINX not to compress if the size is less than <code>X</code>. There is no ideal number for this setting, you must monitor your website and give the decision.</p>
+<p>To see the effectiveness and ineffectiveness of the gzip, open your website, turn on the <strong>Web Developer Tools</strong> by pressing <strong>F12</strong>. Open the <strong>Network</strong> tab, check the <strong>Disable Cache</strong> option and reload the website:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\speed-up-blazor-webassembly-1.png" alt="speed-up-blazor-webassembly-1.png" width="953" height="499" /></p>
+<p>If the size before compressing is larger than the size after compressed, then you should compress the file. Otherwise, don't compress (either remove the <code>gzip_types</code> or increase the <code>gzip_min_length X</code>).</p>
+<hr class="my-4" />
+<h1>Setup GitHub action</h1>
+<p>Up until this point, you have a healthy website up and running. The next step is to set up a deployment pipeline, so you don't have to manually deploy whenever the website updates. GitHub is a good way to set up the deployment pipeline.</p>
+<ol>
+    <li>In the GitHub repository, navigate to <strong>Settings &gt; Secrets &gt; Actions</strong>. Click the <strong>New repository secret</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-github-action-1.png" alt="set-up-github-action-1.png" width="1000" height="688" /></p>
+<ol start="2">
+    <li>Create 3 secret keys for Host address, username, and password to logging your VPS machine.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-github-action-2.png" alt="set-up-github-action-2.png" width="804" height="452" /></p>
+<ol start="3">
+    <li>Switch to <strong>Action</strong> tab, and click on the <strong>New workflow</strong> button.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-github-action-3.png" alt="set-up-github-action-3.png" width="700" height="107" /></p>
+<ol start="4">
+    <li>Search for <strong>ASP.NET</strong> workflow and select <strong>.NET</strong> by <strong>GitHub Actions</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\linux-vps-hosting-with-deployment-pipeline-239189\set-up-github-action-4.png" alt="set-up-github-action-4.png" width="969" height="411" /></p>
+<ol start="5">
+    <li>Update the yml file. This is an example file:</li>
+</ol>
+<pre class="code" language="yml">name: Deploy to VPS
+on:
+  push:
+    branches:
+    - master
+env:
+  CONFIGURATION: Release
+  DOTNET_CORE_VERSION: 6.x.x
+  GITHUB_OUTPUT_DIRECTORY: blazorschool.&lt;your_website&gt;
+  VPS_WEB_DIRECTORY: /home/blazor school.&lt;your_website&gt;
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Restore web
+      run: dotnet restore
+    - name: Build web
+      run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Test web
+      run: dotnet test --no-build
+    - name: Publish web
+      run: dotnet publish --configuration ${{ env.CONFIGURATION }} --output &quot;${{ env.GITHUB_OUTPUT_DIRECTORY }}&quot;
+
+    - name: Copy web via ssh
+      uses: garygrossgarten/github-action-scp@master
+      with:
+        local: ${{ env.GITHUB_OUTPUT_DIRECTORY }}
+        remote: ${{ env.VPS_WEB_DIRECTORY }}
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}</pre>
+<p>From the example, you need to change <code>GITHUB_OUTPUT_DIRECTORY</code>, <code>VPS_WEB_DIRECTORY</code> to your folder. The <code>GITHUB_OUTPUT_DIRECTORY</code> can be anything, but the <code>VPS_WEB_DIRECTORY</code> needs to be existed before running this workflow.</p>
+<p>The <code>on</code> key: decide when to deploy the website. In this example, it is deployed whenever a push on master branch.</p>
+<p>You need to update the secret keys in the <code>Copy web via ssh</code> job as well.</p>
+<hr class="my-4" />
+<h1>Common mistakes</h1>
+<p>In this section, we have collected some common mistakes from the Blazor School Discord Community.</p>
+<h3>Mistake #1: Let NGINX handles errors like 404, etc.</h3>
+<p>You should let Blazor handles all the errors. Otherwise, you will have an unprofessional error page, not to mention that your code to handle errors will never show up. This is an example of letting NGINX handles errors:</p>
+<pre class="code" language="yml">// DON'T DO THIS
+location / 
+{ 
+    try_files $uri $uri/ /index.html =404; 
+}</pre>
+<h3>Mistake #2: Not serving <code>index.html</code> as backup</h3>
+<p>If you make this mistake, your website is not accessible through sub URL and can only access by homepage. For example, when you access your website via <strong>https://208.115.245.90/product-list</strong> you will get an 404 error. This is an example of not serving <code>index.html</code> as backup.</p>
+<pre class="code" language="yml">// DON'T DO THIS
+location / 
+{ 
+    try_files /index.html; 
+}</pre>
+<h3>Mistake #3: Files are case-sensitive</h3>
+<p>By default, NGINX searches the files with case-sensitive enabled. For example, you are trying to access a picture from your website, the picture file name is <strong>wwwroot/Logo.png</strong>, and you type <strong>&lt;your_website&gt;.com/logo.png;</strong> You will get an 404 error because there is not a file name <strong>wwwroot/logo.png</strong>.</p>
+<h3>Mistake #4: Putting dynamic files (user avatar, user uploaded files) inside the <strong>wwwroot</strong> folder</h3>
+<p>The <strong>wwwroot</strong> folder should contain static files only. It will make it easy when you want to deploy more website server. The backup process will be easier to maintain.</p>

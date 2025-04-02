@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Event Handling",
+    "Slug": "event-handling",
+    "Description": "Handle DOM events and create custom Blazor events."
+}

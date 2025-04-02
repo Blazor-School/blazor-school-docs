@@ -1,0 +1,95 @@
+<h1>CSS Style Overview</h1>
+<p>In Blazor Server there are 2 types of CSS style.</p>
+<ol>
+    <li>Isolated CSS.</li>
+    <li>Shared CSS.</li>
+</ol>
+<p>Isolated CSS means the CSS styles are encapsulated into the component and don't affect the rest of the application whereas the shared CSS means the CSS styles can be used anywhere. You can have a mix of two types in a component.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-overview-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Isolated CSS</h1>
+<p>Blazor Server isolates CSS by component, meaning that each component has an isolated CSS file. To create the isolated CSS file, you put the CSS file in the same folder as the component file and have the same name as the component. For example, you put <code>CSSIsolation.razor</code> component in <code>Pages</code> folder, then your CSS file should also in the <code>Pages</code> folder and named <code>CSSIsolation.razor.css</code>. You can look that up in our example at the top of the page.</p>
+<h3>Inspecting generated CSS</h3>
+<p>When Blazor Server isolates CSS, Blazor Server preprocesses all components styles so that they approximate the standard CSS scoping rules.</p>
+<p>In the DOM of a running Blazor Server website with isolated CSS, each DOM element has an extra attribute attached to it:</p>
+<pre class="code" language="html">&lt;h3 class="header" b-k6vc8v4166=""&gt;I am style isolated&lt;/h3&gt;</pre>
+<p>You can see the attribute <code>b-k6vc8v4166=""</code> is generated in the HTML tag. The exact values of these attributes are not important, they are automatically generated and you should never refer to them in the website code. But they are targeted by the generated component styles, which are included in the <code>&lt;head&gt;</code> section of the <code>_Host.cshtml</code>.</p>
+<pre class="code" language="css">.header[b-k6vc8v4166]
+{
+    color: #7b3cc3;
+}</pre>
+<p>In the <code>_Host.cshtml</code> you will see a <code>&lt;link&gt;</code> tag that is automatically added when you create a new project. That CSS file will contain all the isolated CSS styles of all components on your website.</p>
+<pre class="code" language="html">&lt;link href="&lt;Root-Namespace&gt;.styles.css" rel="stylesheet" /&gt;</pre>
+<h3>Overriding isolated CSS</h3>
+<p>Isolating CSS does not mean that you must not override it, but to prevent isolated CSS from being overrided by unintended CSS rules. You can override an isolated CSS by using <code>::deep</code>. In order to use <code>::deep</code> keyword, you must create a wrapper component with another isolated CSS file. In our example, we put the <code>CSSIsolation.razor</code> component inside <code>OverrideCSSIsolation.razor</code> component with the follow HTML template.</p>
+<pre class="code" language="razor">&lt;div class="override"&gt;
+    I will be overrided
+    &lt;CSSIsolation&gt;&lt;/CSSIsolation&gt;
+&lt;/div&gt;
+&lt;div&gt;
+    I will not be overrided
+    &lt;CSSIsolation&gt;&lt;/CSSIsolation&gt;
+&lt;/div&gt;</pre>
+<p>And the <code>OverrideCSSIsolation.razor.css</code>.</p>
+<pre class="code" language="css">.override ::deep .header
+{
+    color: #c22213;
+}</pre>
+<p>The first <code>CSSIsolation</code> component will be overrided and the second <code>CSSIsolation</code> component won't be overrided because the <code>OverrideCSSIsolation.razor.css</code> only specify that only component inside the <code>.override</code> class will be overrided.</p>
+<p><img class="img-fluid" src="/tutorials/legacy-contents/blazor-server/dotnet5/css-style-642406/b82222ae-257a-49bf-b8ff-5dc5cbe0f42d..png" alt="" width="266" height="136" /></p>
+<p>The example not only demonstrates how to override a component's isolated style but also demonstrates how to override only when needed.</p>
+<blockquote>The <code>::deep</code> keyword only works when you put it in an isolated CSS file.</blockquote>
+<hr class="my-4" />
+<h1>Shared CSS</h1>
+<p>There are 3 ways to share the CSS styles across the website.</p>
+<ol>
+    <li>Embedded CSS styles.</li>
+    <li>Reference to an external CSS file.</li>
+    <li>Using pre-built <code>site.css</code> file.</li>
+</ol>
+<h3>Embedded CSS styles</h3>
+<p>This type of CSS means you will have a <code>&lt;style&gt;</code> tag inside your component's HTML template. Refer to <code>EmbeddedCSS.razor</code> in our example.</p>
+<pre class="code" language="razor">&lt;h3 class="embedded-style"&gt;I contains embedded CSS.&lt;/h3&gt;
+&lt;style&gt;
+    .embedded-style
+    {
+        color: orange;
+    }
+
+    .embedded-style:after
+    {
+        content: ' I am embedded from EmbeddedCSS.razor';
+        color: red;
+    }
+&lt;/style&gt;</pre>
+<h3>Reference to an external CSS file</h3>
+<p>This type of CSS means you will have a <code>&lt;link&gt;</code> tag inside your component's HTML template. Refer to <code>external.css</code> and <code>ExternalCSS.razor</code> in our example.</p>
+<p><code>external.css</code></p>
+<pre class="code" language="css">.external-style
+{
+    color: maroon;
+}
+
+.external-style:after
+{
+    content: ' I am an external style in external.css file';
+    color: red;
+}</pre>
+<p><code>ExternalCSS.razor</code></p>
+<pre class="code" language="html">&lt;link href="/css/external.css" rel="stylesheet" /&gt;
+&lt;h3 class="external-style"&gt;I refer to external CSS file.&lt;/h3&gt;</pre>
+<h3>Use global styles</h3>
+<p>This type of CSS means you will declare your styles on the <code>site.css</code>. Refer to <code>site.css</code> and <code>SharedCSS.razor</code> in our example.</p>
+<p><code>site.css</code></p>
+<pre class="code" language="css">.global
+{
+    color: #7b3cc3;
+}
+
+.global:after
+{
+    content: ' I am a global style from site.css';
+    color: red;
+}</pre>
+<p><code>SharedCSS.razor</code></p>
+<pre class="code" language="html">&lt;div class=&quot;global&quot;&gt;Global CSS influence this div.&lt;/div&gt;</pre>

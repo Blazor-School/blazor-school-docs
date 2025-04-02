@@ -1,0 +1,333 @@
+﻿<h1>Linux VPS hosting with deployment pipeline</h1>
+<p>🟥 Not applicable to Blazor WebAssembly</p>
+<p>Using a Linux VPS is an effective and cost-efficient way to host a live website, although it may seem complicated at first. In this tutorial, we will guide you through the following steps:</p>
+<ul>
+    <li>Required tools</li>
+    <li>Publishing a Blazor Server website</li>
+    <li>Setting up a Linux VPS</li>
+    <li>Speeding up your Blazor Server website</li>
+    <li>Configuring a GitHub action</li>
+    <li>Common mistakes</li>
+</ul>
+<p>We would like to extend our gratitude to Grimston#0001, a Discord user from <a href="https://npipes.net/aff.php?aff=4" target="_blank" rel="noopener" title="NPipes">NPipes</a> who sponsored a VPS machine for creating this tutorial. You too can contribute to the community.</p>
+<hr class="my-4" />
+<h1>Required tools</h1>
+<p>In order to manage your Linux VPS, you will need two tools: one for executing commands and one for transferring files between your computer and the VPS machine. We recommend using Bitvise SSH Client, which is an all-in-one tool for these tasks.</p>
+<hr class="my-4" />
+<h1>Publishing a Blazor Server website</h1>
+<p>Before deploying your website to a Linux VPS, you will need to publish it to a folder. This will allow us to make the website functional and then set up a GitHub action for automated deployment later. To publish your website to a folder, follow these steps:</p>
+<ol>
+    <li>Right-click on your Blazor Server project and select <strong>Publish...</strong></li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\publishing-blazor-server-1.png" alt="publishing-blazor-server-1.png" width="388" height="218" /></p>
+<ol start="2">
+    <li>In the next step, select <strong>Folder</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\publishing-blazor-server-2.png" alt="publishing-blazor-server-2.png" width="800" height="561" /></p>
+<ol start="3">
+    <li>Choose the folder location where you want to publish the website.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\publishing-blazor-server-3.png" alt="publishing-blazor-server-3.png" width="800" height="561" /></p>
+<ol start="4">
+    <li>To view publishing options, click on <strong>Show all settings</strong>. In the next section, we will discuss these options in more detail.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\publishing-blazor-server-4.png" alt="publishing-blazor-server-4.png" width="800" height="253" /></p>
+<ol start="5">
+    <li>Click <strong>Publish</strong> to start the publishing process.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\publishing-blazor-server-5.png" alt="publishing-blazor-server-5.png" width="800" height="253" /></p>
+<p>Once the website is published to the folder, you can test it out locally to ensure it is working as intended. If any changes are needed, make them and republish the website to the folder until you are satisfied with the results.</p>
+<hr class="my-4" />
+<h1>Compare between deployment modes</h1>
+<p>There are two deployment modes available for Blazor Server, and in addition, there are several publishing options to choose from. For the purposes of this section, we will be using the <a href="https://github.com/Blazor-School/form-demonstrate-blazor-server-dotnet7" target="_blank" rel="noopener">FormDemonstrate</a> project as our benchmark. The table below reflects measurements taken using only the selected deployment mode, without any additional publishing options.</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td></td>
+                <td>Framework-dependent</td>
+                <td>Self-contained</td>
+            </tr>
+            <tr>
+                <td>Does it have a portable option? (Allowing it to be built once and run on any operating system)</td>
+                <td>Yes</td>
+                <td>No</td>
+            </tr>
+            <tr>
+                <td>Size (Can impact deployment speed, but does not affect website loading speed)</td>
+                <td>269 KB (275,557 bytes)</td>
+                <td>86.4 MB (90,657,332 bytes)</td>
+            </tr>
+            <tr>
+                <td>Build time</td>
+                <td>02.745 seconds</td>
+                <td>03.946 seconds</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>The following table provides a comparison between publishing options and the absence of publishing options.</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td>Self-contained</td>
+                <td>Ready to Run</td>
+                <td>Trim unused code</td>
+                <td>Produce single file</td>
+            </tr>
+            <tr>
+                <td>Size</td>
+                <td>86.5 MB (90,737,716 bytes)</td>
+                <td>32.8 MB (34,470,279 bytes)</td>
+                <td>81.8 MB (85,804,094 bytes)</td>
+            </tr>
+            <tr>
+                <td>Build time</td>
+                <td>03.341 seconds</td>
+                <td>33.619 seconds</td>
+                <td>03.454 seconds</td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td>Framework-dependent</td>
+                <td>Ready to Run (not available for Portable build)</td>
+                <td>Trim unused code</td>
+                <td>Produce single file (not available for Portable build)</td>
+            </tr>
+            <tr>
+                <td>Size</td>
+                <td>312 KB (320,151 bytes)</td>
+                <td>Not available</td>
+                <td>234 KB (240,008 bytes)</td>
+            </tr>
+            <tr>
+                <td>Build time</td>
+                <td>02.301 seconds</td>
+                <td>Not available</td>
+                <td>01.998 seconds</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<hr class="my-4" />
+<h1>Setting up a Linux VPS</h1>
+<p>After purchasing a Linux VPS service, you will receive an IP address, username, and password to access the VPS. To connect to the VPS machine, follow these steps using Bitvise SSH Client:</p>
+<ol>
+    <li>Launch Bitvise SSH Client and connect to the VPS machine.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-linux-vps-1.png" alt="set-up-linux-vps-1.png" width="632" height="643" /></p>
+<ol start="2">
+    <li>Click <strong>New terminal console</strong> to open a terminal console.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-linux-vps-2.png" alt="set-up-linux-vps-2.png" width="632" height="643" /></p>
+<ol start="3">
+    <li>Install the .NET runtime by running the following command in the terminal console: <code>sudo apt-get update &amp;&amp; sudo apt-get install -y aspnetcore-runtime-7.0</code>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-linux-vps-3.png" alt="set-up-linux-vps-3.png" width="800" height="607" /></p>
+<ol start="4">
+    <li>Switch back to the Bitvise SSH Client and click <strong>New SFTP window</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-linux-vps-4.png" alt="set-up-linux-vps-4.png" width="632" height="643" /></p>
+<ol start="5">
+    <li>Copy the <strong>wwwroot</strong> folder from the published folder to the VPS machine. We recommend placing it in the directory <code>/home/&lt;your_website&gt;</code>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-linux-vps-5.png" alt="set-up-linux-vps-5.png" width="800" height="320" /></p>
+<ol start="6">
+    <li>Install NGINX by running the following command in the terminal console: <code>sudo apt install nginx</code>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-linux-vps-6.png" alt="set-up-linux-vps-6.png" width="800" height="607" /></p>
+<ol start="7">
+    <li>Set NGINX to start automatically by running the command <code>sudo systemctl enable nginx</code>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-linux-vps-7.png" alt="set-up-linux-vps-7.png" width="800" height="607" /></p>
+<ol start="8">
+    <li>Open the folder <strong>/etc/systemd/system</strong> and create a new file named <strong>YOUR_SERVICE.service</strong>.</li>
+</ol>
+<pre class="code" language="yml">[Unit]
+Description=Blazor School Demonstrate
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/TourOfHeroes
+ExecStart=/usr/bin/dotnet TourOfHeroes.dll --urls=http://localhost:2023/
+Restart=always
+SyslogIdentifier=Tour Of Heroes
+KillMode=process
+StandardOutput=file:/home/log/log.log
+StandardError=file:/home/log/error.log
+
+[Install]
+WantedBy=multi-user.target</pre>
+<p>Note that the <code>WorkingDirectory</code> should be set to the folder location of your website (refer to step 5). Also, the <code>StandardOutput</code> and <code>StandardError</code> parameters indicate the location of your log files on the VPS. Any errors encountered by your website will be stored there.</p>
+<p>Finally, remember to include the <code>--urls</code> parameter at the end of <code>ExecStart</code> to set up NGINX later.</p>
+<ol start="9">
+    <li>To ensure that the service starts automatically, run the command <code>sudo systemctl enable YOUR_SERVICE</code>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-linux-vps-8.png" alt="set-up-linux-vps-8.png" width="595" height="89" /></p>
+<ol start="10">
+    <li>Start the service for the first time with <code>sudo systemctl start YOUR_SERVICE</code>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-linux-vps-9.png" alt="set-up-linux-vps-9.png" width="595" height="89" /></p>
+<ol start="11">
+    <li>In the SFTP window, rename the file <code>/etc/nginx/sites-enabled/default</code> and update its contents.</li>
+</ol>
+<pre class="code" language="yml">map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+	}
+
+server {
+	listen 443 ssl http2;
+	listen [::]:443 ssl http2;
+	server_name _;
+	ssl_certificate &lt;your_path_to_pem_file&gt;;
+        ssl_certificate_key &lt;your_path_to_pem_file&gt;;
+	
+	location / {
+            proxy_pass http://localhost:2023;
+	    proxy_redirect   off;
+	    proxy_set_header Host $host;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection $connection_upgrade;
+        }
+}
+
+server {
+	listen 80;
+	listen [::]:80;
+	server_name _;
+	
+	return 301 https://$host$request_uri;
+}</pre>
+<p>You can obtain <code>ssl_certificate</code>, <code>ssl_certificate_key</code>, and <code>server_name</code> from a service provider such as <a href="https://npipes.net/aff.php?aff=4" target="_blank" rel="noopener" title="NPipes">NPipes</a>.</p>
+<p>For <code>server_name</code>, enter your domain separated by a comma (<code>,</code>). For example: <code>blazorschool.com, mywebsite.blazorschool.com</code>.</p>
+<p>In step 8, the <code>--urls</code> parameter is used as a value for <code>proxy_pass</code>.</p>
+<ol start="12">
+    <li>Whenever you change the configuration settings, reload NGINX to apply the changes. To do this, run the command <code>sudo systemctl reload nginx</code> in the terminal console.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-linux-vps-10.png" alt="set-up-linux-vps-10.png" width="586" height="108" /></p>
+<hr class="my-4" />
+<h1>Speeding up your Blazor Server website</h1>
+<p>Here are some suggestions to speed up your website hosting:</p>
+<ul>
+    <li>Redirect HTTP traffic to HTTPS and ensure that your SSL certificate is properly installed and configured.</li>
+    <li>Verify that MIME types are being handled correctly.</li>
+    <li>Activate gzip compression to reduce the size of your web pages and accelerate their loading time.</li>
+</ul>
+<h3>Redirect HTTP to HTTPS</h3>
+<p>To enable HTTP to HTTPS redirection, simply follow the tutorial provided. In the example, the second server block performs the redirection automatically, so there's no need to worry about it.</p>
+<h3>Verify that MIME types are being handled correctly</h3>
+<p>Handling MIME types is a matter of assigning file extensions to their respective categories. For instance, files ending with <strong>.css</strong> should be identified as <code>text/css</code>. Since there are numerous MIME types available, they must be recognized accurately. A comprehensive list of MIME types is available on <a href="https://www.iana.org/assignments/media-types/media-types.xhtml" target="_blank" rel="noopener" title="IANA Media Types">IANA Media Types</a>.</p>
+<p>To ensure that all of your files are being processed appropriately, navigate to the <strong>/etc/nginx/mime.types</strong> file on your VPS server. If a particular MIME type is not listed, you must add it manually and reload the NGINX server.</p>
+<h3>Activate gzip compression</h3>
+<p>Enabling gzip compression can significantly improve your website's loading speed by reducing its weight. When you activate gzip, NGINX uses some CPU power to compress your website before sending it to the browser. The browser then decompresses the website for display. Since compressing and decompressing are less expensive than transportation costs, this technique can boost loading speed.</p>
+<p>However, gzip can be tricky to use if you are unfamiliar with it. To apply it correctly, you must determine when to compress and when not to. Gzip is already enabled in NGINX by default settings. You can find these settings in /etc/nginx/nginx.conf by looking for the # Gzip Settings. To activate advanced settings, uncomment all other settings. Your Gzip settings should resemble the following:</p>
+<pre class="code" language="yml">gzip on;
+gzip_vary on;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_buffers 16 8k;
+gzip_http_version 1.1;
+gzip_types
+    text/plain
+    text/css
+    application/json
+    application/javascript
+    text/xml
+    application/xml
+    application/xml+rss
+    text/javascript;</pre>
+<p>The <code>gzip_types</code> list specifies which MIME types to compress for a smaller size, and you can add more to it.</p>
+<p>The <code>gzip_comp_level</code> determines the level of compression, ranging from 1 to 9, with 1 being the least compressed and 9 being the most compressed. Higher compression levels compensate for more CPU usage, but sometimes the output size can be bigger than the original.</p>
+<p>As mentioned earlier, some files may become larger after being compressed. You can add <code>gzip_min_length X</code> to tell NGINX not to compress files smaller than <code>X</code>. There is no ideal number for this setting, so you must monitor your website and make informed decisions.</p>
+<p>To see gzip's effectiveness, open your website, turn on the <strong>Web Developer Tools</strong> by pressing <strong>F12</strong>, and open the <strong>Network</strong> tab. Check the <strong>Disable Cache</strong> option and reload the website.</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\speed-up-blazor.png" alt="speed-up-blazor.png" width="800" height="419" /></p>
+<p>If the size before compression is larger than the size after compression, then you should compress the file. Otherwise, you should not compress it (either remove the <code>gzip_types</code> or increase the <code>gzip_min_length X</code>).</p>
+<hr class="my-4" />
+<h1>Configuring a GitHub action</h1>
+<p>Congratulations on having a healthy website up and running! To simplify the process of deploying website updates, the next step is to set up a deployment pipeline. GitHub is a great tool to help you do this.</p>
+<p>To get started, follow these steps:</p>
+<ol>
+    <li>In your GitHub repository, go to <strong>Settings &gt; Secrets &gt; Actions</strong> and click <strong>New repository secret</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-github-action-1.png" alt="set-up-github-action-1.png" width="800" height="550" /></p>
+<ol start="2">
+    <li>Create 3 secret keys for the host address, username, and password to log into your VPS machine.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-github-action-2.png" alt="set-up-github-action-2.png" width="800" height="450" /></p>
+<ol start="3">
+    <li>Switch to the <strong>Actions</strong> tab and click <strong>New workflow</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-github-action-3.png" alt="set-up-github-action-3.png" width="700" height="107" /></p>
+<ol start="4">
+    <li>Search for the <strong>ASP.NET</strong> workflow and select <strong>.NET</strong> by <strong>GitHub Actions</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\set-up-github-action-4.png" alt="set-up-github-action-4.png" width="800" height="339" /></p>
+<ol start="5">
+    <li>Update the YAML file with your information. Here's an example file:</li>
+</ol>
+<pre class="code" language="yml">name: Deploy to VPS
+on:
+  push:
+    branches:
+    - master
+env:
+  CONFIGURATION: Release
+  DOTNET_CORE_VERSION: 7.x.x
+  WORKING_DIRECTORY: &lt;your_project_name&gt;
+  WORKING_OUTPUT_DIRECTORY: deploy
+  VPS_WEB_DIRECTORY: &lt;your_folder_location_in_vps&gt;
+  VPS_SERVICE_NAME: &lt;your_service&gt;
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Restore web
+      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
+    - name: Build web
+      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
+    - name: Test web
+      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
+    - name: Publish web
+      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.WORKING_OUTPUT_DIRECTORY }}"
+
+    - name: Copy web via ssh
+      uses: garygrossgarten/github-action-scp@master
+      with:
+        local: ${{ env.WORKING_OUTPUT_DIRECTORY }}
+        remote: ${{ env.VPS_WEB_DIRECTORY }}
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}
+
+    - name: Restart service
+      uses: garygrossgarten/github-action-ssh@master
+      with:
+        host: ${{ secrets.HOST }}
+        command: |
+                systemctl daemon-reload
+                systemctl restart ${{ env.VPS_SERVICE_NAME}}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWORD }}</pre>
+<p>When using the example provided, make sure to update the following variables to reflect your own folder names: <code>GITHUB_OUTPUT_DIRECTORY</code> and <code>VPS_WEB_DIRECTORY</code>. The <code>GITHUB_OUTPUT_DIRECTORY</code> can be any valid directory name, but <code>VPS_WEB_DIRECTORY</code> must already exist before running this workflow. Also, change <code>VPS_SERVICE_NAME</code> to match the name of your service on the VPS.</p>
+<p>The <code>on</code> key determines when the website will be deployed. In this example, it will be deployed whenever a push is made to the master branch.</p>
+<p>Additionally, remember to update the secret keys in the <code>Copy web via ssh</code> job as well.</p>
+<hr class="my-4" />
+<h1>Common mistakes</h1>
+<p>In this section, we have compiled a list of common mistakes reported by the Blazor School Discord Community.</p>
+<h3>Mistake #1: Deploying to the wrong folder.</h3>
+<p>When publishing your project, you will see two folders: <strong>bin\Release\net7.0\</strong> and <strong>bin\Release\net7.0\publish</strong>. It is important to note that you should never use <strong>bin\Release\net7.0\</strong> to deploy. Instead, use <strong>bin\Release\net7.0\publish</strong>.</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\linux-vps-hosting-with-deployment-pipeline-646156\common-mistake-1.png" alt="common-mistake-1.png" width="800" height="371" /></p>
+<p>If you deploy to <strong>bin\Release\net7.0</strong>, some files will not be served because there is no <strong>wwwroot</strong> folder in that directory.</p>
+<h3>Mistake #2: Case sensitivity with files</h3>
+<p>By default, NGINX is case-sensitive when searching for files. So if you're trying to access a file named <strong>wwwroot/Logo.png</strong> but you type <strong>&lt;your_website&gt;.com/logo.png</strong>, you'll get a 404 error because the file name should be <strong>wwwroot/Logo.png</strong>.</p>

@@ -1,0 +1,263 @@
+<h1>API Interaction</h1>
+<p>API interaction is an important technique that you must know in Blazor WebAssembly. API interaction is about sending request and process response from the API server. In this tutorial, you will discover:</p>
+<ul>
+    <li>Why do you need to register the <code>HttpClient</code>?</li>
+    <li>Register <code>HttpClient</code> for a single API.</li>
+    <li>Register <code>HttpClient</code> for multiple APIs.</li>
+    <li>Interfere <code>HttpClient</code>.</li>
+    <li>Send request and process response.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/api-interaction-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Why do you need to register the <code>HttpClient</code>?</h1>
+<p>You will make http requests to API server by using <code>HttpClient</code>. You need to register the <code>HttpClient</code> first. Depend on how many APIs in your website, you will need to register them differently. The <code>BaseAddress</code> in the <code>HttpClient</code> is the address of your API and you must specify this value in order to make <code>HttpClient</code> to work.</p>
+<hr class="my-4" />
+<h1>Register <code>HttpClient</code> for a single API</h1>
+<p>When your website has only one API, you can add <code>HttpClient</code> as a scoped service at <code>Program.cs</code>. Assuming your API endpoint is <strong>http://localhost:5165</strong>, you can register as follows:</p>
+<pre class="code" language="csharp">builder.Services.AddScoped(sp =&gt; new HttpClient { BaseAddress = new("http://localhost:5165") });</pre>
+<p>Then you can inject the <code>HttpClient</code> to any razor component to make a request. For example:</p>
+<pre class="code" language="razor">@inject HttpClient HttpClient</pre>
+<hr class="my-4" />
+<h1>Register <code>HttpClient</code> for multiple APIs</h1>
+<p>When your website has multiple APIs, you can register <code>HttpClient</code> in many ways. Assuming your API endpoints are <strong>http://localhost:5165</strong> and <strong>http://localhost:5276</strong>.</p>
+<h3><code>HttpClient</code> derived class</h3>
+<p>A derived class is a class that extends the <code>HttpClient</code> class. You can also override methods of the <code>HttpClient</code> with this technique.</p>
+<ol>
+    <li>Create a new class that extends the <code>HttpClient</code> class, set the <code>BaseAddress</code> property in the constructor. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class CustomHttpClient : HttpClient
+{
+    public CustomHttpClient()
+    {
+        BaseAddress = new("http://localhost:5165");
+    }
+}</pre>
+<ol start="2">
+    <li>Register the class as a scoped service in <code>Program.cs</code>. For example:</li>
+</ol>
+<pre class="code" language="razor">builder.Services.AddScoped&lt;CustomHttpClient&gt;();</pre>
+<p>Whenever you need to make a request, you need to inject it as with the single API approach. For example:</p>
+<pre class="code" language="razor">@inject CustomHttpClient CustomHttpClient</pre>
+<h3>Named <code>HttpClient</code></h3>
+<p>You name your API differently, then use the <code>IHttpClientFactory</code> and create the <code>HttpClient</code> by its name. This technique does not allow you to override methods of the <code>HttpClient</code>. Register your <code>HttpClient</code> instances at <code>Program.cs</code>. You must provide a name for each instance. For example:</p>
+<pre class="code" language="csharp">builder.Services.AddHttpClient("First API", httpClient =&gt; httpClient.BaseAddress = new("http://localhost:5165"));
+builder.Services.AddHttpClient("Second API", httpClient =&gt; httpClient.BaseAddress = new("http://localhost:5276"));</pre>
+<p>Whenever you need to make a request, you need to inject the <code>IHttpClientFactory</code> and create the <code>HttpClient</code> by its name. For example:</p>
+<pre class="code" language="razor">@inject IHttpClientFactory HttpClientFactory
+
+...
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = HttpClientFactory.CreateClient("First API");
+        ...
+    }
+}</pre>
+<h3><code>HttpClient</code> wrapper</h3>
+<p>A wrapper is a class that takes <code>HttpClient</code> from the service provider, then hiding all the methods of <code>HttpClient</code>. The wrapper class then expose its own methods for other classes.</p>
+<ol>
+    <li>Create a wrapper class with injected <code>HttpClient</code>. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class SecondApiHttpClientWrapper
+{
+    private readonly HttpClient _httpClient;
+
+    public SecondApiHttpClientWrapper(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+}</pre>
+<ol start="2">
+    <li>Register the wrapper class at <code>Program.cs</code>. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddHttpClient&lt;SecondApiHttpClientWrapper&gt;(httpClient =&gt; httpClient.BaseAddress = new("http://localhost:5276"));</pre>
+<p>Whenever you need to make a request, you can inject the wrapper class and use the exposed method of the wrapper class to make the request. For example:</p>
+<pre class="code" language="razor">@inject SecondApiHttpClientWrapper SecondApiHttpClientWrapper</pre>
+<hr class="my-4" />
+<h1>Interfere <code>HttpClient</code></h1>
+<p>Some APIs are protected by JWT, some require additional request header, sometimes you need to interact with the loading indicator whenever a request goes and a response comes. This is why you need to interfere the <code>HttpClient</code>. There are many ways to interfere the <code>HttpClient</code>:</p>
+<ul>
+    <li><code>HttpClient</code> middleware.</li>
+    <li><code>HttpClient</code> wrapper.</li>
+    <li><code>HttpClient</code> extension.</li>
+</ul>
+<h3><code>HttpClient</code> middleware</h3>
+<p>This technique is build on the chain of responsibility pattern. You will have many middlewares, a request is processed by the first middleware in the chain to the last middleware in the chain, then a response is processed by the last middleware in the chain to the first middleware in the chain. The following image illustrates this pattern:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\api-interaction-363409\httpclient-middleware-chain.png" alt="httpclient-middleware-chain.png" width="1000" height="1025" /></p>
+<ol>
+    <li>Create a middleware class. The middleware class must extend the class <code>DelegatingHandler</code>. The class must override at least one method in <code>Send</code> or <code>SendAsync</code>. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class FirstMiddleware : DelegatingHandler
+{
+    protected override async Task&lt;HttpResponseMessage&gt; SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        // Interfering code before sending the request
+        var response = await base.SendAsync(request, cancellationToken);
+        // Interfering code after sending the request
+
+        return response;
+    }
+}</pre>
+<blockquote>You must call the <code>base.Send()</code> or <code>base.SendAsync()</code> when you are overriding the method <code>Send</code> or <code>SendAsync</code> respectively. If you don't, the chain is broken and the next middleware will not be called.</blockquote>
+<ol start="2">
+    <li>Register all the middlewares are transient services at <code>Program.cs</code>. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddTransient&lt;FirstMiddleware&gt;();
+builder.Services.AddTransient&lt;SecondMiddleware&gt;();</pre>
+<ol start="3">
+    <li>Register the <code>HttpClient</code> by named <code>HttpClient</code> or <code>HttpClient</code> wrapper technique, then add the chain in your desired sequence. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddHttpClient("HttpClient with Middlewares", httpClient =&gt; httpClient.BaseAddress = new("http://localhost:5276"))
+       .AddHttpMessageHandler&lt;FirstMiddleware&gt;()
+       .AddHttpMessageHandler&lt;SecondMiddleware&gt;();
+
+builder.Services.AddHttpClient&lt;SecondApiHttpClientWrapper&gt;(httpClient =&gt; httpClient.BaseAddress = new("http://localhost:5276"))
+       .AddHttpMessageHandler&lt;FirstMiddleware&gt;()
+       .AddHttpMessageHandler&lt;SecondMiddleware&gt;();</pre>
+<h3><code>HttpClient</code> wrapper</h3>
+<p>This technique provides you a centralized interfering code.</p>
+<ol>
+    <li>Create the wrapper class. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class InterfereByHttpClientWrapper
+{
+    private readonly HttpClient _httpClient;
+
+    public InterfereByHttpClientWrapper(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+}</pre>
+<ol start="2">
+    <li>Expose a method to send the request. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class InterfereByHttpClientWrapper
+{
+    ...
+    public async Task&lt;T?&gt; GetAsync&lt;T&gt;(string requestUrl)
+    {
+        // Interfering code before sending the request
+        var response = await _httpClient.GetFromJsonAsync&lt;T&gt;(requestUrl);
+        // Interfering code after sending the request
+
+        return response;
+    }
+}</pre>
+<h3><code>HttpClient</code> extension</h3>
+<p>This technique provides you a centralized interfering code.</p>
+<p>Create the extension class. Create a method to send request with the first parameter is <code>this HttpClient httpClient</code>. For example:</p>
+<pre class="code" language="csharp">public static class HttpClientExtension
+{
+    public static async Task&lt;T?&gt; GetResponse&lt;T&gt;(this HttpClient httpClient, string url)
+    {
+        // Interfering code before sending the request
+        var result = await httpClient.GetFromJsonAsync&lt;T&gt;(url);
+        // Interfering code after sending the request
+
+        return result;
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Send request and process response</h1>
+<p>There are many HTTP methods, you can find out more at <a href="https://www.w3schools.com/tags/ref_httpmethods.asp" target="_blank" rel="noopener" title="W3 School">https://www.w3schools.com/tags/ref_httpmethods.asp</a>.</p>
+<h3>Sending data via URL</h3>
+<p>You can put some data in the URL and send it to the API. This commonly used in API with GET method. The data in the URL should be primitive data type and short. For a big data, do not send it via URL. You can use <code>HttpClient</code> to send data via URL as follows:</p>
+<pre class="code" language="csharp">await httpClient.GetAsync($"example/ProcessPrimitiveUrlData?data=Blazor School");</pre>
+<h3>Sending primitive data in the request body</h3>
+<p>For HTTP methods other than GET, you need to put the data in the request body instead of the URL. You can send primitive data in the request body as follows:</p>
+<pre class="code" language="csharp">await httpClient.PostAsync("example/ProcessPrimitiveData", new StringContent("\"Blazor School\"", Encoding.UTF8, "application/json"));</pre>
+<h3>Sending complex data in the request body</h3>
+<p>Similar to sending primitive data in the request body, this technique is used for HTTP methods other than GET. You need to serialize your object to JSON then send the JSON to the API. There are a few methods in the <code>System.Net.Http.Json</code> that helps you to do that. For example:</p>
+<pre class="code" language="csharp">var data = new ExampleClass()
+{
+    ExampleString = "Blazor School"
+};
+await httpClient.PostAsJsonAsync&lt;ExampleClass&gt;("example/ProcessComplexData", data);</pre>
+<p>The <code>PostAsJsonAsync</code> will serialize your object to JSON and then send it to the API with POST method. You can also use the similar methods for other HTTP methods.</p>
+<h3>Sending stream data in the request body</h3>
+<p>A stream is a sequence of bytes. The bytes can be a file content, a video, etc... Most case stream is used to upload a file to the API. Here is an example code to upload a file in Blazor WebAssembly:</p>
+<pre class="code" language="razor">using var formDataContent = new MultipartFormDataContent();
+using var stream = ExampleFile.OpenReadStream(long.MaxValue);
+using var streamContent = new StreamContent(stream);
+streamContent.Headers.ContentType = new(ExampleFile.ContentType);
+formDataContent.Add(streamContent, "FileStream", ExampleFile.Name);
+var message = await httpClient.PostAsync("example/ProcessStreamdata", formDataContent);</pre>
+<p>In the above example, the <code>ExampleFile</code> is the object of <code>IBrowserFile</code> type. You can also add more files to the <code>formDataContent</code> in the example.</p>
+<h3>Process primitive data in the response</h3>
+<p>After sending a request to the API, the API will process the request then return the response to your <code>HttpClient</code>. Sometimes, the response has the data, sometimes it doesn't. When the response has data, you can process the data as follows:</p>
+<pre class="code" language="csharp">var response = await httpClient.GetAsync("example/ReturnPrimitiveData");
+
+if(response.IsSuccessStatusCode)
+{
+    DataReceived = await response.Content.ReadAsStringAsync();
+}
+else
+{
+    DataReceived = "Failed";
+}</pre>
+<h3>Automatically deserialize response data to object using Microsoft library</h3>
+<p>When your API returns a JSON, you can use the Microsoft library <code>System.Net.Http.Json</code> to automatically deserialize the JSON to a C# object. This library will use <code>System.Text.Json</code> underlying to deserialize the JSON. Http For example:</p>
+<pre class="code" language="razor">@inject IHttpClientFactory HttpClientFactory
+
+&lt;div&gt;Data Received: @ExampleInstance.ExampleString&lt;/div&gt;
+
+@code {
+    public ExampleClass ExampleInstance { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = HttpClientFactory.CreateClient("Second API");
+        ExampleInstance = await httpClient.GetFromJsonAsync&lt;ExampleClass&gt;("example/ReturnComplexData") ?? new();
+    }
+}</pre>
+<h3>Deserialize response data to object using Newtonsoft library</h3>
+<p>Newtonsoft is a famous JSON process library with awesome features that <code>System.Text.Json</code> doesn't have. You can also use the Newtonsoft to deserialize the JSON to a C# object as follows:</p>
+<pre class="code" language="razor">@using Newtonsoft.Json
+@inject IHttpClientFactory HttpClientFactory
+
+&lt;div&gt;Data Received: @ExampleInstance.ExampleString&lt;/div&gt;
+
+@code {
+    public ExampleClass ExampleInstance { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = HttpClientFactory.CreateClient("Second API");
+        var response = await httpClient.GetAsync("example/ReturnComplexData");
+
+        if(response.IsSuccessStatusCode)
+        {
+            string responseContent = await response.Content.ReadAsStringAsync();
+            ExampleInstance = JsonConvert.DeserializeObject&lt;ExampleClass&gt;(responseContent) ?? new();
+        }
+    }
+}</pre>
+<p>You can improve this technique to not repeat the same code over again by using one of the technique in <strong>Interfere HttpClient</strong> section.</p>
+<h3>Process stream data in the response</h3>
+<p>Some APIs will return a stream, you can also process the stream by the method <code>ReadAsStreamAsync()</code>. The following example code will process an image file stream.</p>
+<pre class="code" language="razor">@inject IHttpClientFactory HttpClientFactory
+
+&lt;img src="@ImageSrc"/&gt;
+
+@code {
+    public string ImageSrc { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = HttpClientFactory.CreateClient("Second API");
+        var response = await httpClient.GetAsync("example/ReturnStreamData");
+
+        if(response.IsSuccessStatusCode)
+        {
+            using var stream = await response.Content.ReadAsStreamAsync();
+            byte[] buffer = new byte[stream.Length];
+            await stream.ReadAsync(buffer, 0, (int)stream.Length);
+            string base64 = Convert.ToBase64String(buffer);
+            ImageSrc = $"data:image/png;base64,{base64}";
+        }
+
+        StateHasChanged();
+    }
+}</pre>
+<blockquote>You need to process the stream according to its type. It's not always an image file stream as in the example.</blockquote>

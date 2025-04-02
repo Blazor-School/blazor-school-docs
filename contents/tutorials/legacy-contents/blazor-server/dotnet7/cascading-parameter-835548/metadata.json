@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Cascading Parameter",
+    "Slug": "cascading-parameter-835548",
+    "Description": "Learn how to share data from an ancestor component to their descendants without the need for explicit props or state management."
+}

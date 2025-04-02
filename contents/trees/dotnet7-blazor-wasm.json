@@ -1,0 +1,279 @@
+{
+    "DotNetVersion": "dotnet7",
+    "TechnicalCategory": "blazor-wasm",
+    "Nodes":
+    [
+        {
+            "CategorySlug": "legacy",
+            "Tutorials":
+            [
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/introduction-647241",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/create-a-project-131966",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/debug-a-project-130567",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/component-overview-215949",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/component-lifecycle-923500",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/component-interaction-836953",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                                {
+                                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/cascading-parameter-855507",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/parameter-173533",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/transfer-service-243066",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/routing-345216",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/navigating-205577",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/website-layout-124972",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/component-styles-328986",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/content-projection-881480",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/javascript-interaction-775363",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/ijsruntime-458513",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/interopservices-javascript-508844",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/dependency-injection-923621",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/directives-593490",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/forms-783409",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/api-interaction-763318",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/browser-storage-overview-253913",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/cache-storage-287548",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/cookie-storage-875213",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/indexeddb-storage-261461",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/local-storage-705933",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/memory-storage-436110",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/session-storage-637800",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/authentication-and-authorization-overview-675464",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/basic-jwt-authentication-683869",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/authentication-with-google-oauth-2-931158",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/implementing-authorization-756083",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/multilingual-website-811806",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/deferred-translation-771367",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/instant-translation-394081",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/error-handling-579292",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet7/launching-your-website-403437",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet7/linux-vps-hosting-with-deployment-pipeline-572951",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,77 @@
+﻿<h1>Multilingual website</h1>
+<p>🟨 Slightly different to Blazor WebAssembly</p>
+<p>If you're looking to expand your website's reach and cater to an international audience, creating a multilingual website is an excellent strategy. In this tutorial, we'll guide you through the process of building a Blazor application that can support multiple languages.</p>
+<ul>
+    <li>How multilingual works in Blazor Server?</li>
+    <li>Key considerations when creating a multilingual website.</li>
+    <li>Language selection strategies.</li>
+    <li>Translation approaches.</li>
+    <li>Create <code>.resx</code> files for website localization</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/multilingual-blazor-server-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>How multilingual works in Blazor Server?</h1>
+<p>Multilingual works can be achieved in four steps:</p>
+<ol>
+    <li>Identifying the language associated with the region: Since a country may have multiple languages, Blazor Server uses <code>CultureInfo.CurrentCulture</code> and <code>CultureInfo.CurrentUICulture</code> to determine the current region. Here is an example language tag, <strong>en-US</strong>: The <strong>en</strong> indicates that the language is English, and the <strong>US</strong> indicates that the language is used in America. You can find a list of language tags on <a href="https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/a9eac961-e77d-41a6-90a5-ce1a8b0cdb9c" target="_blank" rel="noopener" title="Microsoft Learn">Microsoft Learn</a>. Although it is a rare case, you may need to create your own language and location, but that part is not included in this tutorial.</li>
+    <li>Locating the corresponding resource file using a key: Resource files can be in various formats such as <strong>.resx</strong>, <strong>.json</strong>, <strong>.yml</strong>, etc. and their structure may differ as well. Translated keys may be nested, such as <code>Index.HelloWorld</code> or a flat format like <code>HelloWorld</code> or even spread across multiple files. For the purpose of this tutorial, we will be using <strong>.resx</strong> resource files.</li>
+    <li>Using parameters in addition to the key to translate the text: For example, in Chinese, the 31st day is "日31," while in English, it is "31st."</li>
+    <li>Displaying the translated text.</li>
+</ol>
+<hr class="my-4" />
+<h1>Key considerations when creating a multilingual website</h1>
+<p>The most important thing to keep in mind when creating a multilingual website are:</p>
+<ol>
+    <li>Language selection strategy.</li>
+    <li>Translation approach.</li>
+</ol>
+<hr class="my-4" />
+<h1>Language selection strategies</h1>
+<p>When creating a multilingual website, developers can use different methods to determine the user's preferred language, such as cookies, browser language, local storage, or the language in the URL. For example, if a user in France visits a website with their browser language set to French, the website can detect this and display the website content in French by default.</p>
+<p>However, conflicts may arise when these methods produce different results for the user's preferred language. For instance, if a user's browser language is set to French, but they have previously selected English as their preferred language in the website's settings, there may be a conflict between the two methods.</p>
+<p>To resolve such conflicts, developers can prioritize one method over others based on factors such as the reliability of the data source and the user's past language selection history. For instance, if the user has consistently chosen English as their preferred language in the website's settings, the website can prioritize that selection over their browser language.</p>
+<hr class="my-4" />
+<h1>Translation approaches</h1>
+<p>There are 2 approaches to translation in Blazor:</p>
+<ol>
+    <li><strong>Deferred translation</strong>: When a user selects a language, the website saves it as a preference and remembers it for future visits. However, the language selection may not take effect until the user refreshes the website.</li>
+</ol>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-server\dotnet7\multilingual-website-697763\deferred-translation.webm" />
+    </video>
+</div>
+<ol start="2">
+    <li><strong>Instant translation</strong>: With instant translation, when a user selects a language, Blazor immediately updates and renders the web page in the selected language without requiring the user to refresh the website.</li>
+</ol>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-server\dotnet7\multilingual-website-697763\instant-translation.webm" />
+    </video>
+</div>
+<hr class="my-4" />
+<h1>Create <code>.resx</code> files for website localization</h1>
+<p>A .resx file represents a Blazor component in a single language. For instance, if your <code>MyBlazorComponent</code> supports both English and French, then you will have <strong>MyBlazorComponent.en.resx</strong> and <strong>MyBlazorComponent.fr.resx</strong> as resource files. There are two ways to organize resource files: centralized and distributed.</p>
+<h3>Centralized resource</h3>
+<p>For centralized resource organization, all resource files are placed in the same folder as the component file, as illustrated in the following image:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\multilingual-website-697763\centralized-resource.png" alt="centralized-resource.png" width="299" height="363" /></p>
+<p>To register resources for centralization, you can use the following code:</p>
+<pre class="code" language="csharp">builder.Services.AddLocalization();
+...
+app.UseRequestLocalization();</pre>
+<h3>Distributed resource</h3>
+<p>Centralizing resources can pose maintenance challenges. To address this, resource files can be distributed into a separate folder from the component and the component folder tree can be reconstructed inside that folder, as shown in the following image:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\multilingual-website-697763\distributed-resource.png" alt="distributed-resource.png" width="600" height="561" /></p>
+<p>To register resources for distributed organization, you can use the following code:</p>
+<pre class="code" language="csharp">builder.Services.AddLocalization(options =&gt; options.ResourcesPath = "BlazorSchoolResources");
+...
+app.UseRequestLocalization();</pre>
+<p>In this case, the resource files are located in a folder called <code>BlazorSchoolResources</code> which is separate from the component folder.</p>
+<h3><code>.resx</code> file structure</h3>
+<p>To create a resource file, you must adhere to the naming convention: <strong>&lt;ComponentName&gt;.&lt;Language&gt;.resx</strong>. For instance, if your component is named <code>MyComponent</code> and you support French (fr) and English (en-US), then create two resource files named <strong>MyComponent.fr.resx</strong> and <strong>MyComponent.en-US.resx</strong>.</p>
+<p>A resource is a collection of key-value pairs where the keys are consistent across all resource files and are used to retrieve the corresponding values that will be displayed to the user.</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\multilingual-website-697763\resource-file-content.png" alt="resource-file-content.png" width="442" height="336" /></p>
+<hr class="my-4" />
+<h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
+<p>When working with Blazor Server, you'll need to use <code>CultureInfo.CurrentCulture</code> and <code>CultureInfo.CurrentUICulture</code>, rather than <code>CultureInfo.DefaultThreadCurrentCulture</code> and <code>CultureInfo.DefaultThreadCurrentUICulture</code> as you would with Blazor WebAssembly. Additionally, the project preparation steps are completely different.</p>

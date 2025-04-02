@@ -1,0 +1,48 @@
+[
+    {
+        "Name": "Legacy Tutorials",
+        "Slug": "legacy",
+        "Position": 1,
+        "Description": "This tutorial is written for an old version of .NET"
+    },
+    {
+        "Name": "Concept",
+        "Slug": "concept",
+        "Position": 1,
+        "Description": "Before implementing a feature, you should first understand the core concepts related to the topic. A strong foundation will help you make informed decisions and better understand the steps involved in development."
+    },
+    {
+        "Name": "Example Implementation",
+        "Slug": "example",
+        "Position": 2,
+        "Description": "Step-by-step how to implement a feature."
+    },
+
+
+    {
+        "Name": "Blazor Server",
+        "Slug": "blazor-server",
+        "Position": 1,
+        "Description": "Blazor Server is a good model if you want tranditional website that runs on a server.<ul><li>Requires Internet connection to run.</li><li>Fast load.</li><li>Built-in SignalR.</li><li>Use byte code to transfer data between backend and frontend.</li><li>Can be hosted on Azure Web Apps, VPS.</li></ul>"
+    },
+    {
+        "Name": "Blazor WebAssembly",
+        "Slug": "blazor-wasm",
+        "Position": 2,
+        "Description": "Blazor WebAssembly a.k.a Blazor WASM is a good model if you want modern website called Progressive Web Apps that can run without the internet.<ul><li>Can access the website when offline and online.</li><li>Use JSON to transfer data between API and frontend.</li><li>Can use serverless hosting model.</li></ul>"
+    },
+
+
+    {
+        "Name": "Blazor Web App",
+        "Slug": "blazor-web-app",
+        "Position": 1,
+        "Description": "Blazor Server is a good model if you want tranditional website that runs on a server.<ul><li>Requires Internet connection to run.</li><li>Fast load.</li><li>Built-in SignalR.</li><li>Use byte code to transfer data between backend and frontend.</li><li>Can be hosted on Azure Web Apps, VPS.</li></ul>"
+    },
+    {
+        "Name": "Blazor WebAssembly Standalone",
+        "Slug": "blazor-webassembly-standalone",
+        "Position": 2,
+        "Description": "Blazor WebAssembly a.k.a Blazor WASM is a good model if you want modern website called Progressive Web Apps that can run without the internet.<ul><li>Can access the website when offline and online.</li><li>Use JSON to transfer data between API and frontend.</li><li>Can use serverless hosting model.</li></ul>"
+    }
+]

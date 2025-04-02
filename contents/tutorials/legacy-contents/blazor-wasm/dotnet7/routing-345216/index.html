@@ -1,0 +1,198 @@
+﻿<h1>Routing</h1>
+<p>✅ Similar to Blazor Server</p>
+<p>Routing in Blazor is a mechanism for mapping URLs to specific components, which are used to display the content of a client-side web application. When a user navigates to a specific URL, the Blazor router uses the route template to match the URL to a component, which is then rendered in the browser. In this tutorial, you are going to learn different scenario of routing including the definition of routing and parameterized routed.</p>
+<ul>
+    <li>What is routing and parameterized route?</li>
+    <li>Routing.</li>
+    <li>Parameter data types.</li>
+    <li>Path parameters.</li>
+    <li>Query parameters.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/routing-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is routing and parameterized route?</h1>
+<p>Routing is an essential feature of web development that allows users to navigate through your website. It is the process of specifying which component to serve when a specific URL is requested.</p>
+<p>Parameterized routing is a technique that allows you to pass data through the URL. This allows users to share URLs with pre-filled information, such as search queries or user IDs. There are two types of parameters:</p>
+<ul>
+    <li>Path parameters: These are included as segments in the URL, such as <strong>/users/{userId}</strong>.</li>
+    <li>Query parameters: These are included as key-value pairs in the URL, such as <strong>/users?id=5</strong>.</li>
+</ul>
+<p>With path parameters, the data is included in the URL's structure, and with query parameters, the data is passed as part of the URL's query string.</p>
+<hr class="my-4" />
+<h1>Routing</h1>
+<p>In Blazor, a route is a specific URL that maps to a component. Each route must be associated with one and only one component, which is responsible for handling and displaying the content when that URL is requested.</p>
+<p>On the other hand, a component can have multiple routes associated with it. This means that different URLs can lead to the same component, with the component displaying different content based on the route.</p>
+<p>The relationship between a route and a component can be visualized as follows:</p>
+<ul>
+    <li>A route is a unique URL that maps to a specific component.</li>
+    <li>A component is responsible for handling and displaying the content for one or multiple routes.</li>
+</ul>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\routing-345216\routing-explaination.png" alt="routing-explaination.png" width="1323" height="491" /></p>
+<h3>Specify a route for component</h3>
+<p>An independent component in Blazor is a self-contained unit that can be navigated to directly via its unique route. To specify a route for a component, developers can use the <code>@page</code> directive at the top of the component. This directive tells the framework that the component should be associated with a specific URL path. Routes must start with a forward slash (/) and can include dynamic segments, query parameters, and more. For example, the following code specifies a route for a component called "About":</p>
+<pre class="code" language="razor">@page "/about"
+&lt;h3&gt;About Us&lt;/h3&gt;</pre>
+<p>This code specifies that when the user navigates to the "/about" URL path, the "About" component will be displayed.</p>
+<h3>Nested route</h3>
+<p>It's important to note that routes must be unique across the entire web application. However, routes can be nested within other routes, allowing for the creation of hierarchical navigation structures. A nested route is a route that shares the same initial path as its parent route.</p>
+<p>For example, consider a website with a "Member" area that has a dashboard and a profile page. The routes for this website might be set up as follows:</p>
+<pre class="code" language="razor">@page "/member"
+&lt;h1&gt;Member Area&lt;/h1&gt;
+
+@page "/member/dashboard"
+&lt;h1&gt;Dashboard&lt;/h1&gt;
+
+@page "/member/profile"
+&lt;h1&gt;Profile&lt;/h1&gt;</pre>
+<p>In this example, the "/member" route is the parent route and the "/member/dashboard" and "/member/profile" routes are nested routes. The user will see the "Member Area" component when they first navigate to the "/member" route. If they then click on the "Dashboard" link, they will see the "Dashboard" component and the URL will update to "/member/dashboard". Similarly, if they click on the "Profile" link, they will see the "Profile" component and the URL will update to "/member/profile".</p>
+<p>It's important to note that the routes must be unique. In the example, the routes "/member", "/member/dashboard" and "/member/profile" are unique and can be used to navigate to the corresponding components.</p>
+<hr class="my-4" />
+<h1>Parameter data types</h1>
+<p>Routes in Blazor can include parameters, which are mapped to properties of the component associated with the route. These parameters allow the component to receive data from the URL and use it to display dynamic content.</p>
+<p>It's important to note that only certain types of properties can be used to receive route parameters. The following types are supported:</p>
+<ul>
+    <li>bool</li>
+    <li>System.DateTime</li>
+    <li>decimal</li>
+    <li>float</li>
+    <li>System.Guid</li>
+    <li>int, System.Int32</li>
+    <li>long, System.Int64</li>
+    <li>double, System.Double</li>
+    <li>string, System.String</li>
+</ul>
+<blockquote>It's worth noting that short and System.Int16 are not supported as types for component properties that receive route parameters.</blockquote>
+<p>For example, consider the following route:</p>
+<pre class="code" language="razor">@page "/product/{productId:int}/{productName}"
+
+&lt;h1&gt;Product Details&lt;/h1&gt;</pre>
+<p>In this example, the component associated with the route has two properties, <code>productId</code> and <code>productName</code>, that receive the values from the parameters in the route. The <code>productId</code> parameter is of type <code>int</code> and the <code>productName</code> parameter is of type <code>string</code>.</p>
+<p>It's also worth noting that, the parameter type specified in the route must match the component property type.</p>
+<hr class="my-4" />
+<h1>Path parameters</h1>
+<p>Path parameters in Blazor are a technique for passing parameters as part of a route path. Each parameter is separated by a forward slash (/) and is wrapped in a pair of brackets ({}). For example, the route <strong>/member/{id:guid}</strong> has an <strong>id</strong> parameter.</p>
+<p>Path parameters have the following characteristics:</p>
+<ul>
+    <li>Only one optional parameter is allowed and it must be placed at the end of the parameters.</li>
+    <li>Blazor prioritizes routes over path parameter routes.</li>
+    <li>The type of the parameter in the route must match the type of the parameter in the component.</li>
+    <li>The parameter identifier must be the same in the route and the component.</li>
+</ul>
+<p>The route parameter type specifies the type for a specific parameter. The relationship between the route and component parameters is illustrated in the image.</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\routing-345216\route-and-component-relationship.png" alt="route-and-component-relationship.png" width="979" height="935" /></p>
+<p>The table below illustrates the matching types between route parameter and component parameter:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th scope="col">Route parameter type</th>
+                <th scope="col">Example data</th>
+                <th scope="col">Component parameter type</th>
+            </tr>
+            <tr>
+                <td>bool</td>
+                <td><code>true</code>, <code>FALSE</code></td>
+                <td>bool</td>
+            </tr>
+            <tr>
+                <td>datetime</td>
+                <td><code>2021-12-31</code>, <code>2021-12-31 8:40pm</code></td>
+                <td>DateTime</td>
+            </tr>
+            <tr>
+                <td>decimal</td>
+                <td><code>99.99</code>, <code>-1,00</code></td>
+                <td>decimal</td>
+            </tr>
+            <tr>
+                <td>float</td>
+                <td><code>1.234</code>, <code>-1,001.018</code></td>
+                <td>float</td>
+            </tr>
+            <tr>
+                <td>guid</td>
+                <td><code>CD2C1638-1638-72D5-1638-DEADBEEF1638</code>, <code>{CD2C1638-1638-72D5-1638-DEADBEEF1638}</code></td>
+                <td>Guid</td>
+            </tr>
+            <tr>
+                <td>int</td>
+                <td><code>123456789</code>, <code>-123456789</code></td>
+                <td>int, Int32</td>
+            </tr>
+            <tr>
+                <td>long</td>
+                <td><code>123456789</code>, <code>-123456789</code></td>
+                <td>long, Int64</td>
+            </tr>
+            <tr>
+                <td>double</td>
+                <td><code>1.234</code>, <code>-1,001.018</code></td>
+                <td>double, Double</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>BlazorSchool, blazorschool.com</td>
+                <td>string, String</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<blockquote>The <code>float</code> and <code>double</code> data cannot contain the <strong>e</strong> symbol. For example: <strong>-1,001.01e8</strong> is not valid.</blockquote>
+<h3>Access the path parameters</h3>
+<p>To access a route parameter in Blazor, you need to declare a component property with a getter and setter and include the <code>[Parameter]</code> attribute. For example:</p>
+<pre class="code" language="razor">@page "/member/{id:guid}"
+
+&lt;h1&gt;Member Information&lt;/h1&gt;
+&lt;p&gt;Id: @Id&lt;/p&gt;
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+}</pre>
+<h3>Optional parameter</h3>
+<p>Path parameters in Blazor can have one optional parameter and it must be placed at the end of the route. To indicate that a route parameter is optional, the route parameter type and component parameter type must have a question mark (?) symbol at the end. For example:</p>
+<pre class="code" language="razor">@page "/member/{id:guid}/{name?}"
+
+&lt;h1&gt;Member Information&lt;/h1&gt;
+&lt;p&gt;Id: @Id&lt;/p&gt;
+&lt;p&gt;Name: @Name&lt;/p&gt;
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    [Parameter]
+    public string Name { get; set; }
+}</pre>
+<h3>Route overloading</h3>
+<p>When a parameterized route has the same path as a nested route, it is referred to as "route overloading."</p>
+<p>For example, assuming you have two routes: <strong>/member/{id:guid}</strong> and <strong>/member/page-without-param</strong>. When a user requests the URL <strong>/member/page-without-param</strong>, there are two possible route matches: <strong>/member/{id:guid}</strong> and<strong> /member/page-without-param</strong>. In this case, Blazor will prioritize the route <strong>/member/page-without-param</strong> over the path parameter route <strong>/member/{id:guid}</strong>.</p>
+<p>It is important to note that, in this scenario, the route without parameters will always take precedence over the route with parameters, even if the parameter is optional. This is because the framework will always try to match the most specific route possible.</p>
+<p>To make the code easier to maintain, it's recommended to keep your routes as specific as possible and make sure to distinguish routes with and without parameters in their path.</p>
+<hr class="my-4" />
+<h1>Query parameters</h1>
+<p>Query parameters is a technique that provides flexibility by allowing you to easily add or remove parameters without affecting other routes. The first parameter comes after the question mark (?) symbol and each subsequent parameter comes after the ampersand (&amp;) symbol. For example, the route<strong> /member?id=123&amp;valid=true</strong> has <strong>id</strong> and <strong>valid</strong> as parameters.</p>
+<p>Query parameters have the following characteristics:</p>
+<ul>
+    <li>Can have multiple optional parameters.</li>
+    <li>The parameter identifier in the route does not have to match the parameter identifier in the component.</li>
+    <li>Parameters do not need to be declared beforehand.</li>
+</ul>
+<p>To access a query parameter, you need to declare a component property with a getter, setter, and the <code>[Parameter]</code> and <code>[SupplyParameterFromQuery]</code> attributes. For example:</p>
+<pre class="code" language="razor">@page "/member"
+&lt;h1&gt;Member Information&lt;/h1&gt;
+&lt;p&gt;Id: @Id&lt;/p&gt;
+&lt;p&gt;Is Valid: @IsValid&lt;/p&gt;
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery("id")]
+    public string Id { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery("valid")]
+    public bool IsValid { get; set; }
+}</pre>
+<p>If a requested URL does not contain a query parameter, Blazor will assume the value of that parameter to be the default value of its respective data type. For example, if the requested URL is <strong>/member</strong> and the component is expecting a query parameter "valid" of type <code>bool</code>, the default value of false will be assigned to the valid parameter.</p>
+<p>This behaviour can be useful when you want to use a default value for a parameter when it is not present in the URL. However, if you want to handle the case when the parameter is not present in the URL, you can add a null check or use a nullable type such as <code>bool?</code> and check if it has a value or not.</p>
+<p>It's important to note that when you use the default value, it will not differentiate between an optional parameter and a missing parameter, so it's recommended to use nullable types for handling missing parameters.</p>

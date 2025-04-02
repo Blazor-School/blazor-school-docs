@@ -1,0 +1,121 @@
+<h1>Kestrel hosting</h1>
+<p>Kestrel is a cross platform web server and it is included in Blazor Server by default. Kestrel can be a stand-alone host for Blazor Server websites or become a local server to implement the Reverse Proxy hosting model. Kestrel focuses on performance and memory utilization. The downside of Kestrel is the lack of advanced features like DDos protection, load balancing...</p>
+<p>Kestrel is the preferred server for:</p>
+<ul>
+    <li>Internal websites or low user base.</li>
+    <li>Local server for Reverse Proxy hosting model.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/kestrel-hosting-blazor-server" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Setting up a Kestrel server</h1>
+<p>In this section, you will learn how to set up a Kestrel server to host a website or make Kestrel a local server for Reverse Proxy hosting.</p>
+<h3>Installing .NET 5 Runtime</h3>
+<p>For Windows machines, go to <a href="https://dotnet.microsoft.com/download/visual-studio-sdks" target="_blank" rel="noopener">https://dotnet.microsoft.com/download/visual-studio-sdks</a> and download the runtime of .NET 5.</p>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\kestrel-hosting-483108\6520964f-bb00-4b51-830d-a6f334ffbb0d..png" alt="" width="1340" height="638" /></p>
+<p>For Linux machines, go to <a href="https://docs.microsoft.com/en-us/dotnet/core/install/linux?WT.mc_id=dotnet-35129-website" target="_blank" rel="noopener">https://docs.microsoft.com/en-us/dotnet/core/install/linux?WT.mc_id=dotnet-35129-website</a> and follow the instructions there.</p>
+<h3>Starting the Kestrel server</h3>
+<p>After you have .NET 5 SDK installed in the machine, open a cmd (Windows) or terminal (Linux) to the folder that contains the DLL file and start the Kestrel server by dotnet CLI.</p>
+<pre class="code" language="bash">dotnet BlazorSchool.dll</pre>
+<hr class="my-4" />
+<h1>Forward &amp; Reverse Proxy hosting</h1>
+<p>After you start the Kestrel server, you will see a notification message on how Kestrel listens.</p>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\kestrel-hosting-483108\bd9ab6c1-74c6-4b29-99bf-b97053e36ad6..png" alt="" width="428" height="158" /></p>
+<p>You need to pay attention to the address that Kestrel displayed. The following image illustrates the meaning of the displayed address.</p>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\kestrel-hosting-483108\f676a532-e347-407a-a505-1b6cc992404d..png" alt="" width="409" height="330" /></p>
+<ul>
+    <li><strong>Protocol:</strong> can be HTTP or HTTPS.</li>
+    <li><strong>IP address:</strong> the endpoint Kestrel will bind to.</li>
+    <li><strong>Exposed port:</strong> is the port that Kestrel will listen to.</li>
+</ul>
+<p>For Reverse Proxy, set the <strong>IP address</strong> to localhost, for Forward Proxy, set the <strong>IP address</strong> to the domain name or hosting machine IP or <code>[::]</code>.</p>
+<p>You can modify the url by using the parameter <code>--urls</code> as follows:</p>
+<pre class="code" language="bash">dotnet BlazorSchool.dll --urls="https://blazorschool.com;https://dotnetpro.tech"</pre>
+<p>In the above example, we demonstrate how to use 2 urls. You can also remove the second url per need.</p>
+<blockquote>You cannot use localhost as IP address for the Forward Proxy hosting model.</blockquote>
+<hr class="my-4" />
+<h1>Add SSL for Kestrel</h1>
+<p>If you are using the HTTPS protocol for Kestrel, you need to obtain a certificate for your website, you can do that using <a href="https://certbot.eff.org/" target="_blank" rel="noopener">Certbot</a> or <a href="https://www.iis.net/" target="_blank" rel="noopener">IIS</a>. Once you have the certificate, you can start using it for Kestrel.</p>
+<p>To use the SSL for Kestrel, you need to set it up in the <code>appsettings.json</code> file, the .NET CLI does not support setting up an SSL. The <code>appsettings.json</code> allows you to set up for complex scenarios. If your website has multiple endpoints, the <code>appsettings.json</code> uses the first match win strategy, and if none match, it will fall back to the default SSL.</p>
+<p>For default SSL, add the following config to the <code>appsettings.json</code>.</p>
+<pre class="code" language="json">"Kestrel":
+{
+    "Certificates":
+    {
+        "Default":
+        {
+            "Path": "D:/BlazorSchool.crt",
+            "KeyPath": "D:/BlazorSchool.key"
+        }
+    }
+}</pre>
+<p>Each endpoint can also have its own SSL with the following configuration.</p>
+<pre class="code" language="json">"Kestrel":
+{
+    "Endpoints":
+    {
+        "BlazorSchool":
+        {
+            "Url": "https://0.0.0.0:443",
+            "Certificate":
+            {
+                "Path": "D:/BlazorSchool.crt",
+                "KeyPath": "D:/BlazorSchool.key"
+            }
+        }
+    },
+    "Certificates":
+    {
+        ...
+    }
+}</pre>
+<p>In the above example, we demonstrate how to use the CRT SSL. There are other SSL formats like Certificate Stores, PFX, PEM and each of them requires different fields in the <code>Certificate</code>/<code>Certificates</code> config. The following table will show how to use each type of SSL formats with Kestrel.</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th scope="col">SSL type</th>
+                <th scope="col">Required field</th>
+                <th scope="col">Value</th>
+            </tr>
+            <tr>
+                <td rowspan="2">PFX</td>
+                <td><code>Path</code></td>
+                <td>The path to the .pfx file</td>
+            </tr>
+            <tr>
+                <td><code>Password</code></td>
+                <td>The certificate password</td>
+            </tr>
+            <tr>
+                <td rowspan="3">PEM, CRT</td>
+                <td><code>Path</code></td>
+                <td>The path to the .pfx file</td>
+            </tr>
+            <tr>
+                <td><code>KeyPath</code></td>
+                <td>The path to the .key file</td>
+            </tr>
+            <tr>
+                <td><code>Password</code></td>
+                <td>The certificate password</td>
+            </tr>
+            <tr>
+                <td rowspan="4">Certificate Stores</td>
+                <td><code>Subject</code></td>
+                <td>The certificate subject</td>
+            </tr>
+            <tr>
+                <td><code>Store</code></td>
+                <td>The certificate store</td>
+            </tr>
+            <tr>
+                <td><code>Location</code></td>
+                <td>The certificate location. For example: CurrentUser</td>
+            </tr>
+            <tr>
+                <td><code>AllowInvalid</code></td>
+                <td>Allow invalid users. Can be <code>true</code> or <code>false</code></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

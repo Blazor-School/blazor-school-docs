@@ -1,0 +1,181 @@
+<h1>Local storage</h1>
+<p>Local storage is a quick and easy way to store a small amount of data. In this tutorial, you will discover:</p>
+<ul>
+    <li>What is Local storage?</li>
+    <li>Local storage approaches.</li>
+    <li>Protected local storage.</li>
+    <li>Vanilla local storage.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/browser-storage-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is Local storage?</h1>
+<p>Local storage is a modern technique, key value pair based, to store data. Think of the Local storage as a key value pair that persists on the browser. The key and value of the Local storage must be a string, if it is not a string, it will be automatically converted to a string. For example, if you set the key/value as <strong>1</strong> (number), the Local storage will automatically proceed to store the key/value as <strong>"1"</strong> (string). The Local storage isolates data by the domain. That being said, one domain cannot access another domain's resources. For example, data created by blazorschool.com cannot be accessed by google.com and vice versa.</p>
+<h3>How to access the Local storage in the browser?</h3>
+<p>You can access the Local storage in the browser by opening the Developer Tools (F12 for most browsers).</p>
+<p>For Firefox, the Local storage is located at the <strong>Storage</strong> tab as the following image:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\local-storage-621265\firefox-local-storage.png" alt="firefox-local-storage.png" width="861" height="238" /></p>
+<p>For Chrome and Edge, the Local storage is located at the <strong>Application</strong> tab as the following images:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\local-storage-621265\chrome-local-storage.png" alt="chrome-local-storage.png" width="588" height="697" /></p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\local-storage-621265\edge-local-storage.png" alt="edge-local-storage.png" width="588" height="697" /></p>
+<hr class="my-4" />
+<h1>Local storage approaches</h1>
+<p>In Blazor Server, you can access the local storage with 2 approaches: protected local storage and vanilla local storage.</p>
+<ul>
+    <li><strong>Protected local storage</strong>: is the approach that is invented by Microsoft and is a built-in function of Blazor Server. Data stored using the protected local storage can only be retrieved by the protected local storage approach only because the data is encrypted by Microsoft beforehand. Those data cannot be decrypted by the other Blazor Server projects, even within the same domain.</li>
+    <li><strong>Vanilla local storage</strong>: is the approach that use JavaScript to access the local storage data. The stored data is not encrypted and can be retrieved by other Blazor Server within the same domain.</li>
+</ul>
+<hr class="my-4" />
+<h1>Protected local storage</h1>
+<p>To use the protected local storage, you simply just need to inject the <code>ProtectedLocalStorage</code> and call its methods. For example:</p>
+<pre class="code" language="razor">@inject ProtectedLocalStorage ProtectedLocalStorage
+
+&lt;button class="btn btn-primary" type="button" @onclick="StoreValueAsync"&gt;Store value&lt;/button&gt;
+
+@code {
+    public async Task StoreValueAsync()
+    {
+        await ProtectedLocalStorage.SetAsync("BlazorSchool", "Blazor Tutorials 2023");
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Vanilla local storage</h1>
+<p>This section will help you to use the vanilla local storage.</p>
+<h3>Set up the base code</h3>
+<p>To use the Local storage, you first need to create a JavaScript module, then you will use C# code to call the exported functions of this module.</p>
+<ol>
+    <li>Create a new JavaScript file under the <strong>wwwroot</strong> folder. In this example, we will create a <strong>/js/LocalStorageAccessor.js</strong> file.</li>
+    <li>Create a C# class with the following base implementation:</li>
+</ol>
+<pre class="code" language="csharp">public class LocalStorageAccessor : IAsyncDisposable
+{
+    private Lazy&lt;IJSObjectReference&gt; _accessorJsRef = new();
+    private readonly IJSRuntime _jsRuntime;
+
+    public LocalStorageAccessor(IJSRuntime jsRuntime)
+    {
+        _jsRuntime = jsRuntime;
+    }
+
+    private async Task WaitForReference()
+    {
+        if (_accessorJsRef.IsValueCreated is false)
+        {
+            _accessorJsRef = new(await _jsRuntime.InvokeAsync&lt;IJSObjectReference&gt;("import", "/js/LocalStorageAccessor.js"));
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_accessorJsRef.IsValueCreated)
+        {
+            await _accessorJsRef.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<blockquote>Always remember to dispose the JavaScript module.</blockquote>
+<ol start="3">
+    <li>Register the C# class at <code>Program.cs</code></li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;LocalStorageAccessor&gt;();</pre>
+<h3>Add common operations</h3>
+<p>In this section, we will demonstrate how to add some basic operations with the Local storage. You can also add your own operations with this method too.</p>
+<ol>
+    <li>In your JavaScript module, add functions to store and get the data:</li>
+</ol>
+<pre class="code" language="javascript">export function get(key)
+{
+    return window.localStorage.getItem(key);
+}
+
+export function set(key, value)
+{
+    window.localStorage.setItem(key, value);
+}
+
+export function clear()
+{
+    window.localStorage.clear();
+}
+
+export function remove(key)
+{
+    window.localStorage.removeItem(key);
+}</pre>
+<ol start="2">
+    <li>In your C# class, create a new method for each operation. You will need to call <code>WaitForReference()</code> in all methods.</li>
+</ol>
+<pre class="code" language="csharp">public class LocalStorageAccessor : IAsyncDisposable
+{
+    ...
+    public async Task&lt;T&gt; GetValueAsync&lt;T&gt;(string key)
+    {
+        await WaitForReference();
+        var result = await _accessorJsRef.Value.InvokeAsync&lt;T&gt;("get", key);
+
+        return result;
+    }
+
+    public async Task SetValueAsync&lt;T&gt;(string key, T value)
+    {
+        await WaitForReference();
+        await _accessorJsRef.Value.InvokeVoidAsync("set", key, value);
+    }
+
+    public async Task Clear()
+    {
+        await WaitForReference();
+        await _accessorJsRef.Value.InvokeVoidAsync("clear");
+    }
+
+    public async Task RemoveAsync(string key)
+    {
+        await WaitForReference();
+        await _accessorJsRef.Value.InvokeVoidAsync("remove", key);
+    }
+}</pre>
+<h3>Use the Local storage</h3>
+<p>Once you have the complete all the previous steps, you can use it as follows:</p>
+<pre class="code" language="razor">@inject LocalStorageAccessor LocalStorageAccessor
+
+&lt;h3&gt;BrowserStorageDemonstrate&lt;/h3&gt;
+&lt;form&gt;
+    &lt;label class="form-label"&gt;
+        Key
+        &lt;input class="form-control" type="text" @bind-value="Key" /&gt;
+    &lt;/label&gt;
+    &lt;label class="form-label"&gt;
+        Value
+        &lt;input class="form-control" type="text" @bind-value="Value" /&gt;
+    &lt;/label&gt;
+    &lt;button class="btn btn-primary" type="button" @onclick="SetValueAsync"&gt;Set Value&lt;/button&gt;
+&lt;/form&gt;
+&lt;div&gt;Stored Value: @StoredValue&lt;/div&gt;
+&lt;button class="btn btn-primary" type="button" @onclick="GetValueAsync"&gt;Get Value&lt;/button&gt;
+&lt;button class="btn btn-primary" type="button" @onclick="RemoveAsync"&gt;Remove Value&lt;/button&gt;
+&lt;button class="btn btn-primary" type="button" @onclick="ClearAllAsync"&gt;Clear All&lt;/button&gt;
+
+@code {
+    public string Key { get; set; } = "";
+    public string Value { get; set; } = "";
+    public string StoredValue { get; set; } = "";
+
+    public async Task SetValueAsync()
+    {
+        await LocalStorageAccessor.SetValueAsync(Key, Value);
+    }
+
+    public async Task GetValueAsync()
+    {
+        StoredValue = await LocalStorageAccessor.GetValueAsync&lt;string&gt;(Key);
+    }
+
+    public async Task RemoveAsync()
+    {
+        await LocalStorageAccessor.RemoveAsync(Key);
+    }
+
+    public async Task ClearAllAsync()
+    {
+        await LocalStorageAccessor.Clear();
+    }
+}</pre>

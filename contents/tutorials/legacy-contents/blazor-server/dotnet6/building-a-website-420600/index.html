@@ -1,0 +1,65 @@
+<h1>Building a website</h1>
+<p>In this series, we will build an online store website together. You will have an overview of how a website is built with Blazor by using all the basic building blocks. This website includes the following features:</p>
+<ul>
+    <li>Show a list of product and a buy button.</li>
+    <li>Allow users to put product to cart.</li>
+    <li>Allow users to review their cart.</li>
+    <li>Collect users information to make a delivery.</li>
+</ul>
+<p>In this tutorial, you will learn:</p>
+<ul>
+    <li>Prerequisite.</li>
+    <li>Create a Blazor Server .NET 6 project.</li>
+    <li>Remove boilerplate code in the created project.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/online-shop-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisite</h1>
+<p>First thing first, you need to have the following softwares and knowledge to developing Blazor Server websites.</p>
+<p>Software:</p>
+<ol>
+    <li><a href="https://visualstudio.microsoft.com" target="_blank" rel="noopener" title="Visual Studio 2022 Current">Visual Studio 2022 Current</a>.</li>
+    <li>.NET 6 Runtime.</li>
+    <li>ASP.NET and Web development.</li>
+</ol>
+<blockquote>Do not install <strong>.NET 6 Runtime</strong> and <strong>ASP.NET and Web development</strong> from outside <strong>Visual Studio Installer.</strong></blockquote>
+<p>Run <strong>Visual Studio Installer</strong> from your machine, <strong>Modify</strong> your <strong>Visual Studio 2022 Current</strong>.</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\building-a-website-420600\blazor-server-dotnet6-software-requirement.png" alt="blazor-server-dotnet6-software-requirement.png" width="899" height="503" /></p>
+<p>Select <strong>.NET 6 Runtime</strong> and <strong>ASP.NET and Web development</strong>.</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\building-a-website-420600\blazor-server-dotnet6-software-requirement-2.png" alt="blazor-server-dotnet6-software-requirement-2.png" width="441" height="238" /></p>
+<p>Knowledge:</p>
+<ol>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Learn/HTML" target="_blank" rel="noopener" title="HTML">HTML</a>.</li>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS" title="CSS" target="_blank" rel="noopener">CSS</a>.</li>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript" title="JavaScript">JavaScript (optional)</a>.</li>
+</ol>
+<hr class="my-4" />
+<h1>Create a Blazor Server .NET 6 project</h1>
+<p>The first step to get into Blazor Server website development is to create a project. Start your Visual Studio and click on <strong>Create a project</strong>.</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\building-a-website-420600\create-blazor-server-project.png" alt="create-blazor-server-project.png" width="1014" height="675" /></p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\building-a-website-420600\create-blazor-server-project-step-2.png" alt="create-blazor-server-project-step-2.png" width="1014" height="675" /></p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\building-a-website-420600\create-blazor-server-project-step-3.png" alt="create-blazor-server-project-step-3.png" width="1014" height="675" /></p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\building-a-website-420600\create-blazor-server-project-step-4.png" alt="create-blazor-server-project-step-4.png" width="1014" height="675" /></p>
+<hr class="my-4" />
+<h1>Remove boilerplate code</h1>
+<p>Boilerplate code are the code that predefined by Microsoft as an example. You need to remove those files in order to make your own website.</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\building-a-website-420600\remove-boilerplate-code-blazor-server.png" alt="remove-boilerplate-code-blazor-server.png" width="350" height="461" /></p>
+<p>After remove those files, open <code>Index.razor</code> and remove the following line:</p>
+<pre class="code" language="razor">&lt;SurveyPrompt Title="How is Blazor working for you?" /&gt;</pre>
+<p>Open Program.cs and remove all the using and the following lines:</p>
+<pre class="code" language="csharp">using {{YourProject}}.Data;
+...
+builder.Services.AddSingleton&lt;WeatherForecastService&gt;();</pre>
+<p>Next, open <code>NavMenu.razor</code> to remove the link on the menu as well.</p>
+<pre class="code" language="razor">....
+&lt;div class="nav-item px-3"&gt;
+    &lt;NavLink class="nav-link" href="counter"&gt;
+        &lt;span class="oi oi-plus" aria-hidden="true"&gt;&lt;/span&gt; Counter
+    &lt;/NavLink&gt;
+&lt;/div&gt;
+&lt;div class="nav-item px-3"&gt;
+    &lt;NavLink class="nav-link" href="fetchdata"&gt;
+        &lt;span class="oi oi-list-rich" aria-hidden="true"&gt;&lt;/span&gt; Fetch data
+    &lt;/NavLink&gt;
+&lt;/div&gt;
+....</pre>

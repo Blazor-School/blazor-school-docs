@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Deferred Translation",
+    "Slug": "deferred-translation-771367",
+    "Description": "Provide deferred translation, which allows users to select their preferred language, but the change may not take effect until they refresh the website"
+}

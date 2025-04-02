@@ -1,0 +1,195 @@
+{
+    "DotNetVersion": "dotnet5",
+    "TechnicalCategory": "blazor-wasm",
+    "Nodes":
+    [
+        {
+            "CategorySlug": "legacy",
+            "Tutorials":
+            [
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/introduction-499082",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/what-is-blazor-webassembly-432340",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/getting-started-342861",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/creating-the-api-607600",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/binding-a-model-to-html-635434",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/using-child-component-511536",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/creating-navigation-647263",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/using-forms-for-collect-data-364861",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/deploying-726802",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/understanding-blazor-webassembly-272723",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/components-513259",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                                {
+                                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/component-lifecycle-663299",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/styling-and-css-472312",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/component-interaction-535999",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/dependency-injection-784199",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                                {
+                                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/di-scopes-636378",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/multiple-constructors-service-140439",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/theming-and-layout-652073",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/routeview-334203",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/default-layout-for-multiple-components-201432",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/use-layout-directive-188522",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/layoutview-884773",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/forms-601586",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/form-controls-934140",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-wasm/dotnet5/update-guides-857882",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-wasm/dotnet5/update-from-dotnet-5-to-dotnet-6-682674",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

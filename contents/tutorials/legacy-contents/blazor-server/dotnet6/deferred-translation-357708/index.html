@@ -1,0 +1,205 @@
+<h1>Deferred translation</h1>
+<p>Deferred translation is an approach where Blazor Server forces the user to refresh the website to see the translated content. Simple and effective, but it does not provide much customization. In this tutorial, we are going to learn more about deferred translation with the following topics:</p>
+<ul>
+    <li>What is deferred translation?</li>
+    <li>Comparing deferred translation with instant translation.</li>
+    <li>Suitable language selection strategies.</li>
+    <li>Select the language by cookies.</li>
+    <li>Using the URL to select language.</li>
+    <li>Determine language by browser setting.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/internationalization-and-localization-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is deferred translation?</h1>
+<p>There are 2 approaches when making a multilingual website, deferred translation is one of the approaches. When a user selects a language, the translation process will be deferred until the next load of the web page, which means the user need to refresh the web page to see the new language. This downside is easily workaround by forcing Blazor Server to refresh the website.</p>
+<hr class="my-4" />
+<h1>Comparing deferred translation with instant translation</h1>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td></td>
+                <td>Deferred Translation</td>
+                <td>Instant Translation</td>
+            </tr>
+            <tr>
+                <td>User experience</td>
+                <td class="bg-danger text-white">Bad</td>
+                <td class="bg-success text-white">Good</td>
+            </tr>
+            <tr>
+                <td>Language selection strategy</td>
+                <td class="bg-danger text-white">Not customizable: only supports cookies, browser settings, and URL. Cannot change the priority of the strategies.</td>
+                <td class="bg-success text-white">Customizable: support cookies, browser settings, URL, and custom strategies. Can change the priority of the strategies.</td>
+            </tr>
+            <tr>
+                <td>Resource type</td>
+                <td class="bg-danger text-white"><code>.resx</code> files only.</td>
+                <td class="bg-success text-white">Support any file extensions and database.</td>
+            </tr>
+            <tr>
+                <td>Implement effort</td>
+                <td class="bg-success text-white">Low</td>
+                <td class="bg-danger text-white">High</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<hr class="my-4" />
+<h1>Suitable language selection strategies</h1>
+<p>For deferred translation, there are 3 language selection strategies available: cookies, browser settings, and URL with the following priority:</p>
+<ol>
+    <li>URL.</li>
+    <li>Cookies.</li>
+    <li>Browser settings.</li>
+</ol>
+<p>The URL strategy takes the highest priority, then cookies, then browser settings.</p>
+<h3>What does this priority mean?</h3>
+<p>Let's assume your website are using all those 3 strategies, and the user has the following environment:</p>
+<ol>
+    <li>The requested URL indicates the language is Taiwanese (zh-TW).</li>
+    <li>The cookies indicates the language is English (en-US).</li>
+    <li>The browser settings indicates the language is Chinese (zh-CN).</li>
+</ol>
+<p>Blazor Server will display the Taiwanese language (zh-TW) despite the cookies and the browser settings differences.</p>
+<hr class="my-4" />
+<h1>Select the language by cookies</h1>
+<p>The user preferred language is stored in cookies, as the following image illustrates:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\deferred-translation-357708\cookie-strategy-language-stored-location.png" alt="cookie-strategy-language-stored-location.png" width="1000" height="339" /></p>
+<p>This is a continuation of the previous tutorial, begins at step 7.</p>
+<ol start="7">
+    <li>Configure in the <code>Program.cs</code>.</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddControllers();
+builder.Services.AddLocalization(...);
+builder.Services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+{
+    // You can set the default language using the following method:
+    // options.SetDefaultCulture("fr");
+    options.AddSupportedCultures(new[] { "en", "fr" });
+    options.AddSupportedUICultures(new[] { "en", "fr" });
+    options.RequestCultureProviders = new List&lt;IRequestCultureProvider&gt;()
+    {
+        new CookieRequestCultureProvider()
+    };
+});</pre>
+<h3>Why do we have to introduce controllers?</h3>
+<p>Blazor is an SPA framework, and there will be only 1 request, the cookies are attached to the request. When changing the cookies, it requires a new request. Introducing controllers allows you to interpret the request, allows the Blazor Server able to access the cookies.</p>
+<ol start="8">
+    <li>Create a folder with the name <strong>Controllers</strong> and add a controller inside that folder.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\deferred-translation-357708\add-controller-to-blazor-server.png" alt="add-controller-to-blazor-server.png" width="300" height="67" /></p>
+<pre class="code" language="csharp">[Route("[controller]/[action]")]
+public class CultureController : Controller
+{
+    public IActionResult Set(string culture, string redirectUri)
+    {
+        if (culture is not null)
+        {
+            HttpContext.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName, CookieRequestCultureProvider.MakeCookieValue(new(culture, culture)));
+        }
+
+        return LocalRedirect(redirectUri);
+    }
+}</pre>
+<ol start="9">
+    <li>Build the language selector component. For example:</li>
+</ol>
+<pre class="code" language="razor">@inject NavigationManager NavigationManager
+
+&lt;select @onchange="OnChangeLanguage"&gt;
+    &lt;option value=""&gt;Select&lt;/option&gt;
+    &lt;option value="en"&gt;English&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+&lt;/select&gt;
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        var uri = new Uri(NavigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+        var culture = CultureInfo.GetCultureInfo(e.Value as string);
+        var cultureEscaped = Uri.EscapeDataString(culture.Name);
+        var uriEscaped = Uri.EscapeDataString(uri);
+        NavigationManager.NavigateTo($"Culture/Set?culture={cultureEscaped}&amp;redirectUri={uriEscaped}", forceLoad: true);
+    }
+}</pre>
+<p>When changing the language, you need to navigate to the controller created at step 8, pass the parameters and force refresh the website.</p>
+<hr class="my-4" />
+<h1>Using the URL to select language</h1>
+<p>The user preferred language is embedded in the URL, as the following image illustrates:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\deferred-translation-357708\url-strategy-language-stored-location.png" alt="url-strategy-language-stored-location.png" width="435" height="39" /></p>
+<p>This is a continuation of the previous tutorial, begins at step 7.</p>
+<ol start="7">
+    <li>Configure in <code>Program.cs</code>.</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+{
+    // You can set the default language using the following method: 
+    // options.SetDefaultCulture("fr");
+    options.AddSupportedCultures(new[] { "fr", "en" });
+    options.AddSupportedUICultures(new[] { "fr", "en" });
+    options.RequestCultureProviders = new List&lt;IRequestCultureProvider&gt;()
+    {
+        new QueryStringRequestCultureProvider()
+    };
+});;</pre>
+<ol start="8">
+    <li>Interpret the URL parameters at <code>App.razor</code> and set the respective language. For example:</li>
+</ol>
+<pre class="code" language="razor">@inject NavigationManager NavigationManager
+@inject IOptions&lt;RequestLocalizationOptions&gt; RequestLocalizationOptions
+
+...
+
+@code {
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var urlParameters = HttpUtility.ParseQueryString(uri.Query);
+        var defaultCulture = RequestLocalizationOptions.Value.DefaultRequestCulture.Culture;
+        var cultureProvider = RequestLocalizationOptions.Value.RequestCultureProviders.First(p =&gt; p is QueryStringRequestCultureProvider) as QueryStringRequestCultureProvider;
+        CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(urlParameters[cultureProvider.QueryStringKey] ?? defaultCulture.Name);
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(urlParameters[cultureProvider.UIQueryStringKey] ?? CultureInfo.CurrentCulture.Name);
+    }
+}</pre>
+<ol start="9">
+    <li>Build the language selector component. For example:</li>
+</ol>
+<pre class="code" language="razor">@inject NavigationManager NavigationManager
+
+&lt;select @onchange="OnChangeLanguage"&gt;
+    &lt;option value=""&gt;Select&lt;/option&gt;
+    &lt;option value="en"&gt;English&lt;/option&gt;
+    &lt;option value="fr"&gt;France&lt;/option&gt;
+&lt;/select&gt;
+
+@code {
+    private void OnChangeLanguage(ChangeEventArgs e)
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var culture = CultureInfo.GetCultureInfo(e.Value as string);
+        var cultureEscaped = Uri.EscapeDataString(culture.Name);
+        var urlParameters = HttpUtility.ParseQueryString(uri.Query);
+        urlParameters["culture"] = cultureEscaped;
+        string urlWithoutQuery = uri.GetComponents(UriComponents.Path, UriFormat.Unescaped);
+        NavigationManager.NavigateTo($"{urlWithoutQuery}?{urlParameters.ToString()}", forceLoad: true);
+    }
+}</pre>
+<p>When changing the language, you need to add or replace the <code>culture</code> parameter in the URL and force refresh the website.</p>
+<hr class="my-4" />
+<h1>Determine language by browser setting</h1>
+<p>The user preferred language is embedded in the request, as the following image illustrates:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\deferred-translation-357708\browser-settings-strategy-language-stored-location.png" alt="browser-settings-strategy-language-stored-location.png" width="1000" height="582" /></p>
+<p>This is a continuation of the previous tutorial, begins at step 7.</p>
+<ol start="7">
+    <li>Configure in the <code>Program.cs</code>.</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.Configure&lt;RequestLocalizationOptions&gt;(options =&gt;
+{
+    options.AddSupportedCultures(new[] { "en", "fr" });
+    options.AddSupportedUICultures(new[] { "en", "fr" });
+    options.RequestCultureProviders = new List&lt;IRequestCultureProvider&gt;()
+        {
+            new AcceptLanguageHeaderRequestCultureProvider()
+        };
+});</pre>

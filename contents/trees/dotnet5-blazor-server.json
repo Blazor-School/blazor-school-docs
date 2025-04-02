@@ -1,0 +1,265 @@
+{
+    "DotNetVersion": "dotnet5",
+    "TechnicalCategory": "blazor-server",
+    "Nodes":
+    [
+        {
+            "CategorySlug": "legacy",
+            "Tutorials":
+            [
+                {
+                    "ContentPath": "legacy-contents/blazor-server/dotnet5/introduction-217998",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/what-is-blazor-server-400279",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-server/dotnet5/getting-started-788874",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/passing-data-to-child-component-686232",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/adding-navigation-189791",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/managing-data-159514",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/using-forms-for-user-input-332781",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/deploying-a-website-341989",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-server/dotnet5/understanding-blazor-server-629745",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/components-417405",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/component-lifecycle-683190",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/css-style-642406",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/component-interaction-550894",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/content-projection-676423",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/javascript-interaction-567632",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/directives-241273",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/@attribute-765613",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/@onevent-732249",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/@page-770040",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/dependency-injection-478834",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/transient-service-676786",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/scoped-service-452590",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/singleton-service-725811",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-server/dotnet5/developer-guides-476769",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/routing-and-navigation-574891",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/forms-227030",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/local-storage-407302",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/authorization-and-authentication-969387",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/authorization-with-role-and-policy-372573",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/authorization-on-route-590372",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/search-engine-optimization-(seo)-938345",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        },
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/internationalization-and-localization-611149",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/passive-translation-796391",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                },
+                                {
+                                    "ContentPath": "legacy-contents/blazor-server/dotnet5/reactive-translation-760272",
+                                    "GitHubLink": "",
+                                    "Children":
+                                    [
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "ContentPath": "legacy-contents/blazor-server/dotnet5/host-and-deploy-165695",
+                    "GitHubLink": "",
+                    "Children":
+                    [
+                        {
+                            "ContentPath": "legacy-contents/blazor-server/dotnet5/kestrel-hosting-483108",
+                            "GitHubLink": "",
+                            "Children":
+                            [
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

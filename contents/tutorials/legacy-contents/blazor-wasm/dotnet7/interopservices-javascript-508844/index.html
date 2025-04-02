@@ -1,0 +1,327 @@
+﻿<h1><code>InteropServices.JavaScript</code></h1>
+<p>🟥 Not applicable to Blazor Server</p>
+<p><code>InteropServices.JavaScript</code> is a feature exclusive to Blazor WebAssembly, which offers its own unique advantages over <code>IJSRuntime</code>. In this tutorial, you will learn about:</p>
+<ul>
+    <li>The benefits of using <code>InteropServices.JavaScript</code> over <code>IJSRuntime</code></li>
+    <li>Understanding the marshalling process</li>
+    <li>Enabling <code>InteropServices.JavaScript</code></li>
+    <li>Build a wrapper</li>
+    <li>Import a JavaScript function</li>
+    <li>Export a C# method</li>
+    <li>Marshalling data</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/javascript-interaction-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>The benefits of using <code>InteropServices.JavaScript</code> over <code>IJSRuntime</code></h1>
+<p>There are three primary advantages of using <code>InteropServices.JavaScript</code> over <code>IJSRuntime</code>:</p>
+<ol>
+    <li>It is ideal for modularized JavaScript code.</li>
+    <li>Developers can control the marshalling process without needing to write additional code.</li>
+    <li>The lifetimes of C# instances in JavaScript and JavaScript instances in C# are managed.</li>
+</ol>
+<p>However, <code>InteropServices.JavaScript</code> cannot be used with unpredictable JavaScript functions.</p>
+<h3>Better support for modularized JavaScript code</h3>
+<p>While <code>IJSRuntime</code> enables the invocation of a JavaScript function that is attached to a module or the window object by its name, <code>InteropServices.JavaScript</code> maps a JavaScript function to a C# method. For instance, consider the following example that maps the JavaScript function <code>console.log</code> to a C# method:</p>
+<p>Using <code>IJSRuntime</code>:</p>
+<pre class="code" language="csharp">public class ConsoleWrapper
+{
+    private readonly IJSRuntime _js;
+
+    public ConsoleWrapper(IJSRuntime js)
+	{
+        _js = js;
+    }
+
+    public async Task Log(string message)
+    {
+        await _js.InvokeVoidAsync("console.log", message);
+    }
+}</pre>
+<p>Using <code>InteropServices.JavaScript</code>:</p>
+<pre class="code" language="csharp">public static partial class ConsoleWrapper
+{
+    [JSImport("globalThis.console.log")]
+    public static partial void Log(string message);
+}</pre>
+<h3>Control the marshalling process</h3>
+<p><code>IJSRuntime</code> is a versatile tool that can be used to invoke any JavaScript function from .NET. Whereas, one limitation of <code>InteropServices.JavaScript</code> is that it can only invoke JavaScript functions with a single return type. This means that the code structure of the JavaScript function must be carefully considered when using <code>InteropServices.JavaScript</code>.</p>
+<p>Using <code>IJSRuntime</code>:</p>
+<pre class="code" language="csharp">public async Task MyMethod() 
+{
+    await MyModule.Value.InvokeVoidAsync("MyFunction", 5);
+}</pre>
+<p>If we want to convert the received number into a <code>BigInt</code>, we need to write additional JavaScript code:</p>
+<pre class="code" language="javascript">export function MyFunction(number)
+{
+    let bigintNumber = BigInt(number);
+}</pre>
+<p>On the other hand, by using <code>InteropServices.JavaScript</code>, we can simplify the process and eliminate the need for additional code:</p>
+<pre class="code" language="csharp">[JSImport("MyFunction", "MyModule")]
+public static partial void MyMethod([JSMarshalAs&lt;JSType.BigInt&gt;] long number);</pre>
+<p>With this approach, the received parameter on the JavaScript side is already a <code>BigInt</code>, making the code more efficient and easier to maintain.</p>
+<h3>Managed lifetime</h3>
+<p>One of the major advantages of using C# is its garbage collection (GC) feature. However, when using <code>IJSRuntime</code>, the GC is unable to collect the module instance of C# that is referenced by JavaScript code. To overcome this issue, <code>InteropServices.JavaScript</code> can be used so that you don't need to worry about when a JavaScript module is destroyed. You just need to import the module every time you require it. Importing the JavaScript module multiple times does not impact performance as the module is automatically cached.</p>
+<hr class="my-4" />
+<h1>Understanding the marshalling process</h1>
+<p>JavaScript and C# have their own distinct data types. When integrating between them, it's necessary to marshal the parameters to the other data type because C# cannot recognize the JavaScript type, and vice versa. The following image provides a clear illustration of the marshalling process.</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\interopservices-javascript-508844\marshalling-process-blazor.png" alt="marshalling-process-blazor.png" width="900" height="461" /></p>
+<p>Here are the table of interchangeable common data type between JavaScript and C#.</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <td>JavaScript type</td>
+                <td>.NET type</td>
+            </tr>
+            <tr>
+                <td><code>Boolean</code></td>
+                <td><code>Boolean</code></td>
+            </tr>
+            <tr>
+                <td><code>String</code></td>
+                <td><code>Char</code>, <code>char</code>, <code>String</code>, <code>string</code></td>
+            </tr>
+            <tr>
+                <td><code>Number</code></td>
+                <td><code>Int16</code>, <code>short</code>, <code>Int32</code>, <code>int</code>, <code>Int64</code>, <code>long</code>, <code>Single</code>, <code>float</code>, <code>Double</code>, <code>double</code>, <code>IntPtr</code>, <code>Byte</code>, <code>byte</code></td>
+            </tr>
+            <tr>
+                <td><code>BigInt</code></td>
+                <td><code>Int64</code>, <code>long</code></td>
+            </tr>
+            <tr>
+                <td><code>Date</code></td>
+                <td><code>DateTime</code>, <code>DateTimeOffset</code></td>
+            </tr>
+            <tr>
+                <td><code>Error</code></td>
+                <td><code>Exception</code></td>
+            </tr>
+            <tr>
+                <td><code>Object</code></td>
+                <td><code>JSObject</code></td>
+            </tr>
+            <tr>
+                <td><code>Any</code></td>
+                <td><code>Object</code></td>
+            </tr>
+            <tr>
+                <td><code>Promise</code></td>
+                <td><code>Task</code></td>
+            </tr>
+            <tr>
+                <td><code>Function</code></td>
+                <td><code>Action</code>, <code>Action&lt;T&gt;</code>, <code>Action&lt;T1, T2&gt;</code>, <code>Action&lt;T1, T2, T3&gt;</code>, <code>Func&lt;TResult&gt;</code>, <code>Func&lt;T, TResult&gt;</code>, <code>Func&lt;T1, T2, TResult&gt;</code>, <code>Func&lt;T1, T2, T3, TResult&gt;</code></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<hr class="my-4" />
+<h1>Enabling <code>InteropServices.JavaScript</code></h1>
+<p>Enabling unsafe code is necessary when integrating with another programming language, including JavaScript. To integrate with JavaScript, you'll need to enable unsafe code in your project by following these steps:</p>
+<ol>
+    <li>Right-click on your project and select <strong>Properties</strong> to open the project properties.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\interopservices-javascript-508844\open-project-properties.png" alt="open-project-properties.png" width="424" height="825" /></p>
+<ol start="2">
+    <li>Navigate to <strong>Build </strong>&rarr;<strong> General</strong> and select the checkbox for <strong>Unsafe code</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\interopservices-javascript-508844\allow-unsafe-code.png" alt="allow-unsafe-code.png" width="819" height="804" /></p>
+<hr class="my-4" />
+<h1>Build a wrapper</h1>
+<p>You can place your JavaScript code file either in the <strong>wwwroot</strong> folder or in the same directory as the corresponding component. For standard JavaScript, import it in the <strong>index.html</strong> and create a C# wrapper. When working with JavaScript modules, you have the option to either create a C# wrapper that is imported only when needed, or import it when the application starts. Importing the module only when needed is recommended for optimal performance.</p>
+<h3>Build a C# wrapper for a global standard JavaScript</h3>
+<p>Assuming you have the following standard JavaScript that you want to import into your Blazor project:</p>
+<p><strong>wwwroot/js/GlobalClassicJavaScript.js</strong>:</p>
+<pre class="code" language="javascript">function HelloBlazorSchool()
+{
+    alert(`Hello Blazor School from Global standard JS.`);
+}</pre>
+<ol>
+    <li>In the <strong>index.html</strong> file, import the standard JavaScript file:</li>
+</ol>
+<pre class="code" language="html">&lt;body&gt;
+    ...
+    &lt;script src="js/GlobalClassicJavaScript.js"&gt;&lt;/script&gt;
+&lt;/body&gt;</pre>
+<ol start="2">
+    <li>Create a C# wrapper class.</li>
+</ol>
+<pre class="code" language="csharp">[SupportedOSPlatform("browser")]
+public partial class ClassicJavaScript
+{
+    [JSImport("globalThis.HelloBlazorSchool")]
+    public static partial void HelloBlazorSchool();
+}</pre>
+<p>In the above example, the first parameter of <code>JSImport</code> attribute is the function name that you want to map. In this case, it's <code>HelloBlazorSchool</code>. Note that the <code>globalThis</code> object in the JavaScript code is a special object created by Blazor, and it's a reference to the <code>window</code> object.</p>
+<h3>Build a C# wrapper for a JavaScript module</h3>
+<p>Assuming you have the following JavaScript Module that you want to import into your Blazor project:</p>
+<p><strong>wwwroot/js/JavaScriptModule.js</strong>:</p>
+<pre class="code" language="javascript">export function HelloBlazorSchool()
+{
+    alert("Hello Blazor School!");
+}</pre>
+<ol>
+    <li>Create a C# class:</li>
+</ol>
+<pre class="code" language="csharp">[SupportedOSPlatform("browser")]
+public partial class JavaScriptModule
+{
+    public static async Task ImportModuleAsync() =&gt; await JSHost.ImportAsync("MyModule", "/js/JavaScriptModule.js");
+}</pre>
+<ol start="2">
+    <li>Call the <code>ImportModuleAsync</code> method to load the JavaScript module. This method can be called multiple times without sending a request if the file is already loaded. There are two options for when to call this method:</li>
+</ol>
+<p>Eager loading: Load the JavaScript module in <strong>Program.cs</strong>. This will slow down your website for the first load, but subsequent loads will be faster.</p>
+<pre class="code" language="csharp">builder.Services...
+
+if (OperatingSystem.IsBrowser())
+{
+    await JavaScriptModule.ImportModuleAsync();
+}</pre>
+<p>Lazy loading: Load the JavaScript module in a Razor Component, during the OnInit or OnAfterRender phase. This will not slow down your website for the first load.</p>
+<pre class="code" language="razor">@code { 
+   protected override async Task OnInitializedAsync()
+    {
+        await JavaScriptModule.ImportModuleAsync();
+    }
+}</pre>
+<pre class="code" language="razor">@code { 
+   protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JavaScriptModule.ImportModuleAsync();
+    }
+}</pre>
+<h3>Build a C# wrapper for a colocated JavaScript module</h3>
+<p>To create a C# wrapper for a colocated JavaScript module using <code>InteropServices.JavaScript</code>, you need to follow these steps:</p>
+<ol>
+    <li>Place the JavaScript module in the same folder as the component.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\interopservices-javascript-508844\colocate-javascript-module.png" alt="colocate-javascript-module.png" width="400" height="100" /></p>
+<ol start="2">
+    <li>Create a partial class for the component with the following code:</li>
+</ol>
+<pre class="code" language="csharp">[SupportedOSPlatform("browser")]
+public partial class CallJavaScriptFunction
+{
+    public static async Task ImportModuleAsync() =&gt; await JSHost.ImportAsync("Collocated Module", "../Pages/InteropServices/CallJavaScriptFunction.razor.js");
+}</pre>
+<ol start="3">
+    <li>Import the JavaScript module during the OnInit or OnAfterRender phase:</li>
+</ol>
+<pre class="code" language="razor">@code { 
+   protected override async Task OnInitializedAsync()
+    {
+        await ImportModuleAsync();
+    }
+}</pre>
+<pre class="code" language="razor">@code { 
+   protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        await ImportModuleAsync();
+    }
+}</pre>
+<p>By following these steps, you can easily create a C# wrapper for a colocated JavaScript module and use it in your Blazor project.</p>
+<hr class="my-4" />
+<h1>Import a JavaScript function</h1>
+<p>To call a JavaScript function from a C# method, you must first import the function using the <code>JSImport</code> attribute. Let's assume you want to call the following JavaScript function:</p>
+<pre class="code" language="javascript">export function HelloBlazorSchool()
+{
+    alert("Hello Blazor School!");
+}</pre>
+<p>To map this function in your C# wrapper, you need to declare a mapping method as follows:</p>
+<pre class="code" language="csharp">[JSImport("HelloBlazorSchool", "MyModule")]
+public static partial void HelloBlazorSchool();</pre>
+<p>Since this is a static method, you can use it directly from the C# wrapper class.</p>
+<hr class="my-4" />
+<h1>Export a C# method</h1>
+<p>Not only can you easily access a JavaScript function from a C# method, but it is also possible to access a C# method from a JavaScript function. To export a C# method to the JavaScript environment, you can use the <code>JSExport</code> attribute.</p>
+<pre class="code" language="csharp">namespace JavaScriptInteraction.InteropServicesModules; // Notice the namespace of this class
+
+[SupportedOSPlatform("browser")]
+public partial class JavaScriptModule
+{
+    [JSExport]
+    public static void HelloBlazorSchool()
+    {
+        Console.WriteLine("Hello Blazor School"); 
+    }
+}</pre>
+<p>Then you can call this C# method using the following JavaScript code:</p>
+<pre class="code" language="javascript">async function CallAutoMarshalingPrimitiveParameterStaticCSharpMethodAsync()
+{
+    let rootAssembly = await globalThis.getDotnetRuntime(0).getAssemblyExports("JavaScriptInteraction.dll");
+    rootAssembly.JavaScriptInteraction.InteropServicesModules
+        .JavaScriptModule.HelloBlazorSchool();
+}</pre>
+<p>The <strong>JavaScriptInteraction.dll</strong> is the name of your project. You can find it in the <strong>Properties</strong> of your project:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\interopservices-javascript-508844\how-to-see-assembly-name.png" alt="how-to-see-assembly-name.png" width="884" height="732" /></p>
+<p>From the <code>rootAssembly</code> object, using the namespace, class name, and the method name to call the exported C# method.</p>
+<p>Alternatively, you can pass the C# method as the parameter and then invoke it from the JavaScript code. For example, you want to call the method <code>AddNumber</code>:</p>
+<pre class="code" language="csharp">public class InteropServiceExampleClass
+{
+    public int AddNumber(int param1, int param2) =&gt; param1 + param2;
+}</pre>
+<p>Export a C# method with the respective parameters and return data of the <code>AddNumber</code> method.</p>
+<pre class="code" language="csharp">[JSImport("FunctionWithMethodParameter", "MyModule")]
+public static partial string FunctionWithReferenceParameter([JSMarshalAs&lt;JSType.Function&lt;JSType.Number, JSType.Number, JSType.Number&gt;&gt;] Func&lt;int, int, int&gt; csharpMethod);</pre>
+<p>You can call the <code>AddNumber</code> method from the JavaScript function as follows:</p>
+<pre class="code" language="javascript">export function FunctionWithMethodParameter(csharpMethod)
+{
+    let result = csharpMethod(1, 2);
+    alert(`Using C# method to calculate 1 + 2. Result: ${result}`);
+}</pre>
+<p>Then using C# to pass the method to the JavaScript function:</p>
+<pre class="code" language="razor">&lt;button type=&quot;button&quot; @onclick=&quot;CallCSharpMethodByReference&quot;&gt;Call a C# Method by Reference&lt;/button&gt;
+
+@code {
+    public void CallCSharpMethodByReference()
+    {
+        var service = new InteropServiceExampleClass();
+
+        JavaScriptModule.FunctionWithReferenceParameter(service.AddNumber);
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Marshalling data</h1>
+<p>When it comes to passing data from a JavaScript function to a C# method or vice versa, there are two main approaches: returning a value from a function or passing data as parameters to a C# method.</p>
+<h3>Auto marshalling returned data</h3>
+<p>Consider the JavaScript function below:</p>
+<pre class="code" language="javascript">export function FunctionWithReturnedObject()
+{
+    let exampleObject = {
+        exampleString: "Blazor School",
+        exampleInt: 9000,
+        exampleDate: new Date()
+    };
+
+    return exampleObject;
+}</pre>
+<p>Based on the table at <strong>Understanding the marshalling process</strong> section. A JavaScript <code>Object</code> can be marshalled to a <code>JSObject</code> in C# type. You can map the above JavaScript function as follows:</p>
+<pre class="code" language="csharp">[JSImport("FunctionWithReturnedObject", "MyModule")]
+public static partial JSObject AutoMarshallingReturnedValue();</pre>
+<h3>Marshalling returned data manually</h3>
+<p>If you need to manually marshal returned data from a JavaScript function to a C# method, you can use the following approach. Consider the JavaScript function below:</p>
+<pre class="code" language="javascript">export function FunctionWithReturnedPrimaryData()
+{
+    return 2023;
+}</pre>
+<p>A <code>Number</code> in JavaScript can be marshalled into different C# data types, such as <code>int</code>, <code>short</code>, <code>long</code>, <code>byte</code>, etc. You can control how a <code>Number</code> in JavaScript can be marshalled to C# code as follows:</p>
+<pre class="code" language="csharp">[JSImport("FunctionWithReturnedPrimaryData", "MyModule")]
+[return: JSMarshalAs&lt;JSType.Number&gt;]
+public static partial long ManuallyMarshalReturnValue();</pre>
+<p>The <code>[return: JSMarshalAs&lt;JSType.Number&gt;]</code> attribute indicates that we are expecting a <code>Number</code> to be returned from the mapped JavaScript function, and the return type of the method, <code>long</code>, is the expected data type in C#.</p>
+<h3>Auto marshalling parameters</h3>
+<p>Consider the JavaScript function below:</p>
+<pre class="code" language="javascript">export function FunctionWithAutoMarshallingParameters(stringData, numberData, booleanData)
+{
+    alert(`Received object data: string ${stringData}, number ${numberData}, boolean ${booleanData}`);
+}</pre>
+<p>Then you can map the JavaScript function as follows:</p>
+<pre class="code" language="csharp">[JSImport("FunctionWithAutoMarshallingParameters", "MyModule")]
+public static partial string AutoMarshallingFunctionWithPrimitiveParameters(string param1, int param2, bool param3);</pre>
+<p>JavaScript parameters will use the <code>var</code> type for those parameters.</p>
+<h3>Marshalling parameters manually</h3>
+<p>When you don't want to convert a <code>var</code> to a specific type such as <code>String</code>, <code>BigInt</code>, <code>Date</code> in the JavaScript code, you can specific the JavaScript type in the C# code as follows:</p>
+<pre class="code" language="csharp">[JSImport("FunctionWithPrimitiveParameters", "MyModule")]
+public static partial string ManualMarshalToFunctionWithPrimitiveParameters([JSMarshalAs&lt;JSType.String&gt;] string param1, [JSMarshalAs&lt;JSType.BigInt&gt;] long param2, [JSMarshalAs&lt;JSType.Date&gt;] DateTime param3);</pre>

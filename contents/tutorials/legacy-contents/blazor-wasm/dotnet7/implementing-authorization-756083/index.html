@@ -1,0 +1,329 @@
+﻿<h1>Implementing authorization</h1>
+<p>✅ Similar to Blazor Server</p>
+<p>Implementing authorization in Blazor is an essential aspect of building secure web applications. Blazor provides various authorization features such as route and component-level authorization, role-based authorization, and policy-based authorization. This tutorial covers the following topics to guide you through the process of implementing authorization in your Blazor application:</p>
+<ul>
+    <li>Authorization approaches overview.</li>
+    <li>Implementing route-level authorization.</li>
+    <li>Implementing component-level authorization.</li>
+    <li>Access control mechanisms overview.</li>
+    <li>Implementing role-based authorization.</li>
+    <li>Implementing policy-based authorization.</li>
+    <li>Common mistakes.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/authentication-and-authorization-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Authorization approaches overview</h1>
+<p>Blazor provides two approaches to implementing authorization:</p>
+<ul>
+    <li>Route-level authorization</li>
+    <li>Component-level authorization</li>
+</ul>
+<p>Route-level authorization enables you to control access to an entire page or set of pages based on user roles or policies. Component-level authorization allows you to control access to individual components within a page based on the same criteria.</p>
+<p>By using these two approaches in combination, you can implement fine-grained access control over your Blazor application, ensuring that users only have access to the resources they are authorized to view or modify.</p>
+<h3>Route-level authorization</h3>
+<p>Route-level authorization in Blazor assumes that every route in your web application requires the user to be authenticated. However, you can also specify additional requirements for certain routes, such as requiring the user to have an admin role or be of a certain age. You can either explicitly specify these requirements or remove them entirely for each route.</p>
+<p>Since a route is bound to an independent component, any requirements specified for a single route will be applied to all other routes within that component.</p>
+<p>With route-level authorization, you can authorize your components as a whole. You can also combine this approach with component-level authorization to control access to specific parts of the UI.</p>
+<p>The following image illustrates how the route-level authorization approach works:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\implementing-authorization-756083\route-level-authorization.png" alt="route-level-authorization.png" width="1000" height="285" /></p>
+<h3>Component-level authorization</h3>
+<p>Component-level authorization allows you to control access to individual components within a page, which means that you can display different parts of a component to different users based on their roles or policies. The following image illustrates how the authorization on an individual component approach works:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\implementing-authorization-756083\component-level-authorization.png" alt="component-level-authorization.png" width="800" height="509" /></p>
+<h3>How to choose between route-level and component-level authorization?</h3>
+<p>The choice between route-level authorization and component-level authorization depends on your specific requirements and the level of control you need over access to your application resources.</p>
+<p>Route-level authorization is suitable if you need to control access to entire pages or sets of pages based on user roles or policies. This approach is useful for applications where all users have the same level of access to a page or set of pages.</p>
+<p>On the other hand, component-level authorization is ideal if you need fine-grained control over access to individual components within a page. This approach allows you to display different parts of a component to different users based on their roles or policies. It is useful for applications where users have different levels of access to different parts of a page.</p>
+<p>In some cases, you may need to use both route-level and component-level authorization to achieve the level of access control required for your application.</p>
+<p>Ultimately, the choice between route-level and component-level authorization will depend on your specific application requirements and the level of control you need over access to your application resources.</p>
+<hr class="my-4" />
+<h1>Implementing route-level authorization</h1>
+<p>To implement route-level authorization in your Blazor application, it is recommended that you have a good understanding of the previous tutorials. Follow these steps to set up route authorization:</p>
+<ol>
+    <li>Replace the existing <code>RouteView</code> component with the <code>AuthorizeRouteView</code> component in your <strong>App.razor</strong> file. Here is an example:</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingAuthenticationState&gt;
+    &lt;Router AppAssembly="@typeof(App).Assembly"&gt;
+        &lt;Found Context="routeData"&gt;
+            &lt;AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"&gt;
+            &lt;/AuthorizeRouteView&gt;
+            &lt;FocusOnNavigate RouteData="@routeData" Selector="h1" /&gt;
+        &lt;/Found&gt;
+        &lt;NotFound&gt;
+            ...
+        &lt;/NotFound&gt;
+    &lt;/Router&gt;
+&lt;/CascadingAuthenticationState&gt;</pre>
+<ol start="2">
+    <li>Define the <code>NotAuthorized</code> and <code>Authorizing</code> projected content inside the <code>AuthorizeRouteView</code> component. This will be displayed when the user is not authorized to access a resource or when the application is authorizing the user's access.</li>
+</ol>
+<pre class="code" language="razor">&lt;AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)"&gt;
+    &lt;NotAuthorized&gt;
+        &lt;div&gt;You are not authorized.&lt;/div&gt;
+    &lt;/NotAuthorized&gt;
+    &lt;Authorizing&gt;
+        &lt;div&gt;Authorizing...&lt;/div&gt;
+    &lt;/Authorizing&gt;
+&lt;/AuthorizeRouteView&gt;</pre>
+<ol start="3">
+    <li>Authorize the entire website in the <strong>_Imports.razor</strong> file, like this:</li>
+</ol>
+<pre class="code" language="razor">@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]</pre>
+<p>When you create a new independent component, you need to decide whether anyone can access it or if it's only available to authenticated users. By default, any new independent component is only accessible to authenticated users. If you want unauthenticated users to access the component, you can add the <code>@attribute [AllowAnonymous]</code> directive to the component's section.</p>
+<hr class="my-4" />
+<h1>Implementing component-level authorization</h1>
+<p>To implement component-level authorization in your Blazor application, follow these steps:</p>
+<ol>
+    <li>Wrap the content that needs to be authorized in the <code>AuthorizeView</code> component, like this:</li>
+</ol>
+<pre class="code" language="razor">&lt;AuthorizeView&gt;
+    &lt;Authorized&gt;&lt;div&gt;Authenticated&lt;/div&gt;&lt;/Authorized&gt;
+    &lt;Authorizing&gt;&lt;div&gt;Loading...&lt;/div&gt;&lt;/Authorizing&gt;
+    &lt;NotAuthorized&gt;&lt;div&gt;Not authenticated&lt;/div&gt;&lt;/NotAuthorized&gt;
+&lt;/AuthorizeView&gt;</pre>
+<ol start="2">
+    <li>Within the <code>AuthorizeView</code> component, define the content that should be displayed for each scenario:</li>
+</ol>
+<ul>
+    <li>The <code>Authorized</code> content will be displayed if the user is authorized to access the resource.</li>
+    <li>The <code>Authorizing</code> content will be displayed while the application is determining the user's authorization status.</li>
+    <li>The <code>NotAuthorized</code> content will be displayed if the user is not authorized to access the resource.</li>
+</ul>
+<p>By wrapping your content in the <code>AuthorizeView</code> component and defining the appropriate content for each scenario, you can ensure that only authorized users are able to view or interact with the content within your component.</p>
+<hr class="my-4" />
+<h1>Access control mechanisms overview</h1>
+<p>In a Blazor application, a resource such as a route, component, or button can be protected by an authorization rule. When a user meets all of the requirements of an authorization rule, they are granted access to the resource. There are two main types of authorization rules that can be used to control access in Blazor:</p>
+<ol>
+    <li>Role-based rules: These rules grant access based on the user's role within the system. For example, an administrator may be granted access to certain parts of the application that are not available to regular users.</li>
+    <li>Policy-based rules: These rules are more flexible and allow access to be granted based on a wide range of factors, such as the user's role, specific permissions, or custom criteria defined by the application.</li>
+</ol>
+<hr class="my-4" />
+<h1>Implementing role-based authorization</h1>
+<p>Role-based authorization is a common way to control access to resources in a Blazor application. With this approach, the resource is protected by a list of roles, and when a user belongs to one of the roles in the list, they are granted access to the resource.</p>
+<h3>What is a role?</h3>
+<p>A role is simply a <code>string</code> that can be assigned to a user to define their access level within the application. However, to include the role in a <code>ClaimsIdentity</code>, it must be assigned under the type <code>ClaimTypes.Role</code>.</p>
+<h3>Implementation</h3>
+<p>To implement role-based authentication in your Blazor application, you can follow these steps:</p>
+<ol>
+    <li>Add a property for roles in the <code>User</code> model, as a user may have multiple roles.</li>
+</ol>
+<pre class="code" language="csharp">public class User
+{
+    ...
+    public List&lt;string&gt; Roles { get; set; } = new();
+}</pre>
+<ol start="2">
+    <li>Update the <code>ToClaimsPrincipal</code> method to convert the list of roles to the <code>ClaimsPrincipal</code>.</li>
+</ol>
+<pre class="code" language="csharp">public class User
+{
+    ...
+    public ClaimsPrincipal ToClaimsPrincipal() =&gt; new (new ClaimsIdentity(new Claim[]
+    {
+        ...
+    }.Concat(Roles.Select(r =&gt; new Claim(ClaimTypes.Role, r)).ToArray()),
+    "BlazorSchool"));
+}</pre>
+<ol start="3">
+    <li>Update the <code>FromClaimsPrincipal</code> method to convert the <code>ClaimsPrincipal</code> back to the <code>User</code> model.</li>
+</ol>
+<pre class="code" language="csharp">public class User
+{
+    ...
+    public static User FromClaimsPrincipal(ClaimsPrincipal principal) =&gt; new()
+    {
+        ...
+        Roles = principal.FindAll(ClaimTypes.Role).Select(c =&gt; c.Value).ToList()
+    };
+}</pre>
+<ol start="4">
+    <li>Set the required roles for UI elements using the <code>Roles</code> parameter in the <code>AuthorizeView</code> component. For example:</li>
+</ol>
+<pre class="code" language="razor">&lt;AuthorizeView Roles="normal_user,paid_user"&gt;
+    &lt;Authorized&gt;
+        &lt;div&gt;Content for users with either normal or paid or both roles.&lt;/div&gt;
+    &lt;/Authorized&gt;
+&lt;/AuthorizeView&gt;
+
+&lt;AuthorizeView Roles="paid_user"&gt;
+    &lt;Authorized&gt;
+        &lt;div&gt;Content for paid users.&lt;/div&gt;
+    &lt;/Authorized&gt;
+&lt;/AuthorizeView&gt;
+
+&lt;AuthorizeView Roles="admin"&gt;
+    &lt;Authorized&gt;
+        &lt;div&gt;Content for admin users.&lt;/div&gt;
+    &lt;/Authorized&gt;
+&lt;/AuthorizeView&gt;</pre>
+<p>Alternatively, you can set the required roles for the entire component in the directive section. For example:</p>
+<pre class="code" language="razor">@attribute [Authorize(Roles ="admin,paid_user")]
+
+&lt;div&gt;This page is for admin or paid users only.&lt;/div&gt;</pre>
+<hr class="my-4" />
+<h1>Implementing policy-based authorization</h1>
+<p>Policy-based rules provide more flexibility in authorization. You can use built-in requirements or define your custom requirements to meet the specific needs of your application.</p>
+<h3>What is a Policy?</h3>
+<p>A policy specifies the requirements that a user must meet to access a resource. If a user fails to comply with any of the conditions in the policy, they will be denied access to the resource. For example, suppose your website only sells special alcohol to premium adult users. In that case, the policy would require that the user be older than 18 (the first requirement) and a premium user (the second requirement). Your website will refuse to sell special alcohol if the user fails to meet either of those requirements.</p>
+<h3>Implementation</h3>
+<p>A policy has 2 building blocks:</p>
+<ol>
+    <li>The requirement.</li>
+    <li>The requirement handler.</li>
+</ol>
+<p>The requirement provides the static data needed to authorize the user. A policy includes one or more requirements, which can be reused in multiple policies. For example, to consider a user an adult, they must be 18 or older. In this case, 18 is the static data used to authorize the user, and you can declare a property in the requirement to yield this value. If you don't have any static data to authorize, you still need to create a requirement.</p>
+<p>The requirement handler is bound to a requirement and is responsible for checking if the user satisfies the rule or not. The requirement handler also provides dynamic data to authorize the user. For example, your website sells video games that have ESRB ratings, which require the user to be older than 5, 7, 8, 13, or 18 to play the game. The required age is a dynamic number based on the game, and it is passed to the requirement handler.</p>
+<p>To implement policy-based authentication, follow these steps:</p>
+<ol>
+    <li>Add a property to the <code>User</code> model to authorize the user. For example, if you want to authorize the user's age, add a new property <code>Age</code> to the <code>User</code> model:</li>
+</ol>
+<pre class="code" language="csharp">public class User
+{
+    ...
+    public int Age { get; set; }
+}</pre>
+<ol start="2">
+    <li>Update the <code>ToClaimsPrincipal</code> method to convert the list of roles to the <code>ClaimsPrincipal</code>:</li>
+</ol>
+<pre class="code" language="csharp">public class User
+{
+    ...
+    public ClaimsPrincipal ToClaimsPrincipal() =&gt; new (new ClaimsIdentity(new Claim[]
+    {
+        ....
+        new (nameof(Age), Age.ToString())
+    }, "BlazorSchool"));
+}</pre>
+<ol start="3">
+    <li>Update the <code>FromClaimsPrincipal</code> method to convert the <code>ClaimsPrincipal</code> back to the user model:</li>
+</ol>
+<pre class="code" language="csharp">public class User
+{
+    ...
+    public static User FromClaimsPrincipal(ClaimsPrincipal principal) =&gt; new()
+    {
+        ...
+        Age = Convert.ToInt32(principal.FindFirstValue(nameof(Age)))
+    };
+}</pre>
+<ol start="4">
+    <li>Create the requirement. The requirement class must implement the <code>IAuthorizationRequirement</code> interface. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class AdultRequirement : IAuthorizationRequirement
+{
+    public int MinimumAgeToConsiderAnAdult { get; set; } = 18;
+}</pre>
+<ol start="5">
+    <li>Create the requirement handler. The requirement handler class must extend the <code>AuthorizationHandler&lt;T&gt;</code> class where <code>T</code> is the requirement class. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class AdultRequirementHandler : AuthorizationHandler&lt;AdultRequirement&gt;
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AdultRequirement requirement)
+    {
+        var user = User.FromClaimsPrincipal(context.User);
+
+        if (user.Age &gt;= requirement.MinimumAgeToConsiderAnAdult)
+        {
+            context.Succeed(requirement);
+        }
+        else
+        {
+            context.Fail();
+        }
+
+        return Task.CompletedTask;
+    }
+}</pre>
+<p>Call the <code>Succeed(requirement)</code> method to indicate that the user passes the requirement. Otherwise, call the <code>Fail()</code> method.</p>
+<ol start="6">
+    <li>Register the handler in <strong>Program.cs</strong>. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;IAuthorizationHandler, AdultRequirementHandler&gt;();</pre>
+<ol start="7">
+    <li>Define the policy. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddAuthorizationCore(config =&gt;
+{
+    config.AddPolicy("AdultOnly", policy =&gt; policy.AddRequirements(new AdultRequirement()));
+}</pre>
+<p>You can define multiple policies inside the <code>AddAuthorizationCore</code> method. A policy can also have multiple requirements. For example:</p>
+<pre class="code" language="csharp">builder.Services.AddAuthorizationCore(config =&gt;
+{
+    ...
+    config.AddPolicy("AdultAdminOnly", policy =&gt;
+    {
+        policy.AddRequirements(new AdultRequirement());
+        policy.RequireRole("admin");
+    });
+});</pre>
+<ol start="8">
+    <li>Set the required policy for the UI. For example:</li>
+</ol>
+<pre class="code" language="razor">&lt;AuthorizeView Policy="AdultOnly"&gt;
+    &lt;Authorized&gt;
+        &lt;div&gt;Content for users in adult policy.&lt;/div&gt;
+    &lt;/Authorized&gt;
+    &lt;NotAuthorized&gt;
+        &lt;div&gt;This content is for adult.&lt;/div&gt;
+    &lt;/NotAuthorized&gt;
+&lt;/AuthorizeView&gt;</pre>
+<p>You can also set the policy for the entire component in the directive section. For example:</p>
+<pre class="code" language="razor">@attribute [Authorize(Policy = "AdultOnly")]
+
+&lt;div&gt;Content for users in adult policy.&lt;/div&gt;</pre>
+<h3>How to pass resource metadata to an authorization requirement handler</h3>
+<p>In some cases, authorization rules may need to be dynamically determined based on the resource being accessed. For example, in the context of a video game, the ESRB rating of a game could dictate the minimum age requirement for accessing certain content. In such cases, it is necessary to pass the resource metadata to the requirement handler. Here is how to do it:</p>
+<ol>
+    <li>Create the requirement. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class EsrbRequirement : IAuthorizationRequirement
+{
+}</pre>
+<ol start="2">
+    <li>Create the requirement handler and use the <code>context.Resource</code> property to receive the resource metadata. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class EsrbRequirementHandler : AuthorizationHandler&lt;EsrbRequirement&gt;
+{
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, EsrbRequirement requirement)
+    {
+        var user = User.FromClaimsPrincipal(context.User);
+        int minimumAge = Convert.ToInt32(context.Resource);
+
+        if (user.Age &gt;= minimumAge)
+        {
+            context.Succeed(requirement);
+        }
+        else
+        {
+            context.Fail();
+        }
+
+        return Task.CompletedTask;
+    }
+}</pre>
+<ol start="3">
+    <li>Register the requirement handler and define the policy in the <strong>Program.cs</strong> file. For example:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;IAuthorizationHandler, EsrbRequirementHandler&gt;();
+builder.Services.AddAuthorizationCore(config =&gt;
+{
+    config.AddPolicy("EsrbPolicy", policy =&gt; policy.AddRequirements(new EsrbRequirement()));
+});</pre>
+<ol start="4">
+    <li>Set the required policy for the UI and pass the resource data to the requirement handler. This is not possible when using the attribute-based approach. Instead, use the following code snippet as an example:</li>
+</ol>
+<pre class="code" language="razor">&lt;AuthorizeView Policy="EsrbPolicy" Resource="13"&gt;
+    &lt;Authorized&gt;
+        &lt;div&gt;Content for users in esrb policy with age 13+.&lt;/div&gt;
+    &lt;/Authorized&gt;
+    &lt;NotAuthorized&gt;
+        &lt;div&gt;This content is for 13+ user only.&lt;/div&gt;
+    &lt;/NotAuthorized&gt;
+&lt;/AuthorizeView&gt;</pre>
+<hr class="my-4" />
+<h1>Common mistakes</h1>
+<p>This section highlights some common mistakes that members of the Blazor School Discord Community have encountered.</p>
+<h3>Mistake #1: Accidentally removing the <code>FocusOnNavigate</code> component in the <strong>App.razor</strong></h3>
+<p>When implementing the route-level authorization approach, modifying your <strong>App.razor</strong> component is crucial. However, it's essential to retain the <code>FocusOnNavigate</code> component while implementing this approach to avoid issues.</p>
+<h3>Mistake #2: Authorizing the entire website, including the login page</h3>
+<p>When implementing the route-level authorization approach, it's vital to add the <code>[AllowAnonymous]</code> attribute to your login page. Failure to do so would make it impossible for users to access your website.</p>

@@ -1,0 +1,24 @@
+<h1>Creating navigation</h1>
+<p>This guide builds on the previous steps of <a href="/tutorial/blazor-wasm/dotnet5/using-child-component-511536">Using Child Component</a>. At this stage of development, the online shop has a product list page and a product detail page.</p>
+<p>This step of the tutorial guides you through adding navigation for the product list page to the check-out page with the following steps:</p>
+<ul>
+    <li>Add a navigation link to navigate to the check-out page.</li>
+    <li>Set the URL for the check-out page.</li>
+</ul>
+<hr class="my-4" />
+<h1>Adding a navigation link</h1>
+<p>After the users click on the <strong>Buy</strong> button in the product list page, we have to introduce a check-out page where the users can fill-in their information and then you can deliver the goods. Use <code>&lt;NavLink&gt;</code> pre-built component of Blazor WebAssembly to create a link to the check-out page in your <code>ProductList.razor</code> component.</p>
+<pre class="code" language="razor">&lt;NavLink href="check-out"&gt;Check-out&lt;/NavLink&gt;</pre>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-wasm\dotnet5\creating-navigation-647263\e81883f8-4b10-44cf-8421-65a4c42776da..png" alt="" width="392" height="733" /></p>
+<p>&nbsp;Blazor WebAssembly will use the <code>&lt;NavLink&gt;</code> component to generate an <code>&lt;a&gt;</code> tag that will navigate you to <strong>yourwebsite/check-out</strong>.</p>
+<hr class="my-4" />
+<h1>Set URL for a component</h1>
+<p>Now, from the product list page, you can navigate to the check-out page. However, Blazor WebAssembly does not know which component to navigate to and you need to tell Blazor WebAssembly which component.</p>
+<ol>
+    <li>Create a new <code>Checkout.razor</code> component&nbsp; in the <code>Pages</code> folder.</li>
+    <li>Add <code>@page</code> directive at the top of the page.</li>
+</ol>
+<pre class="code" language="razor">@page "/check-out"</pre>
+<hr class="my-4" />
+<h1>What's next?</h1>
+<p>The next step will walk you through on how to <a href="/tutorial/blazor-wasm/dotnet5/using-forms-for-collect-data-364861">collect user information with form</a>.</p>

@@ -1,0 +1,23 @@
+﻿<h1>Developer Environment Setup</h1>
+<p>This tutorial will help you get up and running with a development environment on Windows, with the recommended IDE, Visual Studio, and some optional extensions to further enhance your development experience.</p>
+<ul>
+    <li>Install Visual Studio.</li>
+    <li>Optional Extensions for Visual Studio 2022.</li>
+    <li>Linux/Mac Users.</li>
+</ul>
+<hr class="my-4" />
+<h1>Install Visual Studio</h1>
+<p>We recommend that you install <a href="https://visualstudio.microsoft.com/downloads/" target="_blank">Visual Studio 2022</a> for the best development experience. Once the Visual Studio Installer opens, go to the <strong>Workloads</strong> tab and select <strong>"ASP.NET and web development"</strong>.</p>
+<p><img src="tutorials/setup-development-machine/blazor-webassembly-v1/workloads-selection.webp" alt="workloads-selection.webp" width="1778" height="1000" /></p>
+<p>In the <strong>Individual components</strong> tab, select <strong>".NET 9 runtime"</strong> and <strong>".NET 9 WebAssembly Build Tools"</strong>.</p>
+<p><img src="tutorials/setup-development-machine/blazor-webassembly-v1/individual-components-selection.webp" alt="individual-components-selection.webp" width="1778" height="1000" /></p>
+<p>Keep in mind that <strong>".NET 9 WebAssembly Build Tools"</strong> is not required, but some special libraries need it installed. It's better to install the tool at the beginning so you don't encounter any unsolvable errors that do not come from your code.</p>
+<hr class="my-4" />
+<h1>Optional Extensions for Visual Studio 2022</h1>
+<p>To install a new extension, click on <strong>Extensions</strong> =&gt; <strong>Manage Extensions</strong>. A new window will pop up, and you can click on <strong>Browse</strong> to look for the extensions.</p>
+<p>The first extension we are going to mention is <a rel="noopener" target="_blank" href="https://marketplace.visualstudio.com/items?itemName=Failwyn.BundlerMinifier64">Bundler &amp; Minifier 2022+</a>. This extension allows you to quickly minify CSS files on save.</p>
+<p>The second extension that will help you with your Blazor project is <a rel="noopener" target="_blank" href="https://marketplace.visualstudio.com/items?itemName=vs-publisher-141975.SwitchStartupProjectForVS2022">SwitchStartupProject for VS 2022</a>. When developing a Blazor project, you might separate your code into multiple small projects. This extension allows you to run all required projects with different configuration profiles, helping you get everything up and running with just one click.</p>
+<p>In later updates of Visual Studio 2022, Microsoft has supported running multiple projects to some extent. However, we found that Microsoft has not covered all the features that this extension provides, so it is still a viable choice for developers.</p>
+<hr class="my-4" />
+<h1>Linux/Mac Users</h1>
+<p>.NET is a cross-platform framework, so you will have no problem using Linux or Mac to develop a Blazor project. There are other IDEs, like <strong>Rider</strong>, available for developing a Blazor project.</p>

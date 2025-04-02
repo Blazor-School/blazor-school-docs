@@ -1,0 +1,227 @@
+﻿<h1>Cache storage</h1>
+<p>🟨 Slightly different to Blazor WebAssembly</p>
+<p>When loading web pages, the browser often stores responses in cache to speed up the process. This is particularly common for caching JavaScript files. As a developer, you typically have no control over this caching process. However, with Cache storage, you can store requests and responses that you initiated and use them to reduce calls to the server or to provide offline support.</p>
+<p>This tutorial provides a basic setup for interacting with Cache storage, which can be extended with additional features as needed. By following this tutorial, you will learn:</p>
+<ul>
+    <li>What is Cache storage?</li>
+    <li>Set up the base code for interacting with Cache storage.</li>
+    <li>Add common operations to your Cache storage code.</li>
+    <li>Use Cache storage.</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/browser-storage-blazor-server-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is Cache storage?</h1>
+<p>Cache storage is an excellent option for caching URL-addressable resources. It is particularly useful when dealing with large amounts of data or when users need to access the website without an internet connection. However, it's worth noting that Cache storage is a relatively new technology, so it's important to check whether the browser supports it before implementation. The Cache storage only accepts Request and Response as key and value, respectively.</p>
+<h3>What is <code>Request</code> and <code>Response</code>?</h3>
+<p><code>Request</code> and <code>Response</code> are two JavaScript classes used to handle API requests and responses. As the name implies, <code>Request</code> represents a request to an API, while <code>Response</code> represents a response from the API. These classes are used to construct and parse requests and responses, and to interact with the data that is returned from the API.</p>
+<h3>How to access the Cache storage in the browser?</h3>
+<p>In Firefox, you can find the Cache storage under the <strong>Storage</strong> tab, as shown in the image below:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\cache-storage-853159\firefox-cache-storage.png" alt="firefox-cache-storage.png" width="800" height="302" /></p>
+<p>In Chrome and Edge, you can find the Cache storage under the <strong>Application</strong> tab, as shown in the images below:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\cache-storage-853159\chrome-cache-storage.png" alt="chrome-cache-storage.png" width="588" height="686" /></p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\cache-storage-853159\edge-cache-storage.png" alt="edge-cache-storage.png" width="587" height="682" /></p>
+<hr class="my-4" />
+<h1>Set up the base code for interacting with Cache storage</h1>
+<p>The Cache storage is exclusively accessible through the JavaScript API. This means that in order to access it, you will need to create a JavaScript module. You can refer to the <a href="/tutorial/blazor-wasm/dotnet7/javascript-interaction-775363" title="JavaScript Interaction">JavaScript Interaction</a> tutorial and choose <code>IJSRuntime</code> to interact with your module. Below is an example of how to access the cache storage using <code>IJSRuntime</code>.</p>
+<ol>
+    <li>Create a new JavaScript file under the wwwroot folder. For example:</li>
+</ol>
+<p><strong>/js/CacheStorageAccessor.js</strong></p>
+<pre class="code" language="javascript">async function openCacheStorage()
+{
+    return await window.caches.open("Blazor School");
+}
+
+function createRequest(url, method, body = "")
+{
+    let requestInit =
+    {
+        method: method
+    };
+
+    if (body != "")
+    {
+        requestInit.body = body;
+    }
+
+    let request = new Request(url, requestInit);
+
+    return request;
+}</pre>
+<ol start="2">
+    <li>Create a C# class with the following base implementation:</li>
+</ol>
+<pre class="code" language="csharp">public class CacheStorageAccessor : IAsyncDisposable
+{
+    private Lazy&lt;IJSObjectReference&gt; _accessorJsRef = new();
+    private readonly IJSRuntime _jsRuntime;
+
+    public CacheStorageAccessor(IJSRuntime jsRuntime)
+    {
+        _jsRuntime = jsRuntime;
+    }
+
+    private async Task WaitForReference()
+    {
+        if (_accessorJsRef.IsValueCreated is false)
+        {
+            _accessorJsRef = new(await _jsRuntime.InvokeAsync&lt;IJSObjectReference&gt;("import", "/js/CacheStorageAccessor.js"));
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_accessorJsRef.IsValueCreated)
+        {
+            await _accessorJsRef.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<ol start="3">
+    <li>Register the <code>CacheStorageAccessor</code> class in the <strong>Program.cs</strong> file:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;CacheStorageAccessor&gt;();</pre>
+<hr class="my-4" />
+<h1>Add common operations to your Cache storage code</h1>
+<p>In this section, we will demonstrate how to perform basic Cache storage operations in JavaScript and C#. With the provided code, you can easily store, get, and delete data from the cache. Additionally, you can customize the code to add your own operations as well.</p>
+<ol>
+    <li>To store, get, or delete data, add the following functions to your JavaScript module:</li>
+</ol>
+<pre class="code" language="javascript">export async function store(url, method, body = "", responseString)
+{
+    let blazorSchoolCache = await openCacheStorage();
+    let request = createRequest(url, method, body);
+    let response = new Response(responseString);
+    await blazorSchoolCache.put(request, response);
+}
+
+export async function get(url, method, body = "")
+{
+    let blazorSchoolCache = await openCacheStorage();
+    let request = createRequest(url, method, body);
+    let response = await blazorSchoolCache.match(request);
+
+    if (response == undefined)
+    {
+        return "";
+    }
+
+    let result = await response.text();
+
+    return result;
+}
+
+export async function remove(url, method, body = "")
+{
+    let blazorSchoolCache = await openCacheStorage();
+    let request = createRequest(url, method, body);
+    await blazorSchoolCache.delete(request);
+}
+
+export async function removeAll()
+{
+    let blazorSchoolCache = await openCacheStorage();
+    let requests = await blazorSchoolCache.keys();
+
+    for (let i = 0; i &lt; requests.length; i++)
+    {
+        await blazorSchoolCache.delete(requests[i]);
+    }
+}</pre>
+<ol start="2">
+    <li>To use these operations in your C# class, add a method for each operation, and call <code>WaitForReference()</code> in all of them. Here is an example implementation:</li>
+</ol>
+<pre class="code" language="csharp">public class CacheStorageAccessor : IAsyncDisposable
+{
+    ...
+    public async Task StoreAsync(HttpRequestMessage requestMessage, HttpResponseMessage responseMessage)
+    {
+        await WaitForReference();
+        string requestMethod = requestMessage.Method.Method;
+        string requestBody = await GetRequestBodyAsync(requestMessage);
+        string responseBody = await responseMessage.Content.ReadAsStringAsync();
+
+        await _accessorJsRef.Value.InvokeVoidAsync("store", requestMessage.RequestUri, requestMethod, requestBody, responseBody);
+    }
+
+    public async Task&lt;string&gt; GetAsync(HttpRequestMessage requestMessage)
+    {
+        await WaitForReference();
+        string requestMethod = requestMessage.Method.Method;
+        string requestBody = await GetRequestBodyAsync(requestMessage);
+        string result = await _accessorJsRef.Value.InvokeAsync&lt;string&gt;("get", requestMessage.RequestUri, requestMethod, requestBody);
+
+        return result;
+    }
+
+    public async Task RemoveAsync(HttpRequestMessage requestMessage)
+    {
+        await WaitForReference();
+        string requestMethod = requestMessage.Method.Method;
+        string requestBody = await GetRequestBodyAsync(requestMessage);
+        await _accessorJsRef.Value.InvokeVoidAsync("remove", requestMessage.RequestUri, requestMethod, requestBody);
+    }
+
+    public async Task RemoveAllAsync()
+    {
+        await WaitForReference();
+        await _accessorJsRef.Value.InvokeVoidAsync("removeAll");
+    }
+
+    private static async Task&lt;string&gt; GetRequestBodyAsync(HttpRequestMessage requestMessage)
+    {
+        string requestBody = "";
+
+        if (requestMessage.Content is not null)
+        {
+            requestBody = await requestMessage.Content.ReadAsStringAsync() ?? "";
+        }
+
+        return requestBody;
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Use Cache storage</h1>
+<p>Once you have completed all the previous steps, you can use the Cache storage as follows:</p>
+<pre class="code" language="razor">@inject CacheStorageAccessor CacheStorageAccessor
+@inject HttpClient HttpClient
+
+&lt;button type="button" @onclick="SetValueAsync"&gt;Set Value&lt;/button&gt;
+&lt;div&gt;Stored Value: @StoredValue&lt;/div&gt;
+&lt;button type="button" @onclick="GetValueAsync"&gt;Get Value&lt;/button&gt;
+&lt;button type="button" @onclick="RemoveAsync"&gt;Remove Value&lt;/button&gt;
+&lt;button type="button" @onclick="ClearAllAsync"&gt;Clear All&lt;/button&gt;
+
+@code {
+    public string StoredValue { get; set; } = "";
+
+    public async Task SetValueAsync()
+    {
+        var message = CreateMessage();
+        var response = await HttpClient.SendAsync(message);
+        await CacheStorageAccessor.StoreAsync(message, response);
+    }
+
+    public async Task GetValueAsync()
+    {
+        StoredValue = await CacheStorageAccessor.GetAsync(CreateMessage());
+    }
+
+    public async Task RemoveAsync()
+    {
+        await CacheStorageAccessor.RemoveAsync(CreateMessage());
+    }
+
+    public async Task ClearAllAsync()
+    {
+        await CacheStorageAccessor.RemoveAllAsync();
+    }
+
+    public HttpRequestMessage CreateMessage() =&gt; new HttpRequestMessage(HttpMethod.Get, "/sample-data/books.json");
+}</pre>
+<blockquote>Note that you need to create a new <code>HttpRequestMessage</code> every time you want to store a new request.</blockquote>
+<p>The example code above shows how to store, retrieve, remove, and clear all stored values using the Cache Storage.</p>
+<hr class="my-4" />
+<h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
+<p>In Blazor WebAssembly, you can also use <code>InteropServices.JavaScript</code> to interact with the JavaScript.</p>

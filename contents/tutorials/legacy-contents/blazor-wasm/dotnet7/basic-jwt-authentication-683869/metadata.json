@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Basic JWT Authentication",
+    "Slug": "basic-jwt-authentication-683869",
+    "Description": "Learn how to authenticate users in your Blazor application using JWT tokens obtained from the API"
+}

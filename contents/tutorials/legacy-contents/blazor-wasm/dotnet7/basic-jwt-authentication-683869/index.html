@@ -1,0 +1,380 @@
+﻿<h1>Basic JWT authentication</h1>
+<p>🟥 Not applicable to Blazor Server</p>
+<p>JWT are often used for authentication and authorization purposes in web applications. In this tutorial, you will be guided step-by-step on how to implement authentication in Blazor WebAssembly using JWT and the Identity model. The tutorial covers the 3 main authentication flows: login, revisiting the website, and logout. Additionally, a comprehensive template for building authentication will be provided.</p>
+<ul>
+    <li>Required NuGet libraries.</li>
+    <li>Project setup and basic classes.</li>
+    <li>Handling login flow.</li>
+    <li>Handling users revisit flow.</li>
+    <li>Handling logout flow.</li>
+    <li>Accessing user information.</li>
+    <li>Common mistakes.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/authentication-and-authorization-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Required NuGet libraries</h1>
+<p>To get started, make sure to install <code>Microsoft.AspNetCore.Components.Authorization</code>. Additionally, depending on your identity platform, you may need to install additional NuGet packages. For example, if you plan on using JWT, be sure to install <code>System.IdentityModel.Tokens.Jwt</code>.</p>
+<hr class="my-4" />
+<h1>Project setup and basic classes</h1>
+<ol>
+    <li>Install the required NuGet libraries. In this example, we will be using JWT, so you will need to install <code>Microsoft.AspNetCore.Components.Authorization</code> and <code>System.IdentityModel.Tokens.Jwt</code> from the NuGet package manager.</li>
+    <li>In the <strong>_Imports.razor</strong> file, add <code>@using Microsoft.AspNetCore.Components.Authorization</code> to enable the use of the <code>Microsoft.AspNetCore.Components.Authorization</code> namespace.</li>
+    <li>Set <code>CascadingAuthenticationState</code> as the root component in the <strong>App.razor</strong> file by adding the following code:</li>
+</ol>
+<pre class="code" language="razor">&lt;CascadingAuthenticationState&gt;
+    &lt;Router AppAssembly="typeof(App).Assembly"&gt;
+        ...
+    &lt;/Router&gt;
+&lt;/CascadingAuthenticationState&gt;</pre>
+<ol start="4">
+    <li>Add a browser storage for authentication. For the purpose of simplicity, we will use memory storage in this case. However, in a real project, you can use local storage and session storage as per your requirements. To do this, create a class named <code>AuthenticationDataMemoryStorage</code> with a <code>Token</code> property that is initialized to an empty <code>string</code>.</li>
+</ol>
+<pre class="code" language="csharp">public class AuthenticationDataMemoryStorage
+{
+    public string Token { get; set; } = "";
+}</pre>
+<ol start="5">
+    <li>To store information about the users, create a <code>User</code> class. You will later use this class to retrieve user information. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class User
+{
+    public string Username { get; set; } = "";
+    public string Password { get; set; } = "";
+    public int Age { get; set; }
+    public List&lt;string&gt; Roles { get; set; } = new();
+
+    public ClaimsPrincipal ToClaimsPrincipal() =&gt; new(new ClaimsIdentity(new Claim[]
+    {
+        new (ClaimTypes.Name, Username),
+        new (ClaimTypes.Hash, Password),
+        new (nameof(Age), Age.ToString())
+    }.Concat(Roles.Select(r =&gt; new Claim(ClaimTypes.Role, r)).ToArray()),
+    "Blazor School"));
+
+    public static User FromClaimsPrincipal(ClaimsPrincipal principal) =&gt; new()
+    {
+        Username = principal.FindFirst(ClaimTypes.Name)?.Value ?? "",
+        Password = principal.FindFirst(ClaimTypes.Hash)?.Value ?? "",
+        Age = Convert.ToInt32(principal.FindFirst(nameof(Age))?.Value),
+        Roles = principal.FindAll(ClaimTypes.Role).Select(c =&gt; c.Value).ToList()
+    };
+}</pre>
+<blockquote>When creating a new <code>ClaimsIdentity</code>, it's important to always pass the <code>authenticationType</code> parameter. In the example above, we used <code>"Blazor School"</code> as the authenticationType, but you can use any other string that identifies the authentication scheme being used. By including the <code>authenticationType</code> parameter, you ensure that the <code>ClaimsIdentity</code> is associated with the correct authentication scheme, which is necessary for proper authorization and authentication within your application. So, always make sure to include this parameter when creating a new <code>ClaimsIdentity</code> object.</blockquote>
+<ol start="6">
+    <li>Create a class that integrate with the API and browser storage. For instance:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolUserService
+{
+    private readonly HttpClient _httpClient;
+    private readonly AuthenticationDataMemoryStorage _authenticationDataMemoryStorage;
+
+    public BlazorSchoolUserService(HttpClient httpClient, AuthenticationDataMemoryStorage authenticationDataMemoryStorage)
+    {
+        _httpClient = httpClient;
+        _authenticationDataMemoryStorage = authenticationDataMemoryStorage;
+    }
+}</pre>
+<blockquote>Refer to the <a href="/tutorial/blazor-wasm/dotnet7/api-interaction-763318" title="API Interaction">API Interaction</a> tutorial for more information.</blockquote>
+<ol start="7">
+    <li>Create a class that extends the <code>AuthenticationStateProvider</code>. For instance:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider
+{
+    private readonly BlazorSchoolUserService _blazorSchoolUserService;
+
+    public BlazorSchoolAuthenticationStateProvider(BlazorSchoolUserService blazorSchoolUserService)
+    {
+        _blazorSchoolUserService = blazorSchoolUserService;
+    }
+}</pre>
+<ol start="8">
+    <li>Register the browser storage accessor and custom <code>AuthenticationStateProvider</code> in the <strong>Program.cs</strong> file by adding the following code:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;AuthenticationDataMemoryStorage&gt;();
+builder.Services.AddScoped&lt;BlazorSchoolUserService&gt;();
+builder.Services.AddScoped&lt;BlazorSchoolAuthenticationStateProvider&gt;();
+builder.Services.AddScoped&lt;AuthenticationStateProvider&gt;(sp =&gt; sp.GetRequiredService&lt;BlazorSchoolAuthenticationStateProvider&gt;());
+builder.Services.AddAuthorizationCore();
+</pre>
+<blockquote>For more information on browser storage, please refer to the <a href="/tutorial/blazor-wasm/dotnet7/browser-storage-overview-253913" title="Browser Storage">Browser Storage</a> tutorial.</blockquote>
+<hr class="my-4" />
+<h1>Handling login flow</h1>
+<p>When the <code>AuthenticationStateProvider</code> receives the user's credentials, the first step is to validate them by sending a request to the API. Here are the steps to handle the login flow:</p>
+<ol>
+    <li>In your user service, add a method called <code>SendAuthenticateRequestAsync</code> that sends an authentication request to the API and returns the authenticated user if the credentials are valid:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolUserService
+{
+    ...
+    public async Task&lt;User?&gt; SendAuthenticateRequestAsync(string username, string password)
+    {
+        var response = await _httpClient.GetAsync($"/example-data/{username}.json");
+
+        if (response.IsSuccessStatusCode)
+        {
+            string token = await response.Content.ReadAsStringAsync();
+            var claimPrincipal = CreateClaimsPrincipalFromToken(token);
+            var user = User.FromClaimsPrincipal(claimPrincipal);
+            PersistUserToBrowser(token);
+
+            return user;
+        }
+
+        return null;
+    }
+
+    private ClaimsPrincipal CreateClaimsPrincipalFromToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var identity = new ClaimsIdentity();
+
+        if (tokenHandler.CanReadToken(token))
+        {
+            var jwtSecurityToken = tokenHandler.ReadJwtToken(token);
+            identity = new(jwtSecurityToken.Claims, "Blazor School");
+        }
+
+        return new(identity);
+    }
+
+    private void PersistUserToBrowser(string token) =&gt; _authenticationDataMemoryStorage.Token = token;
+}</pre>
+<ol start="2">
+    <li>In your custom <code>AuthenticationStateProvider</code>, create a <code>LoginAsync</code> method that uses the <code>SendAuthenticateRequestAsync</code> method to authenticate the user's credentials and create a <code>ClaimsPrincipal</code> for the authenticated user. If the credentials are not valid, it creates an empty <code>ClaimsPrincipal</code>:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider
+{
+    ...
+    public async Task LoginAsync(string username, string password)
+    {
+        var principal = new ClaimsPrincipal();
+        var user = await _blazorSchoolUserService.SendAuthenticateRequestAsync(username, password);
+
+        if (user is not null)
+        {
+            principal = user.ToClaimsPrincipal();
+        }
+
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
+    }
+}
+</pre>
+<hr class="my-4" />
+<h1>Handling users revisit flow</h1>
+<p>When a user returns to your website, it's essential to check the browser storage to see if they have logged in previously. If their JWT is still valid, you can create a <code>ClaimsPrincipal </code>from it. If not, create an empty <code>ClaimsPrincipal</code>.</p>
+<ol>
+    <li>In your user service, create a method to retrieve the JWT from browser storage:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolUserService
+{
+    ...
+    public User? FetchUserFromBrowser()
+    {
+        var claimsPrincipal = CreateClaimsPrincipalFromToken(_authenticationDataMemoryStorage.Token);
+        var user = User.FromClaimsPrincipal(claimsPrincipal);
+
+        return user;
+    }
+}</pre>
+<blockquote>Please note that this code sample does not encrypt the user's password. In a real project, you should consider adding encryption.</blockquote>
+<ol start="2">
+    <li>In your custom <code>AuthenticationStateProvider</code>, override the <code>GetAuthenticationStateAsync</code> method to create a <code>ClaimsPrincipal</code> if the credentials are valid, or create an empty one if they are invalid:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider
+{
+    ...
+    public override async Task&lt;AuthenticationState&gt; GetAuthenticationStateAsync()
+    {
+        var principal = new ClaimsPrincipal();
+        var user = _blazorSchoolUserService.FetchUserFromBrowser();
+
+        if (user is not null)
+        {
+            var authenticatedUser = await _blazorSchoolUserService.SendAuthenticateRequestAsync(user.Username, user.Password);
+
+            if (authenticatedUser is not null)
+            {
+                principal = authenticatedUser.ToClaimsPrincipal();
+            }
+        }
+
+        return new(principal);
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Handling logout flow</h1>
+<p>When a user logs out, you must clear the browser storage and reset their authentication state.</p>
+<ol>
+    <li>In your user storage, add a method to clear the browser storage:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolUserService
+{
+    public void ClearBrowserUserData() =&gt; _authenticationDataMemoryStorage.Token = "";
+}</pre>
+<ol start="2">
+    <li>In your custom <code>AuthenticationStateProvider</code>, add a logout method:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider
+{
+    ...
+    public void Logout()
+    {
+        _blazorSchoolUserService.ClearBrowserUserData();
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new())));
+    }
+}</pre>
+<p>This method clears the user's data from the browser storage and creates a new empty <code>ClaimsPrincipal</code>, which effectively logs the user out. Finally, it notifies the authentication state has changed by calling <code>NotifyAuthenticationStateChanged</code>.</p>
+<hr class="my-4" />
+<h1>Accessing user information</h1>
+<p>When a user registers on your website, you may ask them to provide personal information such as age and email. Later, you might want to display this information when they log in. Here's how to access user information:</p>
+<ol>
+    <li>Declare one or more properties in the <code>User</code> class and update the conversion methods as well. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class User
+{
+    ...
+    public string FullName { get; set; } = "";
+
+    public ClaimsPrincipal ToClaimsPrincipal() =&gt; new(new ClaimsIdentity(new Claim[]
+    {
+        ...
+        new (nameof(FullName), FullName),
+    }, "BlazorSchool"));
+
+    public static User FromClaimsPrincipal(ClaimsPrincipal principal) =&gt; new()
+    {
+        ...
+        FullName = principal.FindFirstValue(nameof(FullName))
+    };
+}</pre>
+<ol start="2">
+    <li>Declare a property for the current user in the custom <code>AuthenticationStateProvider</code>. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider
+{
+    ...
+    public User CurrentUser { get; private set; } = new();
+}</pre>
+<ol start="3">
+    <li>Create a method to listen to the <code>AuthenticationStateChanged</code> event. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider
+{
+    ...
+    private async void OnAuthenticationStateChangedAsync(Task&lt;AuthenticationState&gt; task)
+    {
+        var authenticationState = await task;
+
+        if (authenticationState is not null)
+        {
+            CurrentUser = User.FromClaimsPrincipal(authenticationState.User);
+        }
+    }
+}</pre>
+<ol start="4">
+    <li>Implement the <code>IDisposable</code> interface, subscribe and unsubscribe from the <code>AuthenticationStateChanged</code> event. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
+{
+    ...
+    public BlazorSchoolAuthenticationStateProvider(BlazorSchoolUserService blazorSchoolUserService)
+    {
+        _blazorSchoolUserService = blazorSchoolUserService;
+        AuthenticationStateChanged += OnAuthenticationStateChangedAsync;
+    }
+
+    public void Dispose() =&gt; AuthenticationStateChanged -= OnAuthenticationStateChangedAsync;
+}</pre>
+<ol start="5">
+    <li>Assign the value of <code>CurrentUser</code> in the <code>GetAuthenticationStateAsync</code> and login methods. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
+{
+    ...
+    public override async Task&lt;AuthenticationState&gt; GetAuthenticationStateAsync()
+    {
+        ...
+        if (user is not null)
+        {
+            ...
+            CurrentUser = authenticatedUser;
+        }
+    }
+
+    public async Task LoginAsync(string username, string password)
+    {
+        ...
+        CurrentUser = user;
+        ...
+    }
+}</pre>
+<p>Now, you can access user information via the custom <code>AuthenticationStateProvider</code> class. For example:</p>
+<pre class="code" language="razor">@inject BlazorSchoolAuthenticationStateProvider BlazorSchoolAuthenticationStateProvider
+
+&lt;div&gt;Full name: @BlazorSchoolAuthenticationStateProvider.CurrentUser.FullName&lt;/div&gt;</pre>
+<hr class="my-4" />
+<h1>Common mistakes</h1>
+<p>As a Blazor developer, there are some common mistakes that you should avoid to ensure your application runs smoothly. We have collected some of these mistakes from the Blazor School Discord community:</p>
+<h3>Mistake #1: Creating <code>ClaimsIdentity</code> without the <code>authenticationType</code></h3>
+<p>When converting a user object to a <code>ClaimsPrincipal</code> in the <code>User</code> class, you need to create a <code>ClaimsIdentity</code> first before converting it to a <code>ClaimsPrincipal</code>. Unfortunately, many developers create a <code>ClaimsIdentity</code> without specifying the <code>authenticationType</code>. For example:</p>
+<pre class="code" language="csharp">public class User
+{
+    ...
+    // Wrong because create ClaimsPrincipal without authentication type.
+    public ClaimsPrincipal ToClaimsPrincipal() =&gt; new(new ClaimsIdentity(new Claim[]
+    {
+        new (ClaimTypes.Name, Username),
+        new (ClaimTypes.Hash, Password),
+    }));
+}</pre>
+<p>What happens if you don't specify the <code>authenticationType</code>?</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-wasm\dotnet7\basic-jwt-authentication-683869\common-mistake-1.webm" />
+    </video>
+</div>
+<p>The <code>ClaimsIdentity</code> will mark the user as unauthenticated, and the <code>ClaimsIdentity.IsAuthenticated</code> property will be <code>false</code>. To avoid this mistake, always specify the <code>authenticationType</code> when creating a <code>ClaimsIdentity</code>. For example:</p>
+<pre class="code" language="csharp">public class User
+{
+    ...
+    // Correct implementation with an authentication type specified.
+    public ClaimsPrincipal ToClaimsPrincipal() =&gt; new(new ClaimsIdentity(new Claim[]
+    {
+        new (ClaimTypes.Name, Username),
+        new (ClaimTypes.Hash, Password),
+    }, "Blazor School"));
+}</pre>
+<h3>Mistake #2: Depend solely on CORS for security</h3>
+<p>CORS (Cross-Origin Resource Sharing) is a method used to restrict access to an API from unauthorized websites. However, CORS is only enforced by the web browser. Attackers can bypass the browser and send requests from external sources to access your API. Therefore, relying only on CORS for security is not sufficient. Additional measures, such as authentication and authorization, should be implemented to ensure that the API is secure.</p>
+<h3>Mistake #3: Incorrect usage of <code>GetAuthenticationStateAsync</code> from <code>AuthenticationStateProvider</code> to retrieve user information</h3>
+<p><code>GetAuthenticationStateAsync</code> is not intended to be called directly in the component by <code>AuthenticationStateProvider</code>. The following code demonstrates an incorrect implementation:</p>
+<pre class="code" language="razor">// Bad code
+@inject BlazorSchoolAuthenticationStateProvider BlazorSchoolAuthenticationStateProvider
+
+&lt;div&gt;@Username&lt;/div&gt;
+
+@code {
+    public string Username { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await BlazorSchoolAuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authenticationState is not null)
+        {
+            Username = authenticationState.User.Claims.FirstOrDefault(c =&gt; c.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
+        }
+    }
+}</pre>
+<p>To avoid making this mistake, it is recommended to follow the <strong>Accessing user information</strong> section.</p>
+<p>What happens when you call <code>GetAuthenticationStateAsync</code> from <code>AuthenticationStateProvider</code> to retrieve user information?</p>
+<div class="ratio ratio-21x9">
+    <video width="300" height="150" controls="controls">
+        <source src="\tutorials\legacy-contents\blazor-wasm\dotnet7\basic-jwt-authentication-683869\common-mistake-3.webm" />
+    </video>
+</div>
+<p>If you call <code>GetAuthenticationStateAsync</code> directly from <code>AuthenticationStateProvider</code> to retrieve user information, it will result in the method being executed each time a component is rendered. This will cause multiple authentication requests to be sent to the API, which can negatively impact performance and result in unnecessary traffic.</p>
+<h3>Mistake #4: Incorrectly using <code>HttpContextAccessor</code> to retrieve user information</h3>
+<p>Using <code>HttpContextAccessor</code> to retrieve user information is a common mistake in Blazor. While MVC and Web API use this approach, it is not suitable for Blazor applications. This can lead to confusion and issues when attempting to access user information in Blazor.</p>
+<p>Blazor is a Single Page Application framework, which means that only one request is sent and it cannot contain user information. To obtain user information in a Blazor application, it is recommended to follow the guidelines provided in the <strong>Accessing user information</strong> section of the tutorial.</p>
+<p>Therefore, it is important to avoid using <code>HttpContextAccessor</code> in Blazor applications and to follow the recommended approach for obtaining user information to ensure that the application functions correctly and securely.</p>

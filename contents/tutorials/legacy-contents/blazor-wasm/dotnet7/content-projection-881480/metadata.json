@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Content Projection",
+    "Slug": "content-projection-881480",
+    "Description": "Learn about delegating a part of UI to another component to reduce code repeatively, improve readiness and make it more maintainable."
+}

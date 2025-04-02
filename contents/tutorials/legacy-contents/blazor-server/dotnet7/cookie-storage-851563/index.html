@@ -1,0 +1,107 @@
+﻿<h1>Cookie storage</h1>
+<p>🟨 Slightly different to Blazor WebAssembly</p>
+<p>Cookie storage is a mechanism used by web browsers to store small pieces of data that can be sent back to a web server along with subsequent requests.</p>
+<p>This tutorial provides a basic setup for interacting with Cookie storage, which can be extended with additional features as needed. By following this tutorial, you will learn:</p>
+<ul>
+    <li>What is Cookie storage?</li>
+    <li>Set up the base code for interacting with Cookie storage.</li>
+    <li>Add common operations to your Cookie storage code.</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/browser-storage-blazor-server-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is Cookie storage?</h1>
+<p>The Cookie Storage allows you to store information in key-value pairs. Previously, cookies were a cross-domain resource, but starting in 2023, cookies will be bound to a domain. Each key-value pair in cookies has an expiry date, which can be set to "forever" if desired. However, it is important to note that users may delete cookies, and cookies can be made inaccessible from JavaScript code.</p>
+<p>Despite the advantages of using Cookie Storage, we do not recommend it for the following reasons:</p>
+<ol>
+    <li>Limited storage capacity: Cookies have a maximum size limit of 4KB, which may not be sufficient for storing larger amounts of data.</li>
+    <li>Insecurity: Cookies are vulnerable to attacks such as cross-site scripting (XSS) and cross-site request forgery (CSRF). Malicious actors can steal cookie data or manipulate it to gain unauthorized access to a user's account.</li>
+    <li>Network overhead: Cookies are sent with every HTTP request, even for resources that do not require them. This can add unnecessary network overhead and slow down page load times.</li>
+    <li>Inadequate JavaScript API: The JavaScript API does not provide a robust set of methods to manage the Cookie Storage.</li>
+</ol>
+<blockquote>
+    MDN recommends against using Cookie storage, as stated below:
+    <p>"Cookies were originally used for general client-side storage. While this made sense when they were the only way to store data on the client, modern storage APIs are now recommended. Cookies are sent with every request, so they can worsen performance (especially for mobile data connections). Modern APIs for client storage are the Web Storage API (localStorage and sessionStorage) and IndexedDB."</p>
+    <p>Source <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies" target="_blank" rel="noopener" title="Using HTTP cookies">Using HTTP cookies</a></p>
+</blockquote>
+<h3>How to access the Cookie storage in the browser?</h3>
+<p>In Firefox, you can find the Cookie storage under the <strong>Storage</strong> tab, as shown in the image below:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\cookie-storage-851563\firefox-cookie-storage.png" alt="firefox-cookie-storage.png" width="861" height="238" /></p>
+<p>In Chrome and Edge, you can find the Cookie storage under the <strong>Application</strong> tab, as shown in the images below:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\cookie-storage-851563\chrome-cookie-storage.png" alt="chrome-cookie-storage.png" width="652" height="678" /></p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet7\cookie-storage-851563\edge-cookie-storage.png" alt="edge-cookie-storage.png" width="867" height="716" /></p>
+<hr class="my-4" />
+<h1>Set up the base code for interacting with Cookie storage</h1>
+<p>The Cookie storage is exclusively accessible through the JavaScript API. This means that in order to access it, you will need to create a JavaScript module. You can refer to the <a href="/tutorial/blazor-wasm/dotnet7/javascript-interaction-775363" title="JavaScript Interaction">JavaScript Interaction</a> tutorial and choose <code>IJSRuntime</code> to interact with your module. Below is an example of how to access the Cookie storage using <code>IJSRuntime</code>.</p>
+<ol>
+    <li>Create a new JavaScript file under the wwwroot folder. For example <strong>/js/CookieStorageAccessor.js</strong></li>
+    <li>Create a C# class with the following base implementation:</li>
+</ol>
+<pre class="code" language="csharp">public class CookieStorageAccessor
+{
+    private Lazy&lt;IJSObjectReference&gt; _accessorJsRef = new();
+    private readonly IJSRuntime _jsRuntime;
+
+    public CookieStorageAccessor(IJSRuntime jsRuntime)
+    {
+        _jsRuntime = jsRuntime;
+    }
+
+    private async Task WaitForReference()
+    {
+        if (_accessorJsRef.IsValueCreated is false)
+        {
+            _accessorJsRef = new(await _jsRuntime.InvokeAsync&lt;IJSObjectReference&gt;("import", "/js/CookieStorageAccessor.js"));
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_accessorJsRef.IsValueCreated)
+        {
+            await _accessorJsRef.Value.DisposeAsync();
+        }
+    }
+}</pre>
+<ol start="3">
+    <li>Register the <code>CookieStorageAccessor</code> class in the <strong>Program.cs</strong> file:</li>
+</ol>
+<pre class="code" language="csharp">builder.Services.AddScoped&lt;CookieStorageAccessor&gt;();</pre>
+<hr class="my-4" />
+<h1>Add common operations to your Cookie storage code</h1>
+<p>In this section, we will demonstrate how to perform basic Cookie storage operations in JavaScript and C#. With the provided code, you can easily store and get data from the cookies. Additionally, you can customize the code to add your own operations as well.</p>
+<ol>
+    <li>To store and get data, add the following functions to your JavaScript module:</li>
+</ol>
+<pre class="code" language="javascript">export function get()
+{
+    return document.cookie;
+}
+
+export function set(key, value)
+{
+    document.cookie = `${key}=${value}`;
+}</pre>
+<ol start="2">
+    <li>To use these operations in your C# class, add a method for each operation, and call <code>WaitForReference()</code> in all of them. Here is an example implementation:</li>
+</ol>
+<pre class="code" language="csharp">public class CookieStorageAccessor
+{
+    ...
+    public async Task&lt;T&gt; GetValueAsync&lt;T&gt;(string key)
+    {
+        await WaitForReference();
+        var result = await _accessorJsRef.Value.InvokeAsync&lt;T&gt;("get", key);
+
+        return result;
+    }
+
+    public async Task SetValueAsync&lt;T&gt;(string key, T value)
+    {
+        await WaitForReference();
+        await _accessorJsRef.Value.InvokeVoidAsync("set", key, value);
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
+<p>In Blazor WebAssembly, you can also use <code>InteropServices.JavaScript</code> to interact with the JavaScript.</p>

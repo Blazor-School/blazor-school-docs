@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Linux VPS Hosting with Deployment Pipeline",
+    "Slug": "linux-vps-hosting-with-deployment-pipeline-646156",
+    "Description": "The steps of deploying a Blazor application to a web server using NGINX and setting up continuous deployment using GitHub Actions"
+}

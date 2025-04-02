@@ -1,0 +1,22 @@
+[
+    {
+        "LongName": "dotnet5",
+        "ShortName": ".NET 5",
+        "Default": false
+    },
+    {
+        "LongName": "dotnet6",
+        "ShortName": ".NET 6",
+        "Default": false
+    },
+    {
+        "LongName": "dotnet7",
+        "ShortName": ".NET 7",
+        "Default": true
+    },
+    {
+        "LongName": "dotnet9",
+        "ShortName": ".NET 9",
+        "Default": false
+    }
+]

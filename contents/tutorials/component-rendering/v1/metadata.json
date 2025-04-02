@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Component Rendering",
+    "Slug": "component-rendering",
+    "Description": "Learn how Blazor renders a component, from its Razor markup to the final HTML output."
+}

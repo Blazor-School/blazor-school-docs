@@ -1,0 +1,546 @@
+﻿<h1>Event Handling</h1>
+<p>In today's world, websites are no longer static HTML sites. The evolution of web technology enables users to have numerous interactions with your website. As a crucial part of building an interactive website, handling events allows your website to respond to user interactions, such as clicks, key presses, and other actions. In this tutorial, you will learn:</p>
+<ul>
+    <li>Types of events.</li>
+    <li>Handling HTML events.</li>
+    <li>Creating and handling Blazor events.</li>
+    <li>Canceling ongoing events (<code>preventDefault</code>).</li>
+    <li>Preventing propagation (<code>stopPropagation</code>).</li>
+</ul>
+<hr class="my-4" />
+<h1>Types of Events</h1>
+<p>There are 2 types of events: HTML events and Blazor events. HTML events are predefined by the browser and allow developers to respond to user actions, such as clicks or key presses. Blazor events build on top of these HTML events. While HTML events are directly tied to user interactions with elements, Blazor events are linked to the business logic of the application. This separation makes it easier to manage application state, trigger multiple actions, and maintain cleaner, more maintainable code.</p>
+<hr class="my-4" />
+<h1>Handling HTML Events</h1>
+<p>An HTML event consists of 2 parts: the name and the arguments. The name indicates how to trigger the event, while the arguments contain information about the event itself. For example, you can detect if the user is holding the Ctrl key when clicking a button by examining the event arguments.</p>
+<p>Consider the following example:</p>
+<pre language="razor">&lt;button type="button" onclick="alert(`Is holding Ctrl? ${event.ctrlKey}`)"&gt;Handle with JavaScript with event args&lt;/button&gt;
+</pre>
+<p>In this example, the browser will display a message saying "Is holding Ctrl? true" or "Is holding Ctrl? false" based on the user's action. This event is handled using JavaScript.</p>
+<p>In Blazor, you can handle the same HTML event using C#. Here's an example that achieves a similar outcome:</p>
+<pre language="razor">&lt;button type="button" @onclick="HandleHTMLEventWithMouseEvent"&gt;
+    Handle with C# with event args (Is holding Ctrl? @isHoldingCtrl)
+&lt;/button&gt;
+
+@code {
+    private bool isHoldingCtrl = false;
+
+    private void HandleHTMLEventWithMouseEvent(MouseEventArgs e)
+    {
+        isHoldingCtrl = e.CtrlKey;
+    }
+}</pre>
+<p>To handle an HTML event with C#, you need to declare a method with the corresponding event argument class. In the example above, the C# method <code>HandleHTMLEventWithMouseEvent</code> is declared with <code>MouseEventArgs</code> as its parameter to handle the <code>onclick</code> event.&nbsp;Here's a list of HTML events along with their corresponding C# event argument classes, grouped by event type:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">HTML Event</th>
+                <th class="text-center" scope="col">C# Event Argument Class</th>
+            </tr>
+            <tr>
+                <th colspan="2">Focus Event</th>
+            </tr>
+            <tr>
+                <td><code>@onfocus</code></td>
+                <td><code>FocusEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onblur</code></td>
+                <td><code>FocusEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onfocusin</code></td>
+                <td><code>FocusEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onfocusout</code></td>
+                <td><code>FocusEventArgs</code></td>
+            </tr>
+            <tr>
+                <th colspan="2">Mouse Event</th>
+            </tr>
+            <tr>
+                <td><code>@onmouseover</code></td>
+                <td><code>MouseEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onmouseout</code></td>
+                <td><code>MouseEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onmousemove</code></td>
+                <td><code>MouseEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onmousedown</code></td>
+                <td><code>MouseEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onmouseup</code></td>
+                <td><code>MouseEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onclick</code></td>
+                <td><code>MouseEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ondblclick</code></td>
+                <td><code>MouseEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onwheel</code></td>
+                <td><code>WheelEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onmousewheel</code></td>
+                <td><code>WheelEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@oncontextmenu</code></td>
+                <td><code>MouseEventArgs</code></td>
+            </tr>
+            <tr>
+                <th colspan="2">Drag Event</th>
+            </tr>
+            <tr>
+                <td><code>@ondrag</code></td>
+                <td><code>DragEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ondragend</code></td>
+                <td><code>DragEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ondragenter</code></td>
+                <td><code>DragEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ondragleave</code></td>
+                <td><code>DragEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ondragover</code></td>
+                <td><code>DragEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ondragstart</code></td>
+                <td><code>DragEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ondrop</code></td>
+                <td><code>DragEventArgs</code></td>
+            </tr>
+            <tr>
+                <th colspan="2">Keyboard Event</th>
+            </tr>
+            <tr>
+                <td><code>@onkeydown</code></td>
+                <td><code>KeyboardEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onkeyup</code></td>
+                <td><code>KeyboardEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onkeypress</code></td>
+                <td><code>KeyboardEventArgs</code></td>
+            </tr>
+            <tr>
+                <th colspan="2">Input Event</th>
+            </tr>
+            <tr>
+                <td><code>@onchange</code></td>
+                <td><code>ChangeEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@oninput</code></td>
+                <td><code>ChangeEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@oninvalid</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onreset</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onselect</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onselectstart</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onselectionchange</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onsubmit</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <th colspan="2">Clipboard Event</th>
+            </tr>
+            <tr>
+                <td><code>@onbeforecopy</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onbeforecut</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onbeforepaste</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@oncopy</code></td>
+                <td><code>ClipboardEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@oncut</code></td>
+                <td><code>ClipboardEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpaste</code></td>
+                <td><code>ClipboardEventArgs</code></td>
+            </tr>
+            <tr>
+                <th colspan="2">Touch Event</th>
+            </tr>
+            <tr>
+                <td><code>@ontouchcancel</code></td>
+                <td><code>TouchEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ontouchend</code></td>
+                <td><code>TouchEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ontouchmove</code></td>
+                <td><code>TouchEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ontouchstart</code></td>
+                <td><code>TouchEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ontouchenter</code></td>
+                <td><code>TouchEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ontouchleave</code></td>
+                <td><code>TouchEventArgs</code></td>
+            </tr>
+            <tr>
+                <th colspan="2">Pointer Event</th>
+            </tr>
+            <tr>
+                <td><code>@ongotpointercapture</code></td>
+                <td><code>PointerEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onlostpointercapture</code></td>
+                <td><code>PointerEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpointercancel</code></td>
+                <td><code>PointerEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpointerdown</code></td>
+                <td><code>PointerEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpointerenter</code></td>
+                <td><code>PointerEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpointerleave</code></td>
+                <td><code>PointerEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpointermove</code></td>
+                <td><code>PointerEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpointerout</code></td>
+                <td><code>PointerEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpointerover</code></td>
+                <td><code>PointerEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpointerup</code></td>
+                <td><code>PointerEventArgs</code></td>
+            </tr>
+            <tr>
+                <th colspan="2">Media Event</th>
+            </tr>
+            <tr>
+                <td><code>@oncanplay</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@oncanplaythrough</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@oncuechange</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ondurationchange</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onemptied</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpause</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onplay</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onplaying</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onratechange</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onseeked</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onseeking</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onstalled</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onstop</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onsuspend</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ontimeupdate</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onvolumechange</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onwaiting</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <th colspan="2">Progress Event</th>
+            </tr>
+            <tr>
+                <td><code>@onloadstart</code></td>
+                <td><code>ProgressEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ontimeout</code></td>
+                <td><code>ProgressEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onabort</code></td>
+                <td><code>ProgressEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onload</code></td>
+                <td><code>ProgressEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onloadend</code></td>
+                <td><code>ProgressEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onprogress</code></td>
+                <td><code>ProgressEventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onerror</code></td>
+                <td><code>ErrorEventArgs</code></td>
+            </tr>
+            <tr>
+                <th colspan="2">Other Event</th>
+            </tr>
+            <tr>
+                <td><code>@onactivate</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onbeforeactivate</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onbeforedeactivate</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ondeactivate</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onended</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onfullscreenchange</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onfullscreenerror</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onloadeddata</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onloadedmetadata</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpointerlockchange</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onpointerlockerror</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onreadystatechange</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@onscroll</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+            <tr>
+                <td><code>@ontoggle</code></td>
+                <td><code>EventArgs</code></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>You don&rsquo;t always need to use event arguments, especially if you don&rsquo;t care about the event details. Declaring an unused event argument can make your code unnecessarily complex. For example, you might not need to know if the user is holding down a key while clicking a button. Fortunately, you can skip the event argument declaration in such cases. Consider the following example:</p>
+<pre language="razor">&lt;button type="button" onclick="alert('Hello Blazor School!')"&gt;Handle with JavaScript&lt;/button&gt;</pre>
+<p>In this example, a message is displayed when the user clicks the button. The event is handled by JavaScript, but you can achieve the same outcome with C# in Blazor:</p>
+<pre language="razor">&lt;button type="button" class="btn btn-primary" @onclick="IncrementCount"&gt;
+    Handle with C# (@currentCount clicked)
+&lt;/button&gt;
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Creating and Handling Blazor Events</h1>
+<p>Just like HTML events, a Blazor event also consists of 2 parts: the name and the argument. However, unlike HTML events, which are predefined by the browser, Blazor events are defined by the developer. Consider the following <strong>BlazorDiceRoll.razor</strong> component:</p>
+<pre language="razor">&lt;button type="button" @onclick="RollTheDice"&gt;Roll Dice!&lt;/button&gt;
+
+@code {
+    [Parameter]
+    public EventCallback&lt;int&gt; OnDiceRolled { get; set; }
+
+    public void RollTheDice() =&gt; OnDiceRolled.InvokeAsync(new Random().Next(1, 6));
+}</pre>
+<p>In this example, we created the <code>OnDiceRolled</code> event on top of the HTML <code>onclick</code> event. This Blazor event is used to notify other components when the dice has been rolled. Here&rsquo;s how the event can be consumed:</p>
+<pre language="razor">&lt;p&gt;Roll the dice. Current dice face: @currentDiceFace&lt;/p&gt;
+&lt;BlazorDiceRoll OnDiceRolled="UpdateDiceFace" /&gt;
+
+@code {
+    private int? currentDiceFace;
+
+    private void UpdateDiceFace(int diceFace)
+    {
+        currentDiceFace = diceFace;
+    }
+}</pre>
+<p>In this example, the <code>UpdateDiceFace</code> method is called whenever the <code>OnDiceRolled</code> event is triggered, updating the displayed dice face. This demonstrates how you can create custom Blazor events that communicate between components.</p>
+<p>In <code>BlazorDiceRoll.razor</code>, the <code>OnDiceRolled</code> event is defined with the type <code>EventCallback&lt;int&gt;</code>. This means the event is designed to pass a single <code>int</code> parameter when triggered. Consequently, the <code>UpdateDiceFace</code> method must also accept a single <code>int</code> parameter.</p>
+<p>If you try to add more parameters to the <code>UpdateDiceFace</code> method, the project will fail to build. This is because the event and its handler must have matching parameter types and counts for Blazor to correctly bind them together.</p>
+<p>Similar to HTML events, Blazor events don&rsquo;t always require event arguments, which can help simplify your code when they aren't needed. Consider the following <code>BlazorRating.razor</code> component:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;label&gt;&lt;input type="radio" name="rating" @onchange="On5StarsSelected" /&gt;*****&lt;/label&gt;
+    &lt;label&gt;&lt;input type="radio" name="rating" /&gt;****&lt;/label&gt;
+    &lt;label&gt;&lt;input type="radio" name="rating" /&gt;***&lt;/label&gt;
+    &lt;label&gt;&lt;input type="radio" name="rating" /&gt;**&lt;/label&gt;
+    &lt;label&gt;&lt;input type="radio" name="rating" /&gt;*&lt;/label&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public EventCallback On5StarsSelected { get; set; }
+}</pre>
+<p>In this example, the <code>On5StarsSelected</code> event is declared without any event argument. Here's how it can be consumed:</p>
+<pre language="razor">&lt;p&gt;How much do you love Blazor? Select 5 stars to increase this number: @selected5StarsCount&lt;/p&gt;
+&lt;BlazorRating On5StarsSelected="IncrementCount" /&gt;
+
+@code {
+    private int selected5StarsCount = 0;
+
+    private void IncrementCount()
+    {
+        selected5StarsCount++;
+    }
+}</pre>
+<p>Each time a user selects 5 stars, the count is incremented by 1. Notice that the <code>IncrementCount</code> method, which handles the <code>On5StarsSelected</code> event<strong>, </strong>has no parameters.</p>
+<p>If you try to add parameters to the <code>IncrementCount</code> method, the project will fail to build. This is because the method signature must exactly match the event's definition, which in this case, has no arguments.</p>
+<hr class="my-4" />
+<h1>Canceling Ongoing Events (<code>preventDefault</code>)</h1>
+<div>Every HTML event comes with default behaviors, and developers can block these using <code>preventDefault</code>. For instance, with a checkbox input, clicking it normally causes the browser to tick it&mdash;this is its default behavior. Here&rsquo;s an example that prevents the checkbox from being ticked when the user clicks it.</div>
+<pre language="razor">&lt;label&gt;
+    &lt;input type="checkbox" @onclick="_ =&gt; showMessage = true" @onclick:preventDefault /&gt;
+    @if (showMessage)
+    {
+        &lt;span&gt;The checkbox can&rsquo;t be checked because the &lt;code&gt;onclick&lt;/code&gt; event was cancelled using &lt;code&gt;@onclick:preventDefault&lt;/code&gt;.&lt;/span&gt;
+    }
+    else
+    {
+        &lt;span&gt;Click the checkbox&lt;/span&gt;
+    }
+&lt;/label&gt;
+
+@code {
+    private bool showMessage = false;
+}</pre>
+<div class="ratio ratio-16x9"><iframe src="https://www.youtube.com/embed/2F8MwHBy0mQ?si=KfWOMxsbHQ3pmaxR" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<hr class="my-4" />
+<h1>Preventing Propagation (<code>stopPropagation</code>)</h1>
+<p>HTML elements can be nested at multiple levels, like boxes inside boxes. When you click an element, an event starts at that spot and travels up through its parent elements&mdash;this is called event bubbling. In Blazor, you can stop this bubbling with <code>stopPropagation</code>. Take a look at this example:</p>
+<pre language="razor">&lt;button type="button" @onclick='_ =&gt; Message += "&lt;code&gt;Level 1&lt;/code&gt; clicked. "'&gt;
+    Level 1
+    &lt;button type="button" @onclick='_ =&gt; Message += "&lt;code&gt;Level 2&lt;/code&gt; clicked. "'&gt;
+        Level 2
+        &lt;button type="button" @onclick='_ =&gt; Message += "&lt;code&gt;Level 3&lt;/code&gt; clicked. "'&gt;
+            Level 3
+        &lt;/button&gt;
+    &lt;/button&gt;
+&lt;/button&gt;</pre>
+<p>In this example, we have 3 nested buttons, with the Level 1 button as the outermost and Level 3 as the innermost. Imagine the user clicks on Level 3: the <code>onclick</code> event will propagate from Level 3 to Level 2, and then from Level 2 to Level 1. All 3 buttons register as clicked.</p>
+<p>Now, let's add <code>@onclick:stopPropagation</code> to the Level 2 button. With this change, the propagation goes only from Level 3 to Level 2 and stops there.</p>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/zZi79BhH0tA?si=gOfCeZYePFcJs8q_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>

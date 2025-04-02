@@ -1,0 +1,67 @@
+﻿<h1>Component Directives</h1>
+<p>As you have learned that a component consists of 3 sections: directive, UI, and code section. This tutorial solely focusing on the first section - directive.</p>
+<ul>
+    <li>What is a component directive?</li>
+    <li>List of directives in Blazor.</li>
+</ul>
+<hr class="my-4" />
+<h1>What is a Component Directive?</h1>
+<p>Component directives in Blazor are special keywords that provide instructions to the compiler. They are used to control component behavior, manage dependencies, and enhance functionality. They are usually placed at the top of a component. Here is an example of a directive: <code>@page "/home"</code></p>
+<p>In this example, it means that the user can navigate to this page by typing <code>http://localhost/home</code> in the address bar.</p>
+<hr class="my-4" />
+<h1>List of Directives in Blazor</h1>
+<p>Blazor offers several directives to facilitate various tasks within components. Here is a list of directives:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <tbody>
+            <tr>
+                <th class="text-center" scope="col">Directive identifier</th>
+                <th class="text-center" scope="col">Description</th>
+            </tr>
+            <tr>
+                <td><code>@inherits</code></td>
+                <td>Specifies the base class for a component.</td>
+            </tr>
+            <tr>
+                <td><code>@namespace</code></td>
+                <td>Specifies the namespace for a component.</td>
+            </tr>
+            <tr>
+                <td><code>@implements</code></td>
+                <td>Specifies the interface for a component.</td>
+            </tr>
+            <tr>
+                <td><code>@preservewhitespace</code></td>
+                <td>Removes all redundant whitespace from an element.</td>
+            </tr>
+            <tr>
+                <td><code>@typeparam</code></td>
+                <td>Declares a generic type parameter for the generated component class.</td>
+            </tr>
+            <tr>
+                <td><code>@layout</code></td>
+                <td>Specifies the layout for a component.</td>
+            </tr>
+            <tr>
+                <td><code>@inject</code></td>
+                <td>Injects an instance into a component.</td>
+            </tr>
+            <tr>
+                <td><code>@page</code></td>
+                <td>Specifies the route and parameter for a component.</td>
+            </tr>
+            <tr>
+                <td><code>@section</code></td>
+                <td>Defines a section. Not available for Razor Components and not used in Blazor.</td>
+            </tr>
+            <tr>
+                <td><code>@functions</code></td>
+                <td>Deprecated, use <code>@code</code> instead.</td>
+            </tr>
+            <tr>
+                <td><code>@rendermode</code></td>
+                <td>Specifies the render mode for this component.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

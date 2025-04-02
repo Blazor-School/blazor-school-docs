@@ -1,0 +1,41 @@
+[
+    {
+        "Category": "blazor-server",
+        "DotNet":
+        [
+            {
+                "DotNetVersion": "dotnet5"
+            },
+            {
+                "DotNetVersion": "dotnet6"
+            },
+            {
+                "DotNetVersion": "dotnet7"
+            }
+        ]
+    },
+    {
+        "Category": "blazor-wasm",
+        "DotNet":
+        [
+            {
+                "DotNetVersion": "dotnet5"
+            },
+            {
+                "DotNetVersion": "dotnet6"
+            },
+            {
+                "DotNetVersion": "dotnet7"
+            }
+        ]
+    },
+    {
+        "Category": "blazor-webassembly-standalone",
+        "DotNet":
+        [
+            {
+                "DotNetVersion": "dotnet9"
+            }
+        ]
+    }
+]

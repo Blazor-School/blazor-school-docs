@@ -1,0 +1,78 @@
+<h1>Introduction to forms in Blazor Server</h1>
+<p>Handling user input with forms is the cornerstone of many common websites. Websites use forms to enable users to login, update a profile, enter sensitive information, and perform many other data-entry tasks.</p>
+<p>Blazor Server provides a built-in component to handle user input through forms: <code>&lt;EditForm&gt;</code>. <code>&lt;EditForm&gt;</code> captures user input from view, validates user input, creates a form model and data model to update, and provides a way to track changes.</p>
+<p>This guide provides information to help you have an overview of the flow when using forms. It introduces the common building blocks used by <code>&lt;EditForm&gt;</code>.</p>
+<blockquote><a href="https://github.com/Blazor-School/form-example-blazor-school-solution" _target="blank" title="Blazor Server directive example">Download the example</a> for a working example containing the code snippets in this guide.</blockquote>
+<hr class="my-4" />
+<h1>Prerequisites</h1>
+<p>This guide assumes that you have a basic understanding of the following:</p>
+<ul>
+    <li><a href="https://dotnet.microsoft.com/learn/csharp" target="_blank" rel="noopener">C#</a>, <a href="https://www.w3schools.com/html/" target="_blank" rel="noopener">HTML</a>, <a href="https://www.w3schools.com/css/" target="_blank" rel="noopener">CSS</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/components-417405" title="Razor Component">Razor Component</a>.</li>
+    <li><a href="/tutorial/blazor-server/dotnet5/directives-241273" title="Blazor Server Directives">Blazor Server Directives</a>.</li>
+</ul>
+<hr class="my-4" />
+<h1>Data flow in <code>&lt;EditForm&gt;</code></h1>
+<p>When a website contains a form, Blazor Server must keep the view in sync with the component model and the component model in sync with the view. As users change values and make selections through the view, the new values must be reflected in the data model. Similarly, when the program logic changes the values in the data model, those values must be reflected in the view.</p>
+<p><code>&lt;EditForm&gt;</code> is a built-in component of Blazor Server to handle form operations including validation, track changes, bind values, etc...</p>
+<p>Each form is associated with a form model, and for each form element, is associated with a property in form model. Any changes in the form model and the validation process will be executed on the backend server and send the results back to the frontend. The validation process is performed using the <code>System.ComponentModel.DataAnnotations</code> namespace of Microsoft.</p>
+<hr class="my-4" />
+<h1>Setting up the form model</h1>
+<p>To use the <code>&lt;EditForm&gt;</code>, you need to set up the form model as the first step because the <code>&lt;EditForm&gt;</code> requires the <code>Value</code> parameter. Head to the Data folder and create a new class.</p>
+<pre class="code" language="csharp">using System.ComponentModel.DataAnnotations;
+
+namespace FormExample.Data
+{
+    public class Product
+    {
+        [Required]
+        public string Name { get; set; }
+        [Required]
+        [Range(100, double.MaxValue)]
+        public double? Price { get; set; }
+    }
+}</pre>
+<p>The <code>Name</code> property has an <code>Required</code> attribute attached. The attribute <code>Required</code> will validate if the user has input the Name or not. The <code>Price</code> property has <code>Required</code> and <code>Range</code> attributes to indicate that the user must enter a <code>Price</code> and the price must be more than 100.</p>
+<hr class="my-4" />
+<h1>Setting up the form</h1>
+<p>The next step after you have the form model is to set up the form. Add a new razor component to the folder <code>Page</code>. Declare a property for the form model.</p>
+<pre class="code" language="razor">@using Data;
+
+...
+
+@code {
+    private Product Product { get; set; } = new();
+}</pre>
+<p>Add the <code>&lt;EditForm&gt;</code> component and specify the <code>Product</code> property as the form model. Add the <code>&lt;DataAnnotationsValidator&gt;</code> component inside the <code>&lt;EditForm&gt;</code> to enable the validators.</p>
+<pre class="code" language="razor">&lt;EditForm Model="Product"&gt;
+    &lt;DataAnnotationsValidator&gt;&lt;/DataAnnotationsValidator&gt;
+&lt;/EditForm&gt;</pre>
+<p>Add the <code>&lt;InputText&gt;</code> component inside the <code>&lt;EditForm&gt;</code> component to create an input element for the <code>Product.Name</code>. Add the <code>&lt;ValidationMessage&gt;</code> for the input to display errors if the validation for the <code>Product.Name</code> failed.</p>
+<pre class="code" language="razor">&lt;div&gt;
+    &lt;label&gt;Name:&lt;/label&gt;
+    &lt;InputText @bind-Value="Product.Name"&gt;&lt;/InputText&gt;
+    &lt;ValidationMessage For="() =&gt; Product.Name"&gt;&lt;/ValidationMessage&gt;
+&lt;/div&gt;</pre>
+<p>Do the same for <code>Product.Price</code> but this time, use the <code>&lt;InputNumber&gt;</code> component.</p>
+<pre class="code" language="razor">&lt;div&gt;
+    &lt;label&gt;Price&lt;/label&gt;
+    &lt;InputNumber @bind-Value="Product.Price"&gt;&lt;/InputNumber&gt;
+    &lt;ValidationMessage For="() =&gt; Product.Price"&gt;&lt;/ValidationMessage&gt;
+&lt;/div&gt;</pre>
+<p>Add a submit button and a submit method.</p>
+<pre class="code" language="razor">&lt;EditForm Model="Product" OnValidSubmit="Submit"&gt;
+    ...
+    &lt;input type="submit" value="Submit" /&gt;
+&lt;/EditForm&gt;
+@SubmitText
+
+@code {
+    ...
+    private string SubmitText { get; set; }
+    private void Submit()
+    {
+        SubmitText = $"Submitted Data: Product {Product.Name} with the price {Product.Price}";
+    }
+}</pre>
+<p>Verify the component.</p>
+<p><img class="img-fluid" src="\tutorials\legacy-\tutorials\legacy-contents\blazor-server\dotnet5\forms-227030\bf17b2a9-61f9-44c8-96b2-7ad012ab8287..gif" alt="" width="528" height="188" /></p>

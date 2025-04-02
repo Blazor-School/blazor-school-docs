@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Implementing Authorization",
+    "Slug": "implementing-authorization-502294",
+    "Description": "Authorize a user, display the UI for each user differently based on their identity"
+}

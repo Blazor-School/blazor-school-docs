@@ -1,0 +1,133 @@
+﻿<h1>Content projection</h1>
+<p>✅ Similar to Blazor Server</p>
+<p>Content projection in Blazor is the ability to create generic components that allow for the specification of one or more UI parts by the user at runtime. This means that you can design a component that handles common logic, while deferring specific logic to other components. Examples of where Content Projection is useful include a component that displays child components or HTML tags in a right-to-left format, or a tab container component that handles all the logic for tabs without knowledge of the specific tabs. In this tutorial, you will learn more about Content Projection and its various uses in Blazor:</p>
+<ul>
+    <li>What and when to use content projection?</li>
+    <li>Create a projectable component.</li>
+    <li>Generic projection.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/content-projection-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What and when to use content projection?</h1>
+<p>Content projection is a technique that allows you to build a component that handles common logic and delegates specific logic to the component where it is used. For example, if you are building a website for an animal clinic, you may have different types of animals like dogs, cats, and turtles. Each animal has a web page to display information, and all animals share some common information such as name and age. However, some animals also have specific information such as skin cycle time or hibernation cycle. If you were to create a separate component for each species, you would end up with hundreds of components and would have to handle common information like name and age repeatedly. Content projection is a solution to this problem. It allows you to create a component that can display all common information of an animal and delegate specific information to another component. This technique is known as content projection.</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\content-projection-881480\why-use-content-projection.png" alt="why-use-content-projection.png" width="900" height="602" /></p>
+<hr class="my-4" />
+<h1>Create a projectable component</h1>
+<p>A <code>RenderFragment</code> in Blazor is a placeholder for projected UI. It allows components to accept and display content passed to them from outside. Assuming you have the following <code>Tab</code> component.</p>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public RenderFragment? Title { get; set; }
+    
+    [Parameter]
+    public RenderFragment? Content { get; set; } = (__builder) =&gt;
+    {
+        &lt;div&gt;Default content&lt;/div&gt;
+    };
+}</pre>
+<p>In the example provided, the component <code>Tab</code> has two parameters defined - <code>Title</code> and <code>Content</code> - both of which are of type <code>RenderFragment</code>. The <code>Content</code> parameter also has a default value assigned to it, which will be displayed if no content is projected onto it. When this component is used, the projected content is placed within the <code>Title</code> and <code>Content</code> slots, as shown in the example.</p>
+<pre class="code" language="razor">&lt;Tab&gt;
+    &lt;Title&gt;Blazor School&lt;/Title&gt;
+    &lt;Content&gt;Blazor Tutorial for .NET 7&lt;/Content&gt;
+&lt;/Tab&gt;</pre>
+<h3>Single projectable slot</h3>
+<p>When creating a projectable component that only requires a single slot, it can be beneficial to avoid naming the <code>RenderFragment</code> parameter with a specific name. This can lead to unnecessary redundancy in the component's usage. Instead, you can use <code>ChildContent</code> as a special name for the <code>RenderFragment</code> that catches all the content passed to it.</p>
+<p>For example, in the code below, the component uses a <code>RenderFragment</code> parameter named <code>Content</code> which is not necessary.</p>
+<pre class="code" language="razor">@* Button Component *@
+
+@code {
+    [Parameter]
+    public RenderFragment? Content { get; set; }
+}</pre>
+<pre class="code" language="razor">@* When it is used *@
+
+&lt;Button&gt;
+    &lt;Content&gt;Submit&lt;/Content&gt;
+&lt;/Button&gt;</pre>
+<p>However, when you use <code>ChildContent</code>, it eliminates the need to specify the name of the <code>RenderFragment</code> when the component is used.</p>
+<pre class="code" language="razor">@* Button Component *@
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}</pre>
+<pre class="code" language="razor">@* When it is used *@
+&lt;Button&gt;Submit&lt;/Button&gt;</pre>
+<p>This way, you can use the component simply by passing content within its opening and closing tags, making it more readable and less verbose.</p>
+<hr class="my-4" />
+<h1>Generic content projection</h1>
+<p>When working with dynamic and generic data, it can be beneficial to use generic content projection. This allows you to process and display the data in a more efficient and readable way. One of the main advantages of this approach is the ability to reduce redundant code. Take <code>List&lt;T&gt;</code> as an example. <code>List&lt;T&gt;</code> where <code>T</code> is a generic class, you can order the list, find items and more without writing any code.</p>
+<p>For example, when displaying a list of animals, you might be tempted to use a <code>foreach</code> loop with multiple if-else statements to determine the type of animal and display the appropriate content. However, this approach can lead to a lot of repetitive code, making it difficult to read and maintain.</p>
+<pre class="code" language="razor">@foreach(var animal in Animals)
+{
+    @if(animal is Dog)
+    {
+        &lt;div&gt;My name is @animal.Name, I am a dog.&lt;/div&gt;
+    }
+
+    @if(animal is Cat)
+    {
+        &lt;div&gt;My name is @animal.Name, I am a cat.&lt;/div&gt;
+    }
+        
+    @if(animal is Bird)
+    {
+        &lt;div&gt;My name is @animal.Name, I am a bird.&lt;/div&gt;
+    }
+}</pre>
+<p>Instead, you can use a generic content projection component that allows you to specify different templates for different types of animals. This way, you only have to define the templates once and the component takes care of displaying the appropriate content based on the type of animal.</p>
+<pre class="code" language="razor">&lt;AnimalDisplay InputData="Animals" Context="animal"&gt;
+    &lt;DogTemplate&gt;
+        &lt;div&gt;My name is @animal.Name, I am a dog.&lt;/div&gt;
+    &lt;/DogTemplate&gt;
+    &lt;CatTemplate&gt;
+        &lt;div&gt;My name is @animal.Name, I am a cat.&lt;/div&gt;
+    &lt;/CatTemplate&gt;
+    &lt;BirdTemplate&gt;
+        &lt;div&gt;My name is @animal.Name, I am a bird.&lt;/div&gt;
+    &lt;/BirdTemplate&gt;
+&lt;/AnimalDisplay&gt;</pre>
+<p>This approach not only makes the code more readable, but it also allows you to perform additional logic processing on the data, such as sorting the list or updating property values, within the <code>AnimalDisplay</code> component. Overall, generic content projection is a powerful tool that can help you write more efficient and maintainable code.</p>
+<h3>Create a generic content projection component</h3>
+<ol>
+    <li>When creating a new generic content projection component, start by defining the type parameter <code>T</code> using the <code>@typeparam</code> directive. <code>T</code> can be restricted to an interface or a base class. For example:</li>
+</ol>
+<pre class="code" language="razor">@typeparam T where T : IAnimal</pre>
+<ol start="2">
+    <li>Next, define placeholders for the projectable <code>RenderFragment</code>. If your component is processing data, declare input parameters and methods to process the data. For example:</li>
+</ol>
+<pre class="code" language="razor">@code {
+    [Parameter]
+    public T Animal { get; set; }
+
+    [Parameter]
+    public RenderFragment&lt;string&gt;? ChildContent { get; set; }
+
+    private string GetExamineDetail(IAnimal animal) =&gt; $"The age is: {Animal.Age}.";
+}</pre>
+<p>Then you can use the generic content projection component as follows:</p>
+<pre class="code" language="razor">@foreach (var animal in Animals)
+{
+    &lt;AnimalDetail Animal="animal" /&gt;
+}
+
+@code {
+    public List&lt;IAnimal&gt; Animals { get; set; } = new()
+    {
+        new Dog() { Name = "Doggy", Age = 2 },
+        new Bird() { Name = "Birb", Age = 0 },
+        new Cat() { Name = "Kitty", Age = 2 }
+    };
+}</pre>
+<p>Or access some processed data:</p>
+<pre class="code" language="razor">&lt;AnimalDetail Animal="Stray" Context="examinateDetail"&gt;
+    We have found this stray cat in a bush. @examinateDetail
+&lt;/AnimalDetail&gt;
+
+@code {
+    public Cat Stray { get; set; } = new()
+    {
+        Name = "Stray Cat",
+        Age = 3
+    };
+}</pre>
+<p>In this example, the <code>examinateDetail</code> is the result of the method <code>GetExamineDetail</code> we have defined before.</p>

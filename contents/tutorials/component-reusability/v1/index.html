@@ -1,0 +1,50 @@
+﻿<h1>Building Reusable Components</h1>
+<p>In Blazor, developing a web application requires creating numerous components, each with distinct behaviour and appearance, designed for reuse across various sections of your site. This approach can help you reduce code duplication while ensuring consistency within your website, improving the credibility of your web app. This tutorial will discuss the following topics:</p>
+<ul>
+    <li>What is a reusable component?</li>
+    <li>When to break into multiple components?</li>
+    <li>How to build a reusable component?</li>
+    <li>Next step</li>
+</ul>
+<hr class="my-4" />
+<h1>What is a Reusable Component?</h1>
+<p>A component is intended to be created once and used multiple times to eliminate the need for repeating code. A component does not always need to look the same.&nbsp;</p>
+<p>For example, consider you have a textbox with a label to collect input from the user. The textbox will be used in many places to collect user data. To make a component that can be used in multiple scenarios, a meaningful label should be used in each place, making every textbox in your app "slightly different". You can declare these "slight differences" as component parameters to allow them to be changed when needed. Not only do these parameters allow changing the shape of a component, but they also provide a way to enable component communication.</p>
+<p>Consider a textbox to capture user input and validate user input as they type (logic). When the user inputs invalid data, the textbox appears with a red border (styling) and turns green when the data is valid. Both logic and styling of a component can be declared and reused in a component. The logic is preserved in the <code>.razor</code> file, where CSS styling is scoped in the <code>.razor.css</code> file.</p>
+<hr class="my-4" />
+<h1>When to Break into Multiple Components?</h1>
+<p><img src="tutorials/component-reusability/v1/break-into-components.webp" alt="break-into-components.webp" width="1874" height="934" /></p>
+<p>Breaking a big component into multiple smaller components is similar to breaking a large C# method into several smaller ones. It depends on the experience of the developer and the viewpoint of each person. We suggest breaking into multiple components when a piece of UI with the same logic is used in multiple places, or the logic in the UI is too complex, and one way to simplify it is to break it into multiple components.</p>
+<hr class="my-4" />
+<h1>How to Build a Reusable Component?</h1>
+<p>Create a new Razor Component by right-clicking a folder within your project in Visual Studio and selecting <strong>Add</strong> &gt; <strong>Razor Component... </strong>and name it&mdash;e.g., <code>BlazorSchoolInputText.razor</code></p>
+<p><img src="tutorials/component-reusability/v1/create-razor-component.webp" alt="create-razor-component.webp" width="800" height="493" /></p>
+<p>The file name will serve as the component's tag.Here's an textbox component example with 2 parameters:</p>
+<pre language="razor">&lt;label&gt;@Label: &lt;input type="text" @bind-value="Value" @bind-value:event="oninput" class="@InputClass" /&gt;&lt;/label&gt;
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "Input";
+
+    [Parameter]
+    public string Value { get; set; } = "";
+
+    private string InputClass =&gt; IsValid() ? "valid" : "invalid";
+
+    private bool IsValid() =&gt; Value.Length &gt; 3; // Basic validation rule
+}</pre>
+<p>To maintain a consistent and reusable appearance for your component you can optionally add a scoped CSS file named <code>BlazorSchoolInputText.razor.css</code>.</p>
+<pre language="css">.valid { border: 2px solid green; }
+.invalid { border: 2px solid red; }</pre>
+<hr class="my-4" />
+<h1>Next Step</h1>
+<p>So far, you have learnt the basics of creating a reusable component. To fully understand and design good components, we will talk about the following topics to help you leverage your Blazor development skills:</p>
+<ul>
+    <li><strong>Component Communication</strong>: Discuss what, why, and how to establish a connection between multiple components in different scenarios.</li>
+    <li>
+        <strong>Parameter Validation, Defaults, and Updates</strong>: Explain how to add validation or set default values to parameters. Explain different scenarios when updating a parameter.
+    </li>
+    <li>
+        <strong>Component Styling Isolation and Overriding</strong>: Examines how to isolate CSS styling within a component using scoped files and override those styles selectively for customisation across your app.
+    </li>
+</ul>

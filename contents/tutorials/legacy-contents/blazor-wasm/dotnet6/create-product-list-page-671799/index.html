@@ -1,0 +1,82 @@
+<h1>Create product list page</h1>
+<p>This tutorial is a continuation of the previous tutorial. You are going to learn to define your very first component and reuse it. In this tutorial:</p>
+<ul>
+    <li>Create the product component.</li>
+    <li>Create the product list page.</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/online-shop-blazor-wasm-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Create the product component</h1>
+<p>The product component is responsible for rendering a single product UI. This component will later be reused in the product list page to render a list of products. First, create the <code>Product</code> model as follows:</p>
+<pre class="code" language="csharp">public class Product
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = "";
+    public string Description { get; set; } = "";
+    public double Price { get; set; }
+}
+</pre>
+<p>Then create a new Razor Component. Follow the following steps to create a Razor Component:</p>
+<ol>
+    <li>Right-click on the <strong>Shared</strong> folder. Select <strong>Add</strong> &rarr; <strong>Razor Component</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\create-product-list-page-671799\add-razor-component-step1.png" alt="add-razor-component-step1.png" width="733" height="380" /></p>
+<ol start="2">
+    <li>Name your component as <strong>ProductDisplay</strong> and then click <strong>Add</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\create-product-list-page-671799\add-razor-component-step2.png" alt="add-razor-component-step2.png" width="941" height="653" /></p>
+<p>Once you created the <strong>ProductDisplay</strong> component, define a parameter to the component. Component parameters are the input data, the component will process those input data accordingly.</p>
+<pre class="code" language="razor">...
+@code {
+    [EditorRequired]
+    [Parameter]
+    public Product Product { get; set; } = new();
+}
+</pre>
+<p>The <code>[Parameter]</code> attribute will mark the property as a parameter of the component. The <code>[EditorRequired]</code> will enforce whenever this component is used, the component user must provide the <code>Product</code> parameter data.</p>
+<p>Define the UI of the component as follows:</p>
+<pre class="code" language="razor">&lt;div class="card w-25"&gt;
+    &lt;div class="card-body"&gt;
+        &lt;h5 class="card-title"&gt;@Product.Name&lt;/h5&gt;
+        &lt;p class="card-text"&gt;@Product.Description&lt;/p&gt;
+        &lt;blockquote class="card-text"&gt;$@Product.Price&lt;/blockquote&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+@code
+{
+    ...
+}</pre>
+<hr class="my-4" />
+<h1>Create the product list page</h1>
+<p>The product list page component is responsible for displaying a list of products. The end user will see and interact directly with this component.</p>
+<ol>
+    <li>Create a new component with the name <strong>ProductList.razor</strong>.</li>
+    <li>Enable the end user to navigate to the component. Add <code>@page</code> at the top of the component as follows:</li>
+</ol>
+<pre class="code" language="razor">@page "/product-list"</pre>
+<ol start="3">
+    <li>Inject the HttpClient to fetch the product list.</li>
+</ol>
+<pre class="code" language="razor">@inject HttpClient Http</pre>
+<ol start="4">
+    <li>Declare the product list and fetch the data.</li>
+</ol>
+<pre class="code" language="razor">@code {
+    public List&lt;Product&gt; Products { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Products = await Http.GetFromJsonAsync&lt;List&lt;Product&gt;&gt;("sample-data/products.json") ?? new();
+    }
+}</pre>
+<blockquote>Blazor WebAssembly is only the frontend. The <strong>product.json</strong> is a simulate of data of an API.</blockquote>
+<ol start="5">
+    <li>Define the UI of the product list page.</li>
+</ol>
+<pre class="code" language="razor">@foreach (var product in Products)
+{
+    &lt;ProductDisplay Product="product"/&gt;
+}</pre>
+<p>You will have the following result:</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet6\create-product-list-page-671799\product-list-page-result.png" alt="product-list-page-result.png" width="764" height="780" /></p>

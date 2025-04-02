@@ -1,0 +1,64 @@
+<h1>Authentication and authorization</h1>
+<p>Authentication and authorization is a useful feature in Blazor Server. Those features will help you to identify the users and show different UI to different users. In this tutorial, you will discover:</p>
+<ul>
+    <li>What is authentication?</li>
+    <li>How authentication works?</li>
+    <li>What is authorization?</li>
+    <li>How authorization works?</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/authentication-and-authorization-blazor-server-dotnet6" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>What is authentication?</h1>
+<p>Authentication is the process of answering the question "Who are you?". You will need to check if a user's credentials against the data source. The most common data source can be a table in your database. Sometimes, the data source can be Azure Active Directory, Active Directory and so on.</p>
+<p>The users can provide their credentials by many ways, they can use biometrics, SMS OTP, ... The most common way for a user to provide their credentials is via username and password.</p>
+<hr class="my-4" />
+<h1>How authentication works?</h1>
+<p>In this section, you will be able to answer the questions:</p>
+<ul>
+    <li>How many parts involved?</li>
+    <li>Login flow.</li>
+    <li>User revisit website flow.</li>
+    <li>Logout flow.</li>
+</ul>
+<h3>How many parts involved in authentication?</h3>
+<p>To implement authentication in Blazor Server, you need at least:</p>
+<ol>
+    <li>A browser data storage.</li>
+    <li><code>AuthenticationStateProvider</code>.</li>
+    <li><code>CascadingAuthenticationState</code>.</li>
+</ol>
+<p>You can use memory, local storage or session storage as the browser data storage. Once the user has been authenticated, the user's data will persist in the memory, so this browser data storage is responsible for extending the lifetime of user's data. When the user open a new tab or refresh the page, the user's data will be restored from the browser data storage. Using local storage is recommended.</p>
+<p><code>AuthenticationStateProvider</code> is responsible for answering the questions "What to do when the user login, revisit the website or logged out?". This class is where you put your authenticate business logic to determine if a user is authenticated or not. This class is also responsible for notifying the other components about the user's authentication state.</p>
+<p><code>CascadingAuthenticationState</code> is responsible for passing the authentication state across the website. This is why the component has to be the root component. <code>CascadingAuthenticationState</code> does the work in the background, and you don't need to modify or config anything in this component.</p>
+<h3>Login flow</h3>
+<p>When a user provided their credentials, the <code>AuthenticationStateProvider</code> will process the data. First, <code>AuthenticationStateProvider</code> checks if the credentials are valid. If the credentials are valid, <code>AuthenticationStateProvider</code> stores the credentials to the browser data storage, create a <code>ClaimsPrincipal</code> and call <code>NotifyAuthenticationStateChanged</code> to notify all the components to update their UI. The following image illustrates this flow:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\authentication-and-authorization-981067\login-flow.png" alt="login-flow.png" width="1000" height="241" /></p>
+<h3>Users revisit website flow</h3>
+<p>When the users revisit your website, either by refreshing the website or navigate to your website, the <code>AuthenticationStateProvider</code> will look for stored credentials in the browser data storage which is stored in the login flow. If found and valid, <code>AuthenticationStateProvider</code> will use that credentials to create a <code>ClaimsPrincipal</code> to mark the user as authenticated. Otherwise, the user stays unauthenticated. The following image illustrates this phase:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\authentication-and-authorization-981067\revisit-website-flow.png" alt="revisit-website-flow.png" width="700" height="728" /></p>
+<h3>Logout flow</h3>
+<p>When a user logged out your website, the <code>AuthenticationStateProvider</code> will clear the browser data storage and call <code>NotifyAuthenticationStateChanged</code> to notify all the components to update their UI. The following image illustrates this flow:</p>
+<p><img src="\tutorials\legacy-contents\blazor-server\dotnet6\authentication-and-authorization-981067\logout-flow.png" alt="logout-flow.png" width="700" height="79" /></p>
+<hr class="my-4" />
+<h1>What is authorization?</h1>
+<p>Authorization is the process of answering the question "Are you eligible for something?" or "Are you eligible to do something?". To answer those questions, you first need to know the answer to the question "Who are you?". In the other words, you need to have authentication first, then you can implement authorization. In the authentication process, you will store the user's authentication data like their roles, their permissions, etc... Authorization is the process of composing the user's authentication data to determine if a user can do/see something or not.</p>
+<hr class="my-4" />
+<h1>How authorization works?</h1>
+<p>In this section, you will be able to answer the questions:</p>
+<ul>
+    <li>How many parts involved?</li>
+    <li>The transition between authentication to authorization.</li>
+    <li>Approaches.</li>
+</ul>
+<h3>How many parts involved in authorization?</h3>
+<p>To implement authorization in Blazor Server, you need at least:</p>
+<ol>
+    <li>A <code>ClaimsPrincipal</code>.</li>
+    <li>Authorization rule.</li>
+    <li>Authorizing resource data (optional).</li>
+</ol>
+<p>A <code>ClaimsPrincipal</code> is a class to store authentication data, the authentication data is stored in a list of <code>Claim</code> in <code>ClaimsPrinciple</code>. A <code>Claim</code> has many properties, 2 most important properties that you will use most of the time to authorization is <code>Type</code> and <code>Value</code>. Both properties are <code>string</code>. The <code>Type</code> will indicate which authentication data of the <code>Claim</code> is. For example, you can store the user's age in the <code>Claim</code> like this <code>new Claim("Age", "17")</code>. There are also some predefined <code>Type</code> in the <code>System.Security.Claims.ClaimTypes</code>, those default types will help you to interact with the built-in authorization rules.</p>
+<p>An authorization rule is a set of conditions that a user must pass in order to satisfy the authorization rule. For example, an authorization rule can require a user belongs to a group, older than 18, etc&hellip; If any condition is not passed, the user cannot access the resource that is protected by the authorization rule.</p>
+<p>Authorizing resource data is the data from the resource you are authorizing. This data will be tested against the <code>Claim</code> in order to make a resource accessible for a user or not. For example, a convenient store sells many products, one of the product is alcohol which require the buyer to be over 18, all other products do not have age restriction. In this case, <strong>18</strong> is the authorizing resource data.</p>
+<h3>The transition between authentication to authorization</h3>
+<p>A part that the authorization process requires is a list of <code>Claim</code> which can only obtained after the authentication process. The <code>Claim</code> can be found in <code>ClaimsPrincipal.Claims</code>. The <code>ClaimsPrincipal</code> is stored in the memory, so if the user opens a new tab or refreshes the website, you need to recreate it from the browser storage.</p>

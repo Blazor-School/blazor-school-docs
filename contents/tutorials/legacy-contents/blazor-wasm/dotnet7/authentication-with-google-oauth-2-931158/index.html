@@ -1,0 +1,185 @@
+﻿<h1>Authentication with Google OAuth 2.0</h1>
+<p>✅ Similar to Blazor Server</p>
+<p>Using Google OAuth 2 for authentication can enhance the user experience and streamline the sign-up process, as many users already have a Google account and can log in to your application using their existing credentials. This tutorial builds on the basic JWT authentication by incorporating Google authentication through the use of Google Identity, allowing for both types of authentication to be used simultaneously. The tutorial covers the following steps:</p>
+<ul>
+    <li>Setting up a Google Cloud account</li>
+    <li>Setting up a Blazor project</li>
+    <li>Implementing login with Google using a custom button</li>
+    <li>Implementing login with Google using a rendered button</li>
+</ul>
+<blockquote>You can <a href="https://github.com/Blazor-School/authentication-with-google-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Setting up a Google Cloud account</h1>
+<p>You must first set up your Google Cloud account by following these steps:</p>
+<ol>
+    <li>Go to the <a href="https://console.cloud.google.com/home/dashboard" target="_blank" rel="noopener" title="Google Cloud Dashboard">Google Cloud Dashboard</a>.</li>
+    <li>Near the Google Cloud logo at the top of the page, click <strong>Select a project</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\authentication-with-google-oauth-2-931158\crerate-google-cloud-project.png" alt="crerate-google-cloud-project.png" width="370" height="45" /></p>
+<ol start="3">
+    <li>Choose <strong>New project</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\authentication-with-google-oauth-2-931158\crerate-google-cloud-project-2.png" alt="crerate-google-cloud-project-2.png" width="755" height="126" /></p>
+<ol start="4">
+    <li>Enter your project name and location.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\authentication-with-google-oauth-2-931158\crerate-google-cloud-project-3.png" alt="crerate-google-cloud-project-3.png" width="548" height="395" /></p>
+<ol start="5">
+    <li>Navigate to <strong>APIs &amp; Services</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\authentication-with-google-oauth-2-931158\crerate-google-cloud-project-4.png" alt="crerate-google-cloud-project-4.png" width="291" height="351" /></p>
+<ol start="6">
+    <li>Create a new <strong>OAuth consent screen</strong> and select <strong>External</strong> option.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\authentication-with-google-oauth-2-931158\crerate-google-cloud-project-5.png" alt="crerate-google-cloud-project-5.png" width="805" height="531" /></p>
+<ol start="7">
+    <li>Fill in the required information and leave the rest of the steps as default.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\authentication-with-google-oauth-2-931158\crerate-google-cloud-project-6.png" alt="crerate-google-cloud-project-6.png" width="562" height="1439" /></p>
+<ol start="8">
+    <li>Once you have the OAuth consent screen, create a credential.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\authentication-with-google-oauth-2-931158\crerate-google-cloud-project-7.png" alt="crerate-google-cloud-project-7.png" width="622" height="198" /></p>
+<ol start="9">
+    <li>Enter the name of the credential, and in the <strong>Authorized JavaScript origins</strong> field, add 2 URIs: <strong>http://localhost</strong> and <strong>http://localhost:&lt;your_port&gt;</strong>.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\authentication-with-google-oauth-2-931158\crerate-google-cloud-project-8.png" alt="crerate-google-cloud-project-8.png" width="800" height="804" /></p>
+<ol start="10">
+    <li>After creating the credential, you will receive a client ID on the right side. You will need this client ID to connect to Google OAuth 2 later.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\authentication-with-google-oauth-2-931158\crerate-google-cloud-project-9.png" alt="crerate-google-cloud-project-9.png" width="800" height="89" /></p>
+<hr class="my-4" />
+<h1>Setting up a Blazor project</h1>
+<p>It is recommended to review the <a href="/tutorial/blazor-wasm/dotnet7/basic-jwt-authentication-683869" title="Basic JWT Authentication">Basic JWT Authentication</a> tutorial and ensure that you have a functional basic JWT authentication system in place before proceeding with the following steps.</p>
+<ol>
+    <li>Add a new JavaScript file to your <strong>wwwroot</strong> folder. For example:</li>
+</ol>
+<p><strong>BlazorSchoolGoogleOAuth.js</strong>:</p>
+<pre class="code" language="javascript">let blazorSchoolAuthenticationStateProviderInstance = null;
+
+function blazorSchoolGoogleInitialize(clientId, blazorSchoolAuthenticationStateProvider)
+{
+    // disable Exponential cool-down
+    /*document.cookie = `g_state=;path=/;expires=Thu, 01 Jan 1970 00:00:01 GMT`;*/
+    blazorSchoolAuthenticationStateProviderInstance = blazorSchoolAuthenticationStateProvider;
+    google.accounts.id.initialize({ client_id: clientId, callback: blazorSchoolCallback });
+}
+
+function blazorSchoolGooglePrompt()
+{
+    google.accounts.id.prompt((notification) =&gt;
+    {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment())
+        {
+            console.info(notification.getNotDisplayedReason());
+            console.info(notification.getSkippedReason());
+        }
+    });
+}
+
+function blazorSchoolCallback(googleResponse)
+{
+    blazorSchoolAuthenticationStateProviderInstance.invokeMethodAsync("GoogleLogin", { ClientId: googleResponse.clientId, SelectedBy: googleResponse.select_by, Credential: googleResponse.credential });   
+}</pre>
+<ol start="2">
+    <li>Import the Google GSI Client JavaScript and your JavaScript file into <strong>index.html</strong>.</li>
+</ol>
+<pre class="code" language="html">&lt;script src="_framework/blazor.webassembly.js"&gt;&lt;/script&gt;
+&lt;script src="js/BlazorSchoolGoogleOAuth.js"&gt;&lt;/script&gt;
+&lt;script src="https://accounts.google.com/gsi/client" async defer&gt;&lt;/script&gt;</pre>
+<ol start="3">
+    <li>Create a class that represents the response from Google. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class GoogleResponse
+{
+    public string ClientId { get; set; } = "";
+    public string SelectedBy { get; set; } = "";
+    public string Credential { get; set; } = "";
+}</pre>
+<ol start="4">
+    <li>Add a new method to your <code>User</code> class to create a new user from the Google JWT. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class User
+{
+    ...
+    public static User? FromGoogleJwt(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        if (tokenHandler.CanReadToken(token))
+        {
+            var jwtSecurityToken = tokenHandler.ReadJwtToken(token);
+
+            return new()
+            {
+                Username = jwtSecurityToken.Claims.First(c =&gt; c.Type == "name").Value,
+                Password = ""
+            };
+        }
+
+        return null;
+    }
+}</pre>
+<p>For more information about Google JWT, see <a href="For%20more information about Google JWT, see https://developers.google.com/identity/gsi/web/reference/js-reference#credential" title="https://developers.google.com/identity/gsi/web/reference/js-reference#credential" target="_blank" rel="noopener">https://developers.google.com/identity/gsi/web/reference/js-reference#credential</a>.</p>
+<ol start="5">
+    <li>In your <code>AuthenticationStateProvider</code>, add a method for Google login that can be invoked by JavaScript. For example:</li>
+</ol>
+<pre class="code" language="csharp">public class BlazorSchoolAuthenticationStateProvider : AuthenticationStateProvider, IDisposable
+{
+    ...
+    [JSInvokable]
+    public void GoogleLogin(GoogleResponse googleResponse)
+    {
+        var principal = new ClaimsPrincipal();
+        var user = User.FromGoogleJwt(googleResponse.Credential);
+        CurrentUser = user;
+
+        if (user is not null)
+        {
+            principal = user.ToClaimsPrincipal();
+        }
+
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Implementing login with Google using a custom button</h1>
+<p>A custom button provides more design options, allowing you to create a button that matches your website's style. For instance:</p>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+@inject BlazorSchoolAuthenticationStateProvider BlazorSchoolAuthenticationStateProvider
+
+&lt;button type="button" @onclick="SignInWithGoogleAsync"&gt;Sign In with Google&lt;/button&gt;
+
+@code {
+    public async Task SignInWithGoogleAsync()
+    {
+        var blazorSchoolAuthenticationStateProvider = DotNetObjectReference.Create&lt;BlazorSchoolAuthenticationStateProvider&gt;(BlazorSchoolAuthenticationStateProvider);
+        await JSRuntime.InvokeVoidAsync("blazorSchoolGoogleInitialize", "686658243135-3s5lnkgih8so1ckhbhrntuilp2vrf161.apps.googleusercontent.com", blazorSchoolAuthenticationStateProvider);
+        //The following code might not work in some cases
+        //await JSRuntime.InvokeVoidAsync("google.accounts.id.prompt");
+        
+        //The following code will execute the prompt function and print the reason of not working to the console if fails.
+        await JSRuntime.InvokeVoidAsync("blazorSchoolGooglePrompt");
+    }
+}</pre>
+<p>The <code>&lt;button&gt;</code> element with <code>@onclick="SignInWithGoogleAsync"</code> is the custom <code>Sign In with Google</code> button that the user will click to initiate the sign-in process.</p>
+<p>In the <code>SignInWithGoogleAsync</code> method, the <code>blazorSchoolGoogleInitialize</code> function is invoked with the client ID and authentication state provider as parameters. Then, the <code>blazorSchoolGooglePrompt</code> function is used to trigger the sign-in process.</p>
+<hr class="my-4" />
+<h1>Implementing login with Google using a rendered button</h1>
+<p>Using the default button provided by Google's sign-in API is a quick and easy solution for adding Google sign-in functionality to your website. While it may enhance the user experience and provide a more professional look to your website, it does have limitations in terms of customization. For instance:</p>
+<pre class="code" language="razor">@inject IJSRuntime JSRuntime
+@inject BlazorSchoolAuthenticationStateProvider BlazorSchoolAuthenticationStateProvider
+
+&lt;div id="blazor-school-button"&gt;&lt;/div&gt;
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var blazorSchoolAuthenticationStateProvider = DotNetObjectReference.Create&lt;BlazorSchoolAuthenticationStateProvider&gt;(BlazorSchoolAuthenticationStateProvider);
+        await JSRuntime.InvokeVoidAsync("blazorSchoolGoogleInitialize", "686658243135-3s5lnkgih8so1ckhbhrntuilp2vrf161.apps.googleusercontent.com", blazorSchoolAuthenticationStateProvider);
+        var element = await JSRuntime.InvokeAsync&lt;IJSObjectReference&gt;("document.getElementById", "blazor-school-button");
+        await JSRuntime.InvokeVoidAsync("google.accounts.id.renderButton", element, new { theme = "filled_blue", size = "large" });
+    }
+}</pre>
+<p>The <code>&lt;div&gt;</code> element with <code>id="blazor-school-button"</code> is where the Google sign-in button will be rendered. In the <code>OnInitializedAsync</code> method, the <code>blazorSchoolGoogleInitialize</code> function is invoked with the client ID and authentication state provider as parameters. Then, the <code>getElementById</code> function is used to get a reference to the <code>div</code> element where the Google button will be rendered. Finally, the <code>renderButton</code> function is used to render the Google sign-in button with the specified theme and size.</p>
+<p>For more information about rendered button, see <a href="https://developers.google.com/identity/gsi/web/reference/js-reference#google.accounts.id.renderButton" title="https://developers.google.com/identity/gsi/web/reference/js-reference#google.accounts.id.renderButton">https://developers.google.com/identity/gsi/web/reference/js-reference#google.accounts.id.renderButton</a>.</p>

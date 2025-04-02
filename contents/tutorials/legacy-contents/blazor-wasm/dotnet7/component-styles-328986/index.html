@@ -1,0 +1,103 @@
+﻿<h1>Component styles</h1>
+<p>🟨 Slightly different to Blazor Server</p>
+<p>CSS is a powerful tool that allows you to control the visual presentation of HTML elements in a web page. In this tutorial, you will learn about the various ways to add CSS to a component in Blazor. Specifically, we will cover the following topics:</p>
+<ul>
+    <li>Different methods for adding CSS to a component.</li>
+    <li>CSS class name pollution and how to avoid.</li>
+    <li>Global styles.</li>
+    <li>Scoped styles.</li>
+    <li>Internal styles.</li>
+    <li>External styles.</li>
+    <li>Inline styles.</li>
+    <li>Key differences between Blazor WebAssembly and Blazor Server.</li>
+</ul>
+<p>By the end of this tutorial, you will have a solid understanding of how to use CSS in a Blazor component to create visually appealing and responsive web pages.</p>
+<blockquote>You can <a href="https://github.com/Blazor-School/component-styles-blazor-wasm-dotnet7" target="_blank" rel="noopener">download the example</a> code used in this topic on GitHub.</blockquote>
+<hr class="my-4" />
+<h1>Different methods for adding CSS to a component</h1>
+<p>In Blazor, there are many ways to add CSS to a component.</p>
+<ul>
+    <li>Global styles: applied to the entire application.</li>
+    <li>Scoped styles: applied only to the component they are defined in.</li>
+    <li>Internal CSS: defined within the component's template using the <code>&lt;style&gt;</code> tag.</li>
+    <li>External CSS: defined in a separate CSS file and imported into the component.</li>
+    <li>Inline CSS: defined directly on an element using the <code>style</code> attribute.</li>
+</ul>
+<hr class="my-4" />
+<h1>CSS class name pollution and how to avoid</h1>
+<p>CSS class name pollution refers to the practice of using overly specific or generic class names in your CSS code. This can make it difficult to maintain your code over time and can lead to unexpected behaviour when trying to style elements on a page. When you use overly specific class names, you may end up with a large number of classes that are only used on a small number of elements. This makes it harder to understand what styles will be applied to which elements, and it can also make it more difficult to make changes to the styles later on. On the other hand, when you use overly generic class names, you may end up with a large number of elements sharing the same class name, making it difficult to target specific elements. This can also lead to unexpected behaviour when trying to style elements on a page. To prevent CSS class name pollution and ensure maintainable and organized code, Blazor offers the ability to scope CSS classes within a specific component. This means that the styles associated with a given class name will only affect elements within the designated component, allowing for the safe and efficient re-use of class names across multiple components without the risk of unintended styling conflicts.</p>
+<hr class="my-4" />
+<h1>Global styles</h1>
+<p>Global CSS is a technique that allows for the efficient re-use of CSS styles across all components within a project. This can be achieved by defining shared CSS styles in a global stylesheet, such as <strong>/wwwroot/css/app.css</strong>, which is automatically imported by default in the <strong>index.html</strong> file. For example, in your <strong>app.css</strong> file, you define a new CSS rule as follows:</p>
+<pre class="code" language="css">.global
+{
+    color: darkviolet;
+}</pre>
+<p>Then you can use <code>.global</code> in any component.</p>
+<pre class="code" language="razor">&lt;span class="global"&gt;The text is formatted darkviolet in global file app.css&lt;/span&gt;</pre>
+<p>Approach the use of global CSS styles with care to avoid the build-up of unnecessary class names in your codebase.</p>
+<hr class="my-4" />
+<h1>Scoped styles</h1>
+<p>Scoped styles can help you avoid CSS class name pollution, but the topic can be complex for those who are not familiar with it. To make it easier to understand, we will discuss the following topics:</p>
+<ul>
+    <li>The definition and concept of scoped styles.</li>
+    <li>Understanding how scoped styles work in Blazor.</li>
+    <li>How to create a scoped CSS file</li>
+    <li>How to override a scoped style.</li>
+</ul>
+<h3>The definition and concept of scoped styles</h3>
+<p>Scoped styles are the opposite of global styles, where in global styles, any CSS class can be used in any component. Conversely, with scoped styles, all CSS classes are confined to the component in which they are defined. If an attempt is made to use scoped CSS classes outside of their defined component, the styles will appear as undefined. This technique helps to mitigate CSS name pollution. The illustration below demonstrates the contrast between the scoped styles and global styles models.</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\component-styles-328986\scoped-styles-global-styles-compare.png" alt="scoped-styles-global-styles-compare.png" width="900" height="390" /></p>
+<blockquote>If you are using <strong>Blazor WebAssembly App Empty</strong> as the project template, you need to head to <strong>index.html</strong> and uncomment the <code>&lt;link&gt;</code> tag in order to enable the scoped styles.</blockquote>
+<h3>Understanding how scoped styles work in Blazor</h3>
+<p>Blazor allows for the use of scoped styles, where CSS styles are applied only to specific HTML elements rather than globally. This is achieved through the use of unique attributes added to each HTML tag, which are then matched with CSS selectors to create a scoping effect.</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\component-styles-328986\how-scoped-styled-works.png" alt="how-scoped-styled-works.png" width="900" height="410" /></p>
+<h3>How to create a scoped CSS file</h3>
+<p>To create component-specific styles, create a <strong>.razor.css</strong> file with the same name as the corresponding <strong>.razor</strong> file for the component. This file should be located in the same folder as the component. The <strong>.razor.css</strong> file is a scoped CSS file, meaning it will only apply to the corresponding component. For example, if you have a component named <code>Example</code> in an <strong>Example.razor</strong> file, you should create a file called <strong>Example.razor.css</strong> in the same folder as the <strong>Example.razor</strong> file. This file will hold the scoped CSS styles for the <code>Example</code> component.</p>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\component-styles-328986\scoped-styles-correct-implement.png" alt="scoped-styles-correct-implement.png" width="300" height="63" /></p>
+<h3>How to override a scoped style</h3>
+<p>Sometimes, the isolated CSS rules of a component may not align with your desired design or theme. In such cases, it is possible to override these rules. It is important to note that isolated CSS does not mean it cannot be overridden. Rather, it means that it will not be overridden by default. Overriding the isolated CSS of a component will not affect other areas of your website. It is only possible to override a scoped style with another scoped style. Assuming you have the scoped style <code>.scoped</code> in the <code>ScopedStyle</code> component, to override an isolated style in a child component, follow these steps:</p>
+<ol>
+    <li>In the parent component, wrap the child component in a tag with a class.</li>
+</ol>
+<pre class="code" language="razor">&lt;div class="overriding"&gt;
+    &lt;ScopedStyle /&gt;
+&lt;/div&gt;</pre>
+<ol start="2">
+    <li>Create an isolated CSS file for the parent component.</li>
+</ol>
+<p><img src="\tutorials\legacy-contents\blazor-wasm\dotnet7\component-styles-328986\overriding-scoped-style.png" alt="overriding-scoped-style.png" width="300" height="49" /></p>
+<ol start="3">
+    <li>Create a new CSS rule using the syntax: <code>&lt;parent-css-selector&gt; ::deep &lt;overriden-css-selector&gt;</code>.</li>
+</ol>
+<pre class="code" language="css">.overriding ::deep .scoped
+{
+    color: green;
+}</pre>
+<hr class="my-4" />
+<h1>Internal styles</h1>
+<p>Internal styles is a technique that embeds the CSS styles within the component file itself. However, this approach does come with some risks. One risk is the potential for repeated CSS rules when the component is being reused, which can lead to larger file sizes and slower performance. Another risk is the possibility of unexpected overrides of CSS rules, which can lead to unexpected changes in the appearance of your components. To implement internal styles, you can simply add a <code>&lt;style&gt;</code> tag within your component file. For example:</p>
+<pre class="code" language="razor">&lt;span class="internal-style"&gt;Hello Blazor School!&lt;/span&gt;
+
+&lt;style&gt;
+    .internal-style
+    {
+        color: darkviolet;
+    }
+&lt;/style&gt;</pre>
+<blockquote>It is important to note that this technique is not suitable for all use cases, and it should be used carefully.</blockquote>
+<hr class="my-4" />
+<h1>External styles</h1>
+<p>External styles is a technique that is similar to internal styles, but instead of embedding the CSS styles inside a component, the styles are defined in an external CSS file and the component references that file using the <code>&lt;link&gt;</code> tag. This allows for a separation of concerns between the component's structure and its presentation, and also enables the reuse of styles across multiple components. This approach allows for easier maintenance and scaling of styles, and is suitable for larger projects or projects with a lot of components. However, it is worth noting that external styles still come with their own set of risks. One risk is that, if the component that imports the CSS file is being re-used, the HTML tags may be repeated. Another risk is that, if the imported CSS file has not been loaded yet, it will be loaded over the internet again, which can make the component flashy because the component will be rendered whether the file is loaded or not. Once the CSS file is loaded, it will apply to the component and change its UI. But once the file is loaded it will be cached by the browser so it will not be loaded again. To mitigate these risks, you should import the external styles at <strong>index.html</strong>.</p>
+<pre class="code" language="razor">&lt;link href="/css/external.css" rel="stylesheet" /&gt; @*You should move this line to index.html*@
+&lt;span class="external"&gt;The text is formatted darkviolet in external file external.css.&lt;/span&gt;</pre>
+<hr class="my-4" />
+<h1>Inline styles</h1>
+<p>Inline CSS is a technique in which the CSS styles are directly applied to an HTML element using the <code>style</code> attribute. This allows you to apply styles to a specific element without affecting other elements on the same page. The inline CSS is written directly in the HTML file, and it only affects the elements that it is applied to, and it has highest specificity level, it means that it will override any other styles that have been applied to the same element.</p>
+<p>For example, you can apply an inline style to a specific paragraph element like this:</p>
+<pre class="code" language="razor">&lt;span style="color: darkviolet"&gt;The text is formatted darkviolet by inline code&lt;/span&gt;</pre>
+<p>It is worth noting that inline CSS is generally not recommended for larger projects or projects with a lot of components, as it can make the HTML code harder to read and maintain. It also makes it difficult to reuse styles across multiple elements, and it can lead to code repetition and a lack of consistency in the styles of your website.</p>
+<p>It's better to use other techniques for better maintainability and scalability. However, in certain cases, such as when you need to apply styles to a specific element in response to a user action, inline styles can be useful.</p>
+<hr class="my-4" />
+<h1>Key differences between Blazor WebAssembly and Blazor Server</h1>
+<p>In Blazor Server, there are a couple of key differences when it comes to working with CSS styles. First, the global CSS file is not named <strong>app.css</strong> as it is in Blazor WebAssembly, instead it is named <strong>site.css</strong>. Second, the global CSS file is imported in the <strong>_Host.cshtml</strong> file and not in the <strong>index.html</strong> file. This means that, in Blazor Server, the site-wide styles are defined in the <strong>site.css</strong> file and imported in the <strong>_Host.cshtml</strong> file, rather than in the <strong>index.html</strong> file as in Blazor WebAssembly. These small differences help to keep the organization and structure of the codebase consistent between the two frameworks.</p>
