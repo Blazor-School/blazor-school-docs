@@ -1,0 +1,43 @@
+﻿<h1>Component Communication</h1>
+<p>In a mechanical machine, there are many cogs. Each cog collaborates with the others to function as a machine. To build a system capable of accomplishing an interesting task, multiple components are needed. These components often need to work in coordination together and, thus, must be able to communicate with each other. Data must flow between them. There are multiple ways to share data between components and we will go through all possible ways to share data between components. With each method, you will not only learn how but also when to choose that method. Note that advanced techniques for each approach will be covered in later tutorials. In this tutorial, we will cover:</p>
+<ul>
+    <li>Basic component tree structure.</li>
+    <li>Communication between parent and child.</li>
+    <li>Communication between components at the same level.</li>
+    <li>Single source of truth.</li>
+</ul>
+<hr class="my-4" />
+<h1>Basic Component Tree Structure</h1>
+<p>In Blazor, the simplest component hierarchy is a 3-level structure, as shown in the image below:</p>
+<p><img src="tutorials/component-communication/v1/basic-structure.webp" alt="basic-structure.webp" width="1668" height="721" /></p>
+<p>This foundational setup consists of an outer-most component (Level 0), a middle component (Level 1), and an inner-most component (Level 2). More complex hierarchies are merely extensions of this model, and the same communication techniques can be applied. Data typically flows from the root (Level 0) down to the deepest level (Level 2). For clarity, this tutorial uses a colour-coded approach: Level 0 is blue, Level 1 is green, and Level 2 is red.</p>
+<hr class="my-4" />
+<h1>Communication between parent and child</h1>
+<p><img src="tutorials/component-communication/v1/parent-child-communication-basic.webp" alt="parent-child-communication-basic.webp" width="1570" height="527" /></p>
+<p>In Blazor, the parent-child relationship is a fundamental aspect of component interaction, limited to 2 adjacent levels: a parent (Level 0) and its direct child (Level 1). Data can flow in 2 directions - parent to child or child to parent. But this tutorial focuses solely on the parent to child flow, we will introduce more information in the next tutorials.</p>
+<p>Consider the following child component, <strong>SimpleChild.razor</strong>:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;SimpleChild (Level 1)&lt;/h3&gt;
+    &lt;div&gt;@Parameter1&lt;/div&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public string Parameter1 { get; set; } = "";
+}</pre>
+<p>Here, <strong>SimpleChild.razor</strong> uses the <code>[Parameter]</code> attribute to define <code>Parameter1</code>, a <code>string</code> it renders within a div. This child can be reused in a parent component, <strong>SimpleParent.razor</strong>, which passes data to it:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;SimpleParent (level 0)&lt;/h3&gt;
+    &lt;SimpleChild Parameter1="@Text" /&gt;
+&lt;/div&gt;
+
+@code {
+    public string Text { get; set; } = "Hello Blazor School!";
+}</pre>
+<p>In this example, <strong>SimpleParent.razor</strong> (Level 0) passes the value of <code>Text</code> to <strong>SimpleChild.razor</strong> (Level 1) via the <code>Parameter1</code>parameter. When rendered, <strong>SimpleChild.razor</strong> displays "Hello Blazor School!" within its <code>div</code>, demonstrating how parent to child communication enables the child to render dynamic data from the parent, aligning with the hierarchical structure previously introduced.</p>
+<h3>When Not to Use the <code>[Parameter]</code> Attribute?</h3>
+<p>While the <code>[Parameter]</code> attribute is effective for direct parent-child communication in Blazor, it becomes cumbersome when passing data beyond adjacent levels, such as from Level 0 to Level 2 in a 3-level hierarchy. In these cases, developers should opt for alternative communication methods to avoid unnecessary complexity.</p>
+<p>Consider the following scenario, illustrated in the diagram:</p>
+<p><img src="tutorials/component-communication/v1/parent-child-communication-bad-practice.webp" alt="parent-child-communication-bad-practice.webp" width="1359" height="460" /></p>
+<p>Here, <strong>Component3 (Level 2)</strong> needs a parameter from <strong>Component1 (Level 0)</strong>, but<strong> Component2 (Level 1)</strong> doesn&rsquo;t require it. Using <code>[Parameter]</code> would force the parameter to be passed through <strong>Component2 (Level 1)</strong>: <strong>Component1 (Level 0)</strong> passes to <strong>Component2 (Level 1)</strong>, which must declare the parameter just to forward it to <strong>Component3 (Level 2)</strong>. This "prop drilling" creates 2 issues: <strong>Component2 (Level 1)</strong> becomes cluttered with unused parameters, and in larger hierarchies with 5 or more levels, managing multiple parameters this way becomes unmaintainable.</p>
+<p>In such cases, using <code>CascadingParameter</code> will allow developers to pass a parameter from Level 0 to Level 2 directly without flowing through Level 1.</p>
