@@ -74,6 +74,13 @@
                             "Children":
                             [
                             ]
+                        },
+                        {
+                            "ContentPath": "component-communication/v1",
+                            "GitHubLink": "https://github.com/Blazor-School/blazor-school-free-course-dotnet9-wasm/tree/master/ComponentCommunication",
+                            "Children":
+                            [
+                            ]
                         }
                     ]
                 }
