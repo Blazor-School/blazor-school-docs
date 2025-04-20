@@ -12,9 +12,9 @@
 <p><img src="tutorials/component-communication/v1/basic-structure.webp" alt="basic-structure.webp" width="1668" height="721" /></p>
 <p>This foundational setup consists of an outer-most component (Level 0), a middle component (Level 1), and an inner-most component (Level 2). More complex hierarchies are merely extensions of this model, and the same communication techniques can be applied. Data typically flows from the root (Level 0) down to the deepest level (Level 2). For clarity, this tutorial uses a colour-coded approach: Level 0 is blue, Level 1 is green, and Level 2 is red.</p>
 <hr class="my-4" />
-<h1>Communication between parent and child</h1>
+<h1>Communication Between Parent and Child</h1>
 <p><img src="tutorials/component-communication/v1/parent-child-communication-basic.webp" alt="parent-child-communication-basic.webp" width="1570" height="527" /></p>
-<p>In Blazor, the parent-child relationship is a fundamental aspect of component interaction, limited to 2 adjacent levels: a parent (Level 0) and its direct child (Level 1). Data can flow in 2 directions - parent to child or child to parent. But this tutorial focuses solely on the parent to child flow, we will introduce more information in the next tutorials.</p>
+<p>In Blazor, the parent-child relationship is a fundamental aspect of component interaction, limited to 2 adjacent levels: a parent (Level 0) and its direct child (Level 1). Data can flow in 2 directions - parent to child or child to parent. This tutorial focuses solely on the parent to child flow, we will introduce more information in the next tutorials.</p>
 <p>Consider the following child component, <strong>SimpleChild.razor</strong>:</p>
 <pre language="razor">&lt;div&gt;
     &lt;h3&gt;SimpleChild (Level 1)&lt;/h3&gt;
@@ -39,5 +39,142 @@
 <p>While the <code>[Parameter]</code> attribute is effective for direct parent-child communication in Blazor, it becomes cumbersome when passing data beyond adjacent levels, such as from Level 0 to Level 2 in a 3-level hierarchy. In these cases, developers should opt for alternative communication methods to avoid unnecessary complexity.</p>
 <p>Consider the following scenario, illustrated in the diagram:</p>
 <p><img src="tutorials/component-communication/v1/parent-child-communication-bad-practice.webp" alt="parent-child-communication-bad-practice.webp" width="1359" height="460" /></p>
-<p>Here, <strong>Component3 (Level 2)</strong> needs a parameter from <strong>Component1 (Level 0)</strong>, but<strong> Component2 (Level 1)</strong> doesn&rsquo;t require it. Using <code>[Parameter]</code> would force the parameter to be passed through <strong>Component2 (Level 1)</strong>: <strong>Component1 (Level 0)</strong> passes to <strong>Component2 (Level 1)</strong>, which must declare the parameter just to forward it to <strong>Component3 (Level 2)</strong>. This "prop drilling" creates 2 issues: <strong>Component2 (Level 1)</strong> becomes cluttered with unused parameters, and in larger hierarchies with 5 or more levels, managing multiple parameters this way becomes unmaintainable.</p>
+<p>Here, <strong>Component3 </strong>needs a parameter from <strong>Component1</strong>, but<strong> Component2</strong> doesn&rsquo;t require it. Using <code>[Parameter]</code> would force the parameter to be passed through <strong>Component2</strong>: <strong>Component1&nbsp;</strong> passes to <strong>Component2</strong>, which must declare the parameter just to forward it to <strong>Component3</strong>. This "prop drilling" creates 2 issues: <strong>Component2</strong> becomes cluttered with unused parameters, and in larger hierarchies with 5 or more levels, managing multiple parameters this way becomes unmaintainable.</p>
 <p>In such cases, using <code>CascadingParameter</code> will allow developers to pass a parameter from Level 0 to Level 2 directly without flowing through Level 1.</p>
+<hr class="my-4" />
+<h1>Communication Between Components at the Same Level</h1>
+<p>Previously, we explored communication within nested components, such as parent-child relationships. In this section, we are discussing the communication of components at the same laevel, such as siblings or unrelated components. The following image shows an example of sibling components:</p>
+<p><img src="tutorials/component-communication/v1/basic-same-level-example.webp" alt="basic-same-level-example.webp" width="735" height="161" /></p>
+<p>In such a simple case, sibling components can communicate indirectly through a shared parent using parameters. Consider the following setup:</p>
+<p><strong>Component1.razor:</strong></p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Component1 (level 0)&lt;/h3&gt;
+    &lt;div&gt;@Message&lt;/div&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = "";
+}</pre>
+<p><strong>Component2.razor:</strong></p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Component2 (level 0)&lt;/h3&gt;
+    &lt;div&gt;@Message&lt;/div&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = "";
+}</pre>
+<p>To enable these siblings to share data, a parent component can pass the same parameter to both:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;Component1 Message="@HelloMessage" /&gt;
+    &lt;Component2 Message="@HelloMessage" /&gt;
+&lt;/div&gt;
+
+@code {
+    public string HelloMessage { get; set; } = "Hello Blazor School!";
+}</pre>
+<p>In Blazor, components at the same level may not always share the same parent&mdash;sometimes one is nested while the other is not, as shown below:</p>
+<p><img src="tutorials/component-communication/v1/complex-same-level-example.webp" alt="complex-same-level-example.webp" width="898" height="323" /></p>
+<p>Here, <strong>Component2</strong> and <strong>Component3</strong> need to share data, despite <strong>Component2</strong> being nested within <strong>Component1</strong>. Using <code>CascadingParameter</code> and <code>CascadingValue</code>, you can pass data across these components without prop drilling through intermediate levels.</p>
+<p><strong>Component2.razor</strong></p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Component2 (level 1)&lt;/h3&gt;
+    &lt;div&gt;@HelloMessage&lt;/div&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public string HelloMessage { get; set; } = "";
+}</pre>
+<p><strong>Component1.razor</strong></p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Component1 (level 0)&lt;/h3&gt;
+    &lt;div&gt;@PersonName:&lt;/div&gt;
+    &lt;Component2 /&gt;
+&lt;/div&gt;
+
+@code {
+    [CascadingParameter(Name = "CurrentUserName")]
+    public string PersonName { get; set; } = "";
+}</pre>
+<p><strong>Component3.razor</strong></p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Component3 (level 0)&lt;/h3&gt;
+    &lt;div&gt;@PersonName: @HelloMessage I am @PersonName.&lt;/div&gt;
+&lt;/div&gt;
+
+@code {
+    [CascadingParameter(Name = "SayHelloMessage")]
+    public string HelloMessage { get; set; } = "";
+
+    [CascadingParameter(Name = "CurrentUserName")]
+    public string PersonName { get; set; } = "";
+}</pre>
+<hr class="my-4" />
+<h1>Single source of truth</h1>
+<p>In Blazor, using <code>Parameter</code> or <code>CascadingParameter</code> to pass data results in each component holding its own copy of the parameter. If those copies are not synchronised, they may become out of sync, and all the components will have a parameter with different values. We will walk you through how to synchronise those copies of parameters in the next tutorials. For now, this section introduces a single source of truth approach, ideal for scenarios where your application needs a single, consistent instance of data across all components. This method suits features like:</p>
+<ul>
+    <li><strong>Login Information</strong>: Ensuring all components reflect the same user session state.</li>
+    <li><strong>App&rsquo;s Current Settings</strong>: Maintaining uniform settings, such as theme or language, throughout the app.</li>
+</ul>
+<p>To implement a single source of truth in Blazor, you can follow 3 steps:</p>
+<ol>
+    <li>
+        <div><strong>Create the Transfer Service</strong>: Define a service class to hold shared properties, including a private backing field and an event to notify subscribers of changes:</div>
+    </li>
+</ol>
+<pre language="csharp">public class BlazorSchoolTransferService
+{
+    private string _helloMessage = "Hello Blazor School!";
+
+    public string HelloMessage
+    {
+        get =&gt; _helloMessage;
+        set
+        {
+            _helloMessage = value;
+            HelloMessageChanged?.Invoke(this, value);
+        }
+    }
+
+    public event EventHandler&lt;string&gt;? HelloMessageChanged;
+}</pre>
+<p>Here, <code>HelloMessage</code> uses a backing field (<code>_helloMessage</code>) rather than an auto-property, allowing the service to raise the <code>HelloMessageChanged</code> event whenever the value updates.</p>
+<ol start="2">
+    <li>
+        <div><strong>Register the Service</strong>: Add the service to the dependency injection container in <code>Program.cs</code>:</div>
+    </li>
+</ol>
+<pre language="csharp">var builder = WebAssemblyHostBuilder.CreateDefault(args);
+builder.Services.AddScoped&lt;BlazorSchoolTransferService&gt;();</pre>
+<ol start="3">
+    <li>
+        <div><strong>Inject the Service into Components</strong>: Components can now inject the service to access or update the shared data::</div>
+    </li>
+</ol>
+<pre language="razor">@inject BlazorSchoolTransferService BlazorSchoolTransferService
+@implements IDisposable
+
+&lt;div&gt;@BlazorSchoolTransferService.HelloMessage&lt;/div&gt;
+
+@code {
+    protected override void OnInitialized()
+    {
+        BlazorSchoolTransferService.HelloMessageChanged += OnHelloMessageChanged;
+    }
+
+    public void OnHelloMessageChanged(object? sender, string args) =&gt; StateHasChanged();
+
+    public void Dispose()
+    {
+        BlazorSchoolTransferService.HelloMessageChanged -= OnHelloMessageChanged;
+    }
+}</pre>
+<h3>When Single Source of Truth is Not Suitable?</h3>
+<p>There are some scenarios where a single source of truth is not suitable:</p>
+<ul>
+    <li><strong>Properties That Don&rsquo;t Need to Be Shared</strong>: When a component&rsquo;s state is isolated and only relevant to itself, like a counter in a single UI element or a form field&rsquo;s temporary value. Using a single source of truth in such cases introduces unnecessary overhead. </li>
+    <li><strong>Simple Parent-Child Data Flow</strong>: If a property only needs to be shared between 2 adjacent levels, like a parent and its direct child, using <code>Parameter</code> or <code>CascadingParameter</code> is more efficient. For example, passing a message from <code>SimpleParent</code> to <code>SimpleChild</code> (as shown earlier) doesn&rsquo;t require a service, as the data flow is direct and doesn&rsquo;t benefit from app-wide centralisation.</li>
+</ul>
