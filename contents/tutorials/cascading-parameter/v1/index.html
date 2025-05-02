@@ -1,0 +1,78 @@
+<h1>Cascading Parameter</h1>
+<p>In Blazor, cascading parameters enable developers to pass data across multiple levels of a component tree without explicitly passing it through each intermediate component (prop drilling). This tutorial introduces the following aspects of using cascading parameters:</p>
+<ul>
+    <li>Different approaches to using cascading parameters.</li>
+    <li>Passing and updating a parameter with the root level technique.</li>
+    <li>Passing, updating, and overriding a parameter with the <code>CascadingValue</code> component</li>
+</ul>
+<hr class="my-4" />
+<h1>Different Approaches to Using Cascading Parameters</h1>
+<p>In Blazor, cascading parameters can be implemented in 2 primary ways: registering them at the root level in <code>Program.cs</code> (root-level technique) or using the <code>CascadingValue</code> component within specific parts of the component tree. Each approach has distinct characteristics, as outlined in the comparison table below:</p>
+<div class="table-responsive">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th class="text-center" scope="col">Aspect</th>
+                <th class="text-center" scope="col">Root Level Technique</th>
+                <th class="text-center" scope="col"><code>CascadingValue</code> Component</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td scope="col"><strong>Overriding Parameter Value</strong></td>
+                <td scope="col">No</td>
+                <td scope="col">Yes</td>
+            </tr>
+            <tr>
+                <td scope="col"><strong>Refresh UI When the Value Changes</strong></td>
+                <td scope="col">Automatically</td>
+                <td scope="col">Manual</td>
+            </tr>
+            <tr>
+                <td scope="col"><strong>Declaration Location</strong></td>
+                <td scope="col"><code>Program.cs</code></td>
+                <td scope="col">Any Component</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<ul>
+    <li><strong>Root-Level Technique</strong>: By providing a cascading parameter in <code>Program.cs</code>, it becomes available to all components in the app. This method automatically updates the UI when the value changes but doesn&rsquo;t allow overriding at lower levels.</li>
+    <li><strong><code>CascadingValue</code> Component</strong>: Using <code>CascadingValue</code> within a component allows for more control, enabling you to override the parameter in specific branches of the tree. However, UI updates require manual triggering (e.g., via <code>StateHasChanged</code>).</li>
+</ul>
+<blockquote>Do not use the root level technique as a way to register a singleton/scoped service. The root level cascading parameter is designed only for passing parameters, not for passing services. If you need a service, use the dependency injection feature instead.</blockquote>
+<hr class="my-4" />
+<h1>Passing and Updating a Parameter with the Root Level Technique</h1>
+<p>You can register cascading parameters in Program.cs to provide site-wide data, it is particularly effective for scenarios like theme settings or account information, where a single value needs to be shared across the entire app.</p>
+<ol>
+    <li>Define the parameter model (if any). Keep in mind that while this example uses a class (<code>RootLevelSampleModel</code>) as the cascading parameter, you're not limited to classes. The root level technique also supports registering struct-typed values, such as <code>string</code>, <code>int</code>, <code>bool</code>, and more.</li>
+</ol>
+<pre language="csharp">public class RootLevelSampleModel
+{
+    public string Message { get; set; } = "";
+}</pre>
+<ol start="2">
+    <li>Register Parameters in <code>Program.cs</code>.</li>
+</ol>
+<pre language="csharp">builder.Services.AddCascadingValue&lt;RootLevelSampleModel&gt;(sp =&gt; new RootLevelSampleModel
+{
+    Message = "Hello Blazor School!"
+});</pre>
+<p>To register 2 parameters of the same type, use the <code>Name</code> parameter to differentiate them:</p>
+<pre language="csharp">builder.Services.AddCascadingValue&amp;lt;RootLevelSampleModel&amp;gt;(&amp;quot;Variant2&amp;quot;, sp =&amp;gt; new RootLevelSampleModel
+{
+    Message = &amp;quot;Hello Blazor School! (Variant2)&amp;quot;
+});</pre>
+<ol start="3">
+    <li>Access parameter in a component</li>
+</ol>
+<pre language="razor">&lt;div&gt;Message: @Sample?.Message&lt;/div&gt;
+&lt;div&gt;Variant2 Message: @SampleVariant2?.Message&lt;/div&gt;
+
+@code {
+    [CascadingParameter]
+    public RootLevelSampleModel? Sample { get; set; }
+
+    [CascadingParameter(Name = &quot;Variant2&quot;)]
+    public RootLevelSampleModel? SampleVariant2 { get; set; }
+}</pre>
