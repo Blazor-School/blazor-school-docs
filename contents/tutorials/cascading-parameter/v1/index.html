@@ -73,6 +73,216 @@
     [CascadingParameter]
     public RootLevelSampleModel? Sample { get; set; }
 
-    [CascadingParameter(Name = &quot;Variant2&quot;)]
+    [CascadingParameter(Name = "Variant2")]
     public RootLevelSampleModel? SampleVariant2 { get; set; }
+}</pre>
+<h3>Update Root Level Parameter</h3>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/c6o9B3A22pY?si=55M2ehqClBut2wQ6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<ol>
+    <li>Define the parameter model: In the parameter model, add <code>CascadingValueSource&lt;T&gt;</code> where <code>T</code> is the parameter model itself.</li>
+</ol>
+<pre language="csharp">public class RootLevelUpdatingModel
+{
+    public string Message { get; set; } = "";
+    public CascadingValueSource&lt;RootLevelUpdatingModel&gt;? Source { get; set; }
+}</pre>
+<ol start="2">
+    <li>Register in <code>Program.cs</code>.</li>
+</ol>
+<pre language="csharp">builder.Services.AddCascadingValue(sp =&gt;
+{
+    var value = new RootLevelUpdatingModel()
+    {
+        Message = "Hello Blazor School! (With Notifying)",
+    };
+
+    value.Source = new CascadingValueSource&lt;RootLevelUpdatingModel&gt;(value, false);
+
+    return value.Source;
+});</pre>
+<ol start="3">
+    <li>Update the parameter and call <code>NotifyChangeAsync</code> from <code>CascadingValueSource</code>.</li>
+</ol>
+<pre language="razor">&lt;h3&gt;Component2 (Level 1)&lt;/h3&gt;
+&lt;div&gt;Message: @Sample?.Message&lt;/div&gt;
+&lt;button type="button" @onclick="UpdateValueAsync"&gt;Update Value&lt;/button&gt;
+
+@code {
+    [CascadingParameter]
+    public RootLevelUpdatingModel? Sample { get; set; }
+
+    public async Task UpdateValueAsync()
+    {
+        if (Sample is not null &amp;&amp; Sample.Source is not null)
+        {
+            Sample.Message = "Overridden from Component2";
+            await Sample.Source.NotifyChangedAsync();
+        }
+    }
+}</pre>
+<hr class="my-4" />
+<h1>Passing, Updating, and Overriding a Parameter with the <code>CascadingValue</code> Component</h1>
+<p>The <code>CascadingValue</code> component allows you to pass parameters across a component tree, with the added flexibility of updating and overriding them at different levels. This technique is particularly useful for scenarios like multilingual websites, where different sections might display distinct languages simultaneously.</p>
+<ol>
+    <li>Define the parameter model (optional). While you can use simple types like string or int, a class provides more structure for complex data.</li>
+</ol>
+<pre language="csharp">public class UsingCascadingValueModel
+{
+    public string Message { get; set; } = "";
+}</pre>
+<ol start="2">
+    <li>Pass the Parameter Using <code>CascadingValue</code> in an ancestor component.</li>
+</ol>
+<pre language="razor">&lt;h3&gt;Ancestor (Level 0)&lt;/h3&gt;
+&lt;CascadingValue Value="Model" IsFixed="true"&gt;
+    &lt;Component1 /&gt;
+&lt;/CascadingValue&gt;
+
+@code {
+    public UsingCascadingValueModel Model { get; set; } = new()
+    {
+        Message = "Hello from SimpleCascadingValueExample"
+    };
+}</pre>
+<p>In this example, we are not updating the parameter, so we set <code>IsFixed</code> to <code>true</code>. Setting <code>IsFixed</code> to <code>true</code> will not allow the parameter to be updated but will yield better performance.</p>
+<ol start="3">
+    <li>Access the parameter in a descendant component.</li>
+</ol>
+<pre language="razor">&lt;h3&gt;Component1 (Level 0)&lt;/h3&gt;
+&lt;div&gt;Message: @Sample?.Message&lt;/div&gt;
+
+@code {
+    [CascadingParameter]
+    public UsingCascadingValueModel? Sample { get; set; }
+}</pre>
+<p>In case you are passing multiple parameters of the same type, set a name when passing them with <code>CascadingValue</code>:</p>
+<pre language="razor">&lt;CascadingValue Value="Model" IsFixed="true" Name="blazorschool_parameter"&gt;
+    &lt;!-- ... --&gt;
+&lt;/CascadingValue&gt;</pre>
+<p>Then, in your descendant component, use the name to differentiate the parameters:</p>
+<pre language="razor">@code {
+    [CascadingParameter(Name = "blazorschool_parameter")]
+    public UsingCascadingValueModel? Sample { get; set; }
+}</pre>
+<h3>Update Parameter</h3>
+<p>A parameter passed by <code>CascadingValue</code> can be updated at any level in the hierarchy.</p>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/ceNixnOlR30?si=3Ilhm6KRpCSumgmg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<ol>
+    <li>Define the parameter and update logic in the ancestor component. Pass both the parameter and the component instance (<code>this</code>) using nested <code>CascadingValue</code>.</li>
+</ol>
+<pre language="razor">&lt;CascadingValue Value="this"&gt;
+    &lt;CascadingValue Value="Model"&gt;
+        &lt;Component1 /&gt;
+    &lt;/CascadingValue&gt;
+&lt;/CascadingValue&gt;
+
+@code {
+    public UsingCascadingValueModel Model { get; set; } = new()
+    {
+        Message = "Hello from UpdateCascadingValueExample"
+    };
+
+    public void UpdateModelMessage(string message)
+    {
+        Model.Message = message;
+        StateHasChanged();
+    }
+}</pre>
+<ol start="2">
+    <li>Update the parameter in a descendant component. Access both the parameter and the ancestor instance to call the update method.</li>
+</ol>
+<pre language="razor">&lt;h3&gt;Component2 (level 1)&lt;/h3&gt;
+&lt;div&gt;Message: @Sample?.Message&lt;/div&gt;
+&lt;button type="button" @onclick="UpdateValueAsync"&gt;Update Value&lt;/button&gt;
+
+@code {
+    [CascadingParameter]
+    public UsingCascadingValueModel? Sample { get; set; }
+
+    [CascadingParameter]
+    public UpdateCascadingValueExample? Source { get; set; }
+
+    public async Task UpdateValueAsync()
+    {
+        if (Source is not null)
+        {
+            Source.UpdateModelMessage("Update from Component2");
+        }
+    }
+}</pre>
+<h3>Overriding Parameter</h3>
+<p>A parameter passed by <code>CascadingValue</code> can be overridden to have different values in different branches. Furthermore, a descendant component can override the parameter value in any ancestor component.</p>
+<p>We will set up the example with 4 levels: <code>OverrideCascadingValueExample</code> as the ancestor component, <code>Component1</code> as Level 0, <code>Component2</code> as Level 1, and <code>Component3</code> as Level 2. The parameter will be passed from <code>OverrideCascadingValueExample</code> and will be overridden in <code>Component2</code>, and then updated in <code>Component3</code>.</p>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/OaTx-bUkvd8?si=oPnShFOnLpb36ojS" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<ol>
+    <li>Define the parameter and update logic in the ancestor component. Pass the component instance and parameter using nested <code>CascadingValue</code>.</li>
+</ol>
+<pre language="razor">&lt;CascadingValue Value="this"&gt;
+    &lt;CascadingValue Value="Model"&gt;
+        &lt;Component1 /&gt;
+    &lt;/CascadingValue&gt;
+&lt;/CascadingValue&gt;
+
+@code {
+    public UsingCascadingValueModel Model { get; set; } = new()
+        {
+            Message = "Hello from OverrideCascadingValueExample"
+        };
+
+    public void UpdateModel(string message)
+    {
+        Model.Message = message;
+        StateHasChanged();
+    }
+}</pre>
+<ol start="2">
+    <li>In the descendant component where you want to override the parameter, declare the parameter and the update logic. Pass the current instance (<code>this</code>) and the overridden parameter using <code>CascadingValue</code>.</li>
+</ol>
+<pre language="razor">&lt;h3&gt;Component2 (level 1)&lt;/h3&gt;
+&lt;div&gt;Message: @OverridingSample.Message&lt;/div&gt;
+&lt;CascadingValue Value="this"&gt;
+    &lt;CascadingValue Value="OverridingSample"&gt;
+        &lt;Component3 /&gt;
+    &lt;/CascadingValue&gt;
+&lt;/CascadingValue&gt;
+
+@code {
+    public UsingCascadingValueModel OverridingSample { get; set; } = new UsingCascadingValueModel()
+    {
+        Message = "Overridden from Component2"
+    };
+
+    public void UpdateModel(string message)
+    {
+        OverridingSample.Message = message;
+        StateHasChanged();
+    }
+}</pre>
+<ol start="3">
+    <li>Update the parameter from a descendant component. Access both the overridden parameter and ancestor instances to update either.</li>
+</ol>
+<pre language="razor">&lt;h3&gt;Component3 (level 2)&lt;/h3&gt;
+&lt;div&gt;Message: @Sample?.Message&lt;/div&gt;
+&lt;button type=&quot;button&quot; @onclick=&quot;UpdateAtLevel1&quot;&gt;Update at level 1&lt;/button&gt;
+&lt;button type=&quot;button&quot; @onclick=&quot;UpdateAtRoot&quot;&gt;Update at root&lt;/button&gt;
+
+@code {
+    [CascadingParameter]
+    public UsingCascadingValueModel? Sample { get; set; }
+
+    [CascadingParameter]
+    public Component2? Component2 { get; set; }
+
+    [CascadingParameter]
+    public OverrideCascadingValueExample? Root { get; set; }
+
+    public void UpdateAtLevel1()
+    {
+        Component2?.UpdateModel(&quot;Updated from Component3&quot;);
+    }
+
+    public void UpdateAtRoot()
+    {
+        Root?.UpdateModel(&quot;Updated from Component3&quot;);
+    }
 }</pre>
