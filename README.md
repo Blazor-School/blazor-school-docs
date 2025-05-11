@@ -1,7 +1,7 @@
 <h1 align="center">Blazor School - A Blazor developer's handbook</h1>
 
 <p align="center">
-  <img src="https://blazorschool.com/images/logo-108x108.webp" width="108px" height="108px"/>
+  <img src="https://blazorschool.com/images/logo.svg" width="108px" height="108px"/>
   <br>
   <i>Blazor School is the up-to-date Blazor documentation based on
     <br>Microsoft regular updates.</i>
