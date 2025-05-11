@@ -1,0 +1,5 @@
+﻿{
+    "Title": "Cascading Parameter",
+    "Slug": "cascading-parameter",
+    "Description": "Passing a parameter to multiple components without prop drilling"
+}
