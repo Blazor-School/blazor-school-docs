@@ -1,9 +1,6 @@
 name: Deploy
 on:
   workflow_dispatch:
-  push:
-    branches:
-    - master
 env:
   WORKING_DIRECTORY: BlazorSchoolDocs
   VPS_WEB_DIRECTORY: /home/blazorschool3/client/wwwroot
