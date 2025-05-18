@@ -1,0 +1,299 @@
+<h1>Parameter</h1>
+<p>In Blazor, passing parameters between components is a fundamental technique for component communication, particularly from parent to child. This tutorial will guide you through passing a parameter to another component and then receiving the update notification when the parameter changes. We will cover:</p>
+<ul>
+    <li>Passing a parameter to a child component.</li>
+    <li>What is parameter change notification?</li>
+    <li>Passing a parameter and notifying the parent with <code>@bind-*</code>.</li>
+    <li>Advanced techniques with <code>@bind-*</code>.</li>
+    <li>Passing a parameter and notifying the parent with <code>EventCallback</code>.</li>
+</ul>
+<hr class="my-4" />
+<h1>Passing a Parameter to a Child Component</h1>
+<ol>
+    <li>Declare the parameter in the child using the <code>[Parameter]</code> attribute:</li>
+</ol>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Child&lt;/h3&gt;
+    &lt;div&gt;Value: @Value&lt;/div&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public int Value { get; set; }
+}</pre>
+<ol start="2">
+    <li>From the parent, pass the parameter to the child:</li>
+</ol>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Parent&lt;/h3&gt;
+    &lt;div&gt;Value: @ParentValue&lt;/div&gt;
+    &lt;button @onclick="ChangeRandomValue" type="button"&gt;Change Value&lt;/button&gt;
+    &lt;Child Value="ParentValue" /&gt;
+&lt;/div&gt;
+
+@code {
+    public int ParentValue { get; set; } = 0;
+
+    public void ChangeRandomValue()
+    {
+        var random = new Random();
+        ParentValue = random.Next(0, 100);
+    }
+}</pre>
+<p>Any changes from the parent component will affect the child component accordingly.</p>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/hvNKB5hSo6s?si=JNmEb2ge-1rTqYjB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<p>Developers can enforce the requirement of a parameter using the <code>[EditorRequired]</code> attribute:</p>
+<pre language="razor">@code {
+    [EditorRequired]
+    [Parameter]
+    public int Value { get; set; }
+}</pre>
+<p>If the parent component omits the <code>Value</code> parameter when using the child component, Visual Studio displays a warning or error message during development.</p>
+<p><img src="tutorials/parameter/v1/editor-required-example.webp" alt="editor-required-example.webp" width="1279" height="210" /></p>
+<hr class="my-4" />
+<h1>What is Parameter Change Notification</h1>
+<p>When a parameter is passed from the parent to the child component, it actually creates 2 copies - one at the parent and one at the child component. Because they are different properties, any changes to the property in the child component will not reflect in the parent component unless a notification is made to the parent component. Consider the following example:</p>
+<p>We have the following child component:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Child&lt;/h3&gt;
+    &lt;div&gt;Value: @Value&lt;/div&gt;
+    &lt;button @onclick="ChangeRandomValue" type="button"&gt;Change Value&lt;/button&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public int Value { get; set; }
+
+    public void ChangeRandomValue()
+    {
+        var random = new Random();
+        Value = random.Next(0, 100);
+    }
+}</pre>
+<p>And the parent component:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Parent&lt;/h3&gt;
+    &lt;div&gt;Value: @ParentValue&lt;/div&gt;
+    &lt;button @onclick="ChangeRandomValue" type="button"&gt;Change Value&lt;/button&gt;
+    &lt;Child Value="ParentValue" /&gt;
+&lt;/div&gt;
+
+@code {
+    public int ParentValue { get; set; } = 0;
+
+    public void ChangeRandomValue()
+    {
+        var random = new Random();
+        ParentValue = random.Next(0, 100);
+    }
+}</pre>
+<p>In this example, you can see both values at the parent and the child component. When the "Change Value" button in the child component is clicked, the value in the child component changes but not in the parent component.</p>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/OjdveHS2PJs?si=HvBo4kBj7gJW8DM8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<p>To make the parent acknowledge the new value from the child component, a notification mechanism must be implemented. There are 2 mechanisms that provide the notification back to the parent: the <code>bind</code> keyword and <code>EventCallback</code>.</p>
+<ul>
+    <li>The <code>bind</code> keyword is the minimal code, and changes are notified automatically.</li>
+    <li><code>EventCallback</code> requires more code setup but allows developers to notify changes when needed.</li>
+</ul>
+<hr class="my-4" />
+<h1>Passing a Parameter and Notifying the Parent With <code>@bind-*</code></h1>
+<p>To implement the binding mechanism, in the child component, declare an additional property with type <code>EventCallback&lt;T&gt;</code> where <code>T</code> is the data type of the property you want to notify. The name of this <code>EventCallback&lt;T&gt;</code> must be the name of the property with the suffix <code>Changed</code>. For example, if the property you want to notify is<code> int Value</code>, then there must be a property <code>EventCallback&lt;int&gt; ValueChanged</code> with the <code>[Parameter]</code> attribute:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Child&lt;/h3&gt;
+    &lt;div&gt;Value: @Value&lt;/div&gt;
+    &lt;button @onclick="ChangeRandomValue" type="button"&gt;Change Value&lt;/button&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public int Value { get; set; }
+
+    [Parameter]
+    public EventCallback&lt;int&gt; ValueChanged { get; set; }
+}</pre>
+<p>When the value changes in the child component, it is not required to change the property of the child component as it will cause overhead since the child component will be re-rendered by the parent component. Instead, just use the <code>EventCallback&lt;T&gt;</code> to notify the parent about the changes:</p>
+<pre language="csharp">public void ChangeRandomValue()
+{
+    var random = new Random();
+    // Should not change the value directly in the child component. Notify the parent and let the child component render the new value
+    // Value = random.Next(0, 100);
+    // Notify the parent component about the change
+    ValueChanged.InvokeAsync(random.Next(0, 100));
+}</pre>
+<p>With this in mind, here is the full code of the child component:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Child&lt;/h3&gt;
+    &lt;div&gt;Value: @Value&lt;/div&gt;
+    &lt;button @onclick="ChangeRandomValue" type="button"&gt;Change Value&lt;/button&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public int Value { get; set; }
+
+    [Parameter]
+    public EventCallback&lt;int&gt; ValueChanged { get; set; }
+
+    public void ChangeRandomValue()
+    {
+        var random = new Random();
+        // Should not change the value directly in the child component. Notify the parent and let the child component render the new value
+        // Value = random.Next(0, 100);
+        // Notify the parent component about the change
+        ValueChanged.InvokeAsync(random.Next(0, 100));
+    }
+}</pre>
+<p>The parent component uses <code>@bind-&lt;ParameterName&gt;</code> to pass the parameter:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Parent&lt;/h3&gt;
+    &lt;div&gt;Value: @ParentValue&lt;/div&gt;
+    &lt;Child @bind-Value="ParentValue" /&gt;
+&lt;/div&gt;
+
+@code {
+    public int ParentValue { get; set; } = 0;
+}</pre>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/elE7955ttU8?si=0qL3STQJRgl0-2Dw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<blockquote><strong>Note:</strong> With every parameter in the child component, you need an additional property declared. With this approach, each change from the child component will notify the parent component, even if there may still be changes from other properties of the child component. When it is costly to re-render the parent, consider using the <code>EventCallback</code> approach to notify for the whole component&rsquo;s changes instead of each property in the component.</blockquote>
+<hr class="my-4" />
+<h1>Advanced Techniques with <code>@bind-*</code></h1>
+<p>When passing a parameter to the child component, developers can combine modifiers <code>get</code>, <code>set</code>, and <code>after</code> with the <code>bind</code> keyword to inject logic when getting the parameter value (<code>get</code>), when setting the parameter value (<code>set</code>), or after the parameter value has been set (<code>after</code>). Consider the following changes count example:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Parent&lt;/h3&gt;
+    &lt;div&gt;Value: @_parentValue&lt;/div&gt;
+    &lt;div&gt;Changes count: @ChangesCount&lt;/div&gt;
+    &lt;Child @bind-Value:get="_parentValue" /&gt;
+    &lt;Child @bind-Value:get="_parentValue" @bind-Value:set="SetParentValue" /&gt;
+    &lt;Child @bind-Value:get="_parentValue" @bind-Value:set="SetParentValueAsync" /&gt;
+    &lt;Child @bind-Value:get="_parentValue" @bind-Value:after="AfterSetParentValue" /&gt;
+    &lt;Child @bind-Value:get="_parentValue" @bind-Value:after="AfterSetParentValueAsync" /&gt;
+&lt;/div&gt;
+
+@code {
+    private int _parentValue = 0;
+    public int ChangesCount { get; set; } = 0;
+
+    public void SetParentValue(int newValue)
+    {
+        Console.WriteLine("SetParentValue executed");
+        _parentValue = newValue;
+        ChangesCount++;
+    }
+
+    public async Task SetParentValueAsync(int newValue)
+    {
+        await Task.Delay(1000); // Simulate some async work
+        Console.WriteLine("SetParentValueAsync executed");
+        _parentValue = newValue;
+        ChangesCount++;
+    }
+
+    public void AfterSetParentValue()
+    {
+        Console.WriteLine("AfterSetParentValue executed");
+        _parentValue = _parentValue * 100;
+        ChangesCount++;
+    }
+
+    public async Task AfterSetParentValueAsync()
+    {
+        await Task.Delay(1000); // Simulate some async work
+        Console.WriteLine("AfterSetParentValueAsync executed");
+        _parentValue = _parentValue * 100;
+        ChangesCount++;
+    }
+}</pre>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/zqRU1A4gO6o?si=HBmqnwrDVMYqfqS0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>
+<blockquote><strong>Note:</strong> When using asynchronous logic in binding modifiers like <code>@bind-Value:set</code> or <code>@bind-Value:after</code> (e.g., <code>SetParentValueAsync</code> or <code>AfterSetParentValueAsync</code> with a 1 second delay), a lock-screen feature should be implemented. This is critical because the UI may update without user interaction after a delay, potentially confusing users, as demonstrated in the example.</blockquote>
+<hr class="my-4" />
+<h1>Passing a Parameter and Notifying the Parent with <code>EventCallback</code></h1>
+<p>Notifying a parent component of multiple parameter changes in a child can lead to performance issues if done per parameter, as each notification triggers a re-render. Using a single EventCallback to handle all changes at once is a more efficient approach.</p>
+<ol>
+    <li>Define the event argument.</li>
+</ol>
+<pre language="csharp">public record ChildComponentChangeArgument(int Value1, int Value2, int Value3);
+</pre>
+<ol start="2">
+    <li>Declare the parameters and an <code>EventCallback&lt;ChildComponentChangeArgument&gt;</code> in the child component.</li>
+</ol>
+<pre language="razor">@code {
+    [Parameter]
+    public int Value1 { get; set; }
+
+    [Parameter]
+    public int Value2 { get; set; }
+
+    [Parameter]
+    public int Value3 { get; set; }
+
+    [Parameter]
+    public EventCallback&lt;ChildComponentChangeArgument&gt; ComponentUpdated { get; set; }
+}</pre>
+<ol start="3">
+    <li>When updating those parameters in batch, use the <code>EventCallback&lt;T&gt;</code> to notify the parent component:</li>
+</ol>
+<pre language="csharp">public void ChangeRandomValue()
+{
+    var random = new Random();
+    int newValue1 = random.Next(0, 100);
+    int newValue2 = random.Next(0, 100);
+    int newValue3 = random.Next(0, 100);
+    // Notify the parent component about the change
+    ComponentUpdated.InvokeAsync(new(newValue1, newValue2, newValue3));
+}</pre>
+<p>With that said, this is the full code of the child component:</p>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Child&lt;/h3&gt;
+    &lt;div&gt;Value1: @Value1&lt;/div&gt;
+    &lt;div&gt;Value2: @Value2&lt;/div&gt;
+    &lt;div&gt;Value3: @Value3&lt;/div&gt;
+    &lt;button @onclick="ChangeRandomValue" type="button"&gt;Change Value&lt;/button&gt;
+&lt;/div&gt;
+
+@code {
+    [Parameter]
+    public int Value1 { get; set; }
+
+    [Parameter]
+    public int Value2 { get; set; }
+
+    [Parameter]
+    public int Value3 { get; set; }
+
+    [Parameter]
+    public EventCallback&lt;ChildComponentChangeArgument&gt; ComponentUpdated { get; set; }
+
+    public void ChangeRandomValue()
+    {
+        var random = new Random();
+        int newValue1 = random.Next(0, 100);
+        int newValue2 = random.Next(0, 100);
+        int newValue3 = random.Next(0, 100);
+        // Notify the parent component about the change
+        ComponentUpdated.InvokeAsync(new(newValue1, newValue2, newValue3));
+    }
+}
+</pre>
+<ol start="4">
+    <li>In the parent component, pass the parameters as usual, and also pass the event handler.</li>
+</ol>
+<pre language="razor">&lt;div&gt;
+    &lt;h3&gt;Parent&lt;/h3&gt;
+    &lt;div&gt;Value1: @ParentValue1&lt;/div&gt;
+    &lt;div&gt;Value2: @ParentValue2&lt;/div&gt;
+    &lt;div&gt;Value3: @ParentValue3&lt;/div&gt;
+    &lt;Child Value1="ParentValue1" Value2="ParentValue2" Value3="ParentValue3" ComponentUpdated="OnComponentChanged" /&gt;
+&lt;/div&gt;
+
+@code {
+    public int ParentValue1 { get; set; } = 0;
+    public int ParentValue2 { get; set; } = 0;
+    public int ParentValue3 { get; set; } = 0;
+
+    public void OnComponentChanged(ChildComponentChangeArgument argument)
+    {
+        ParentValue1 = argument.Value1;
+        ParentValue2 = argument.Value2;
+        ParentValue3 = argument.Value3;
+    }
+}</pre>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/HcW94BX991g?si=vmw2nIfMR7zoOxPj" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="allowfullscreen"></iframe></div>

@@ -80,13 +80,20 @@
                             "GitHubLink": "https://github.com/Blazor-School/blazor-school-free-course-dotnet9-wasm/tree/master/ComponentCommunication",
                             "Children":
                             [
-                                {
-                                    "ContentPath": "cascading-parameter/v1",
-                                    "GitHubLink": "https://github.com/Blazor-School/blazor-school-free-course-dotnet9-wasm/tree/master/CascadingParameterInDetail",
-                                    "Children":
-                                    [
-                                    ]
-                                }
+                              {
+                                "ContentPath": "cascading-parameter/v1",
+                                "GitHubLink": "https://github.com/Blazor-School/blazor-school-free-course-dotnet9-wasm/tree/master/CascadingParameterInDetail",
+                                "Children":
+                                [
+                                ]
+                              },
+                              {
+                                "ContentPath": "parameter/v1",
+                                "GitHubLink": "https://github.com/Blazor-School/blazor-school-free-course-dotnet9-wasm/tree/master/ParameterInDetail",
+                                "Children":
+                                [
+                                ]
+                              }
                             ]
                         }
                     ]
