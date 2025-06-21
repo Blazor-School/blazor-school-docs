@@ -1,0 +1,132 @@
+﻿<ul>
+    <li>Single Source of Truth</li>
+</ul>
+<p>In modern websites, some pieces of information may appear in multiple places, such as the profile avatar, the website language, theme, etc. One way to ensure data consistency and accuracy is to implement the Single Source of Truth (SSOT) pattern, which centralises all data instead of distributing it across multiple components. In this tutorial, we will go through:</p>
+<ul>
+    <li>The need for a single source of truth.</li>
+    <li>Implementation approaches.</li>
+    <li><code>CascadingValueSource</code> approach.</li>
+    <li>Scoped Service approach.</li>
+</ul>
+<div class="ratio ratio-16x9"><iframe width="560" height="315" src="https://www.youtube.com/embed/83Xc4SA8q54?si=PDY8K59mZWQqzywy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
+<hr class="my-4" />
+<h1>The Need For a Single Source of Truth</h1>
+<p>In Blazor, maintaining consistent data across components is essential, particularly in features like profile management. Consider the scenario profile management as in the image:</p>
+<p><img src="tutorials/component-single-source-of-truth/v1/why-ssot.webp" alt="why-ssot.webp" width="777" height="586" /></p>
+<p>When the user inputs data and the change is accepted, it should update the display name on the menu bar and the profile page. Without SSOT, developers might risk:</p>
+<ul>
+    <li>Data inconsistency and inaccuracy.</li>
+    <li>Difficulty in updating data in multiple places.</li>
+    <li>An unfriendly SPA where users have to reload the page to see new data.</li>
+</ul>
+<p>With data centralised with SSOT, developers can easily find the data needed to display. Furthermore, when changes are applied to the data source, all components will be automatically updated. This ensures data consistency and accuracy throughout the app and reduces the effort to maintain such data.</p>
+<hr class="my-4" />
+<h1>Implementation Approaches</h1>
+<p>There are 2 ways to implement the SSOT pattern in Blazor:</p>
+<ul>
+    <li>Using <code>CascadingValueSource</code>: This method leverages a cascading parameter with a source that automatically notifies and updates all dependent components when the central data changes. It&rsquo;s ideal for real-time updates, such as reflecting a new display name across the app, with minimal manual intervention.</li>
+    <li>Using a Scoped Service: This approach involves a service registered as scoped, requiring manual updates to components via event handling or state management. It offers more control but demands additional code, making it suitable for legacy projects or complex state logic.</li>
+</ul>
+<h3>Best practice</h3>
+<p>For new projects, <code>CascadingValueSource</code> is typically the better option due to its simplicity and automatic updates. Use a scoped service when integrating with older codebases.</p>
+<hr class="my-4" />
+<h1><code>CascadingValueSource</code> Approach</h1>
+<ol>
+    <li><strong>Define the data-holding class</strong>: Create a class with a <code>CascadingValueSource&lt;T&gt;</code> property, where <code>T</code> is the class itself:</li>
+</ol>
+<pre language="csharp">public class CascadingParameterSharedData
+{
+    public int Value { get; set; }
+
+    public CascadingValueSource&lt;CascadingParameterSharedData&gt; Source { get; set; }
+}</pre>
+<ol start="2">
+    <li><strong>Register the class in </strong><code>Program.cs</code>: While registering the class, set the source value.</li>
+</ol>
+<pre language="csharp">builder.Services.AddCascadingValue(sp =&gt;
+{
+    var value = new CascadingParameterSharedData();
+    value.Source = new(value, false); // false indicates no fixed value
+
+    return value.Source;
+});</pre>
+<ol start="3">
+    <li><strong>Use the Cascading Parameter in Components</strong>:</li>
+</ol>
+<pre language="razor">&lt;div&gt;Value: @SharedData.Value&lt;/div&gt;
+&lt;button type="button" @onclick="ChangeValue"&gt;Change Value&lt;/button&gt;
+
+@code {
+    [CascadingParameter]
+    public CascadingParameterSharedData SharedData { get; set; }
+
+    public async Task ChangeValue()
+    {
+        var random = new Random();
+        SharedData.Value = random.Next(1, 100);
+        await SharedData.Source.NotifyChangedAsync();
+    }
+}</pre>
+<blockquote>After modifying the shared data (e.g., <code>SharedData.Value</code>), always invoke <code>NotifyChangedAsync</code> to propagate the change. Failing to do so will leave other components using the old value, breaking the SSOT principle and causing rendering discrepancies.</blockquote>
+<hr class="my-4" />
+<h1>Scoped Service Approach</h1>
+<ol>
+    <li><strong>Define the data-holding class</strong>: Create a class with data and a notification mechanism:</li>
+</ol>
+<pre language="csharp">public class BlazorSchoolTransferService
+{
+    public string Message { get; set; } = "";
+    public event EventHandler MessageChanged = (sender, args) =&gt; { };
+
+    public void NotifyChanged()
+    {
+        MessageChanged.Invoke(this, EventArgs.Empty);
+    }
+}</pre>
+<ol start="2">
+    <li><strong>Register the class in</strong> <code>Program.cs</code>:</li>
+</ol>
+<pre language="csharp">builder.Services.AddScoped&lt;BlazorSchoolTransferService&gt;();</pre>
+<ol start="3">
+    <li><strong>Inject and use the service in components</strong>:</li>
+</ol>
+<pre language="razor">@inject BlazorSchoolTransferService TransferService
+@implements IDisposable
+
+&lt;div class="bg-primary p-5"&gt;
+    &lt;h3&gt;Component1&lt;/h3&gt;
+    &lt;div&gt;Value: @TransferService.Message&lt;/div&gt;
+    &lt;button type="button" @onclick="ChangeValue"&gt;Change Value&lt;/button&gt;
+    &lt;Component2 /&gt;
+&lt;/div&gt;
+
+@code {
+    protected override void OnInitialized()
+    {
+        TransferService.MessageChanged += OnTransferServiceChanged;
+    }
+
+    public void OnTransferServiceChanged(object? sender, EventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    public void ChangeValue()
+    {
+        var random = new Random();
+        TransferService.Message = "Message updated from Component1";
+        TransferService.NotifyChanged();
+    }
+
+    public void Dispose()
+    {
+        TransferService.MessageChanged -= OnTransferServiceChanged;
+    }
+}</pre>
+<blockquote>
+    <ul>
+        <li><strong>Event Subscription</strong>: Every component accessing data must subscribe to change event (e.g., in <code>OnInitialized</code>) and call <code>StateHasChanged</code> to update the UI when notified. The number of events depends on the requirement. It could be one event for multiple properties or one event per property.</li>
+        <li><strong>Notification</strong>: After modifying data, always call notify method to propagate the change to all subscribers.</li>
+        <li><strong>Unsubscription</strong>: Unsubscribe from the event in <code>Dispose</code> to prevent memory leaks.</li>
+    </ul>
+</blockquote>
