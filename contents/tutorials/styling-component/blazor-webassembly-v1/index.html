@@ -1,0 +1,136 @@
+<h1>Component Styling</h1>
+<p>Styling isn't just about making things look good - it's about creating maintainable and reusable UI components. Blazor offers several ways to apply CSS, each suited for different needs and scenarios. In this tutorial, you will explore:</p>
+<ul>
+    <li>An overview of styling approaches.</li>
+    <li>Understanding CSS Class Name Pollution.</li>
+    <li>Global styles.</li>
+    <li>Scoped styles.</li>
+    <li>Internal styles.</li>
+    <li>External styles.</li>
+    <li>Inline styles</li>
+</ul>
+<hr class="my-4" />
+<h1>An Overview of Styling Approaches</h1>
+<p>In Blazor, you can style components in several ways, depending on your needs:</p>
+<ul>
+    <li><strong>Global styles</strong> apply to the entire application and are usually defined in files like <code>app.css</code>.</li>
+    <li><strong>Scoped styles</strong> are specific to a single component, helping prevent accidental style overrides.</li>
+    <li><strong>Internal styles</strong> are written inside the component itself using the <code>&lt;style&gt;</code> tag.</li>
+    <li><strong>External styles</strong> live in a separate <code>.css</code> file and linked to the component.</li>
+    <li><strong>Inline styles</strong> are added directly on an element via the <code>style</code> attribute, useful for quick or dynamic styling.</li>
+</ul>
+<hr class="my-4" />
+<h1>Understanding CSS Class Name Pollution</h1>
+<p>CSS class name pollution occurs when the same class name is used in multiple parts of an app, but with different styling intentions. For example, you might define a <code>.card</code> class for one component, only to find that another part of the app already uses <code>.card</code> with different styles. As a result, your styles get overridden or mixed, creating bugs that are hard to trace.</p>
+<p>This issue forces developers to come up with overly specific or redundant class names - like <code>.card-product</code>, <code>.card-user</code>, and so on - just to avoid conflict.</p>
+<p>Blazor addresses this issue through CSS isolation, a feature that scopes styles to specific components. When using scoped styles with <code>.razor.css</code> files, Blazor rewrites CSS selectors at build time to include a unique scope identifier, such as <code>.card[b-tjvd9khfp8]</code>. This ensures that the <code>.warning</code> class in one component does not affect another. Even if other components use the same class name, the styles won&rsquo;t conflict. This keeps your CSS cleaner, safer, and easier to manage in large applications.</p>
+<hr class="my-4" />
+<h1>Global Styles</h1>
+<p>In Blazor, global styles are CSS rules that apply to the entire application. They&rsquo;re usually written in a shared file like <code>app.css</code> and included via <code>index.html</code>.</p>
+<p>Global styles are helpful for defining consistent visual rules across your app - like base font settings, color themes, spacing, and common layouts. For example:</p>
+<pre language="css">body {
+  font-family: Arial, sans-serif;
+}
+</pre>
+<p>This rule will apply to every component unless specifically overridden. Global styles are perfect for shared UI elements such as headers, footers, buttons, or utility classes. However, since they are not scoped to any single component, they can unintentionally affect other parts of your app - a problem known as CSS class name pollution. As your app grows, this can make debugging styles more difficult, especially when class names collide.</p>
+<hr class="my-4" />
+<h1>Scoped Styles</h1>
+<p>We have mentioned the CSS class name pollution problem above and briefly noted that Blazor can resolve this issue gracefully with scoped styles.</p>
+<h3>The Under-the-Hood Technique</h3>
+<p>Delving deeper into the technology that helps Blazor achieve this, we can see that it uses the <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors" target="_blank">Attribute selectors</a> technique behind the scenes.</p>
+<p>Blazor generates a unique attribute tag along with the CSS class name on the fly. For example, with the following code in your Razor file:</p>
+<pre language="razor">&lt;span class="scoped"&gt;
+  The "scoped" CSS class is isolated to this component. Even if another component defines a class with the same name, it won&rsquo;t interfere with or override the styles used here.
+&lt;/span&gt;
+</pre>
+<p>And the CSS in your <code>.razor.css</code> file:</p>
+<pre language="css">.scoped {
+  color: blue;
+}</pre>
+<p>Blazor then compiles it into something like this:</p>
+<pre language="html">&lt;span class="scoped b-tjvd9khfp8"&gt; ... &lt;/span&gt;</pre>
+<pre language="css">.scoped[b-tjvd9khfp8] {
+  color: blue;
+}</pre>
+<h3>Setting Up Scoped Styles</h3>
+<ol>
+    <li>Enable the scoped CSS feature in <code>index.html</code>. In some projects, you might find the line for scoped CSS commented out. Look for a line like this in your <code>index.html</code>:</li>
+</ol>
+<pre language="razor">&lt;link href="ComponentStyling.styles.css" rel="stylesheet" /&gt;</pre>
+<ol start="2">
+    <li>Blazor uses a naming convention: if your component is <code>ScopedComponentExample.razor</code>, create a file named <code>ScopedComponentExample.razor.css</code>. Place all the CSS rules you want scoped to that component inside this file.</li>
+</ol>
+<h3>Overriding Scoped Styles</h3>
+<p>Scoped CSS is designed to prevent unintended overrides, not to completely lock down styles. Developers can still override scoped styles when necessary.</p>
+<p>Suppose you are using <code>ScopedComponentExample</code> inside another component called <code>OverridingScopedComponentExample</code>, and you want the inner component to use different styles.</p>
+<ol>
+    <li>Add a scoped CSS file for <code>OverridingScopedComponentExample</code>. Name it <code>OverridingScopedComponentExample.razor.css</code>, and place it in the same folder as the component.</li>
+    <li>Define the CSS rule with an outer selector, followed by <code>::deep</code>, ending with the scoped class you want to override. For example:</li>
+</ol>
+<pre language="css">.override ::deep .scoped
+{
+    color: yellow;
+    background-color: red;
+}
+</pre>
+<p>Here:</p>
+<ul>
+    <li><code>.override</code> is the <strong>outer selector</strong>.</li>
+    <li><code>::deep</code> is the required syntax for overriding styles of nested components.</li>
+    <li><code>.scoped</code> is the scoped CSS class you want to override.</li>
+</ul>
+<ol start="3">
+    <li>Apply the outer selector in your markup:</li>
+</ol>
+<pre language="razor">&lt;div class="override"&gt;
+  &lt;ScopedComponentExample /&gt;
+&lt;/div&gt;</pre>
+<hr class="my-4" />
+<h1>Internal Styles</h1>
+<p>While putting CSS in <code>app.css</code> or creating a scoped CSS file is better for long-term maintenance, sometimes testing things out during development requires a simpler approach. Internal styles are perfect for this scenario because they allow you to write minimal CSS directly alongside your component and remove it quickly when no longer needed.</p>
+<p>Internal styles work by placing a <code>&lt;style&gt;</code> block directly inside your component, next to the elements it affects. For example:</p>
+<pre language="razor">&lt;span class="internal-style"&gt;Hello Blazor School!&lt;/span&gt;
+
+&lt;style&gt;
+    .internal-style
+    {
+        color: yellow;
+    }
+&lt;/style&gt;</pre>
+<p>This approach is quick and requires no additional boilerplate. However, it comes with notable disadvantages and should generally only be used in a development environment:</p>
+<ol>
+    <li>Every time the component is rendered, it generates duplicated style code, making the site heavier than necessary.</li>
+    <li>
+        CSS rules can unintentionally override others, causing strange bugs such as:
+        <ul>
+            <li>A component not rendering correctly.</li>
+            <li>The UI breaking when a component is removed.</li>
+        </ul>
+    </li>
+</ol>
+<hr class="my-4" />
+<h1>External Styles</h1>
+<p>External styles are a common technique that can help reduce the initial loading size of a website by grouping related CSS into a separate file and fetching it only when the component is rendered. The trade-off is a potential layout shift when the CSS file is being loaded.</p>
+<p>In the component, you include a <code>&lt;link&gt;</code> tag that points to the external CSS file. For example:</p>
+<pre language="razor">&lt;link href="/css/external.css" rel="stylesheet" /&gt;
+&lt;span class="external-style"&gt;Hello Blazor School!&lt;/span&gt;</pre>
+<p>This technique offers several advantages:</p>
+<ul>
+    <li>Clear separation of concerns between HTML structure and presentation.</li>
+    <li>Reduced initial loading time by delaying CSS loading until it&rsquo;s needed.</li>
+</ul>
+<p>However, developers should use this technique carefully, as it comes with drawbacks:</p>
+<ol>
+    <li>Duplicated <code>&lt;link&gt;</code> tags may be generated when a component is rendered multiple times.</li>
+    <li>Layout shifts can occur if styles are applied too late during rendering.</li>
+</ol>
+<hr class="my-4" />
+<h1>Inline Styles</h1>
+<p>When you need to apply something dynamic - such as changing text color based on a user's selection - the best approach is often to use inline styles. This technique applies styles directly to an element, giving them the highest priority.</p>
+<p>For example, you can set the text color for a specific paragraph like this:</p>
+<pre language="razor">&lt;span style="color: green"&gt;Hello Blazor School!&lt;/span&gt;</pre>
+<p>Inline styles can also be useful for quick testing, similar to internal styles. However, they come with significant drawbacks:</p>
+<ul>
+    <li>They make maintenance harder because styles are scattered across the markup instead of being centralized.</li>
+    <li>They reduce reusability, since the style is tied to one element only.</li>
+</ul>

@@ -102,6 +102,13 @@
                                     ]
                                 }
                             ]
+                        },
+                        {
+                            "ContentPath": "styling-component/blazor-webassembly-v1",
+                            "GitHubLink": "https://github.com/Blazor-School/blazor-school-free-course-dotnet9-wasm/tree/master/ComponentStyling",
+                            "Children":
+                            [
+                            ]
                         }
                     ]
                 }
